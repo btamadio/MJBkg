@@ -1,13 +1,13 @@
-install: Tree
+install: MakeTemplate
 
-Tree: obj/Tree.o
-	g++ -o Tree obj/Tree.o `root-config --libs`
+MakeTemplate: obj/MakeTemplate.o
+	g++ -o MakeTemplate obj/MakeTemplate.o `root-config --libs`
 
-obj/Tree.o: src/Tree.cxx src/Tree.h
-	g++ -c `root-config --cflags` src/Tree.cxx
+obj/MakeTemplate.o: src/TemplateMaker.cxx src/TemplateMaker.h src/Tree.cxx src/Tree.h
+	g++ -c `root-config --cflags` src/MakeTemplate.cxx
 	mkdir -p obj
-	mv Tree.o obj
+	mv MakeTemplate.o obj
 
 clean:
-	rm obj/*.o
+	rm obj/*.o MakeTemplate
 
