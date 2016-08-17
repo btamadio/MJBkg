@@ -8,12 +8,13 @@ MJ::TemplateMaker::TemplateMaker(){
   for (int i = 0; i < m_GRLFileNames.size(); i++){
     readGRL(i);
   }
+  /*
   for (auto const &ent1 : m_GRLMap){
     cout<<ent1.first<<endl;
     for( auto const &ent2 : ent1.second ){
       cout<<ent2.first<<"\t"<<ent2.second<<endl;
     }
-  }
+    }*/
   m_inFile = TFile::Open(m_inFileName.c_str(),"READ");
   m_outFile = TFile::Open(m_outFileName.c_str(),"RECREATE");
 }
