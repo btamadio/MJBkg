@@ -6,6 +6,7 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TLorentzVector.h"
 #include "MiniEvent.cxx"
 #include "TTree.h"
 
@@ -27,6 +28,7 @@ namespace MJ{
     float m_jetEtaCut = 2.5;
     float m_leadJetPtCut = 0;
     float m_htCut = 0;
+    float m_deltaRbMatch = 1.0;
     float m_lumi = 13.784;
     bool m_isMC = false;
     int m_templateType = 3; //b-matched template
@@ -42,10 +44,11 @@ namespace MJ{
     ~TemplateMaker();
     void setupOutput();
     void displayGRL();
-    void Loop();
+    void MakeMiniTree();
   private:
     int readGRL(int);
     bool passGRL(int,int);
+    static bool sortFourVec(const TLorentzVector &,const TLorentzVector &);
   };
 }
 #endif

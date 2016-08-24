@@ -2,6 +2,6 @@
 class TemplateMaker;
 int main(){
   MJ::TemplateMaker tm;
-  tm.Loop();
+  tm.MakeMiniTree();
   return 0;
 }
