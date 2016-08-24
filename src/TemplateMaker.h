@@ -45,6 +45,7 @@ namespace MJ{
     void Loop();
   private:
     int readGRL(int);
+    bool passGRL(int,int);
   };
 }
 #endif

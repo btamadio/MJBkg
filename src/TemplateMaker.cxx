@@ -1,6 +1,6 @@
 #define TEMPLATEMAKER_CXX
 #include "TemplateMaker.h"
-#include "Tree.h"
+#include "Tree.cxx"
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -8,10 +8,13 @@ MJ::TemplateMaker::TemplateMaker(){
   for (int i = 0; i < m_GRLFileNames.size(); i++){
     readGRL(i);
   }
-  //  displayGRL();
+  cout<<"Done reading GRLs"<<endl;
+  //displayGRL();
+  
   m_inFile = TFile::Open(m_inFileName.c_str(),"READ");
   m_outFile = TFile::Open(m_outFileName.c_str(),"RECREATE");
   setupOutput();
+  cout<<"Done setting up output"<<endl;
 }
 
 MJ::TemplateMaker::~TemplateMaker(){
@@ -19,7 +22,22 @@ MJ::TemplateMaker::~TemplateMaker(){
 
 void MJ::TemplateMaker::Loop(){
   TTree *t = (TTree*)m_inFile->Get(m_treeName.c_str());
-  
+  MJ::Tree tree(t);
+  int nEntries = t->GetEntries();
+  for (int entry = 0; entry < nEntries; entry++){
+    tree.GetEntry(entry);
+    int iCut = 1;
+    float w = 1;
+
+    //Now we run the selection, fill the cutflow and the minitree
+    m_cutflow->Fill(++iCut,w);
+    if( !passGRL( tree.runNumber, tree.lumiBlock ) ){ continue; }
+    m_cutflow->Fill(++iCut,w);
+    
+    //m_miniEvent.runNumber = tree.runNumber;
+    //fill the mini tree at the end
+    m_miniTree->Fill();
+  }
   m_outFile->cd();
   m_outFile->Write();
 }
@@ -44,6 +62,8 @@ void MJ::TemplateMaker::setupOutput(){
   m_cutflow->SetBinContent(1, ((TH1*)m_inFile->Get("MetaData_EventCount"))->GetBinContent(2));
   
   m_miniTree = new TTree("miniTree","miniTree");
+  m_miniEvent.clear();
+  m_miniTree->Branch("runNumber",&m_miniEvent.runNumber);
 }
 
 void MJ::TemplateMaker::displayGRL(){
@@ -92,6 +112,18 @@ int MJ::TemplateMaker::readGRL(int ind){
 	}
       }
     }
-    //  cout<<m_GRLMap.size()<<endl;
   return 0;
+}
+
+bool MJ::TemplateMaker::passGRL(int run, int lb){
+  for ( auto& x : m_GRLMap){
+    if ( run == x.first ){
+      for ( auto&  p : x.second ){
+	if ( lb >= p.first && lb <= p.second ){
+	  return true;
+	}
+      }
+    }
+  }
+  return false;
 }
