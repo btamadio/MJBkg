@@ -3,7 +3,7 @@ install: MakeTemplate
 MakeTemplate: obj/MakeTemplate.o
 	g++ -o MakeTemplate obj/MakeTemplate.o `root-config --libs`
 
-obj/MakeTemplate.o: src/TemplateMaker.cxx src/TemplateMaker.h src/Tree.cxx src/Tree.h
+obj/MakeTemplate.o: src/TemplateMaker.cxx src/TemplateMaker.h src/Tree.cxx src/Tree.h src/MiniEvent.cxx src/MiniEvent.h
 	g++ -c `root-config --cflags` src/MakeTemplate.cxx
 	mkdir -p obj
 	mv MakeTemplate.o obj

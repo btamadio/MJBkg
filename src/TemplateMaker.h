@@ -4,6 +4,10 @@
 #include <string>
 #include <map>
 #include "TFile.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "MiniEvent.h"
+#include "TTree.h"
 using namespace std;
 namespace MJ{
   class TemplateMaker{
@@ -28,9 +32,15 @@ namespace MJ{
     int m_bTagWP = 70;
     bool m_useFlatBTag = false;
     TFile *m_outFile;
-    string m_outFileName = "output/test";
+    string m_outFileName = "output/test.root";
+    TH1F *m_cutflow;
+    MJ::MiniEvent m_miniEvent;
+    TTree *m_miniTree;
+    vector<TH2F*> m_templates;
     TemplateMaker();
     ~TemplateMaker();
+    void setupOutput();
+    void displayGRL();
     void Loop();
   private:
     int readGRL(int);

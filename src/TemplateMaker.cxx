@@ -8,15 +8,10 @@ MJ::TemplateMaker::TemplateMaker(){
   for (int i = 0; i < m_GRLFileNames.size(); i++){
     readGRL(i);
   }
-  /*
-  for (auto const &ent1 : m_GRLMap){
-    cout<<ent1.first<<endl;
-    for( auto const &ent2 : ent1.second ){
-      cout<<ent2.first<<"\t"<<ent2.second<<endl;
-    }
-    }*/
+  //  displayGRL();
   m_inFile = TFile::Open(m_inFileName.c_str(),"READ");
   m_outFile = TFile::Open(m_outFileName.c_str(),"RECREATE");
+  setupOutput();
 }
 
 MJ::TemplateMaker::~TemplateMaker(){
@@ -24,7 +19,40 @@ MJ::TemplateMaker::~TemplateMaker(){
 
 void MJ::TemplateMaker::Loop(){
   TTree *t = (TTree*)m_inFile->Get(m_treeName.c_str());
-  cout<<t->GetEntries()<<endl;
+  
+  m_outFile->cd();
+  m_outFile->Write();
+}
+
+void MJ::TemplateMaker::setupOutput(){
+  m_cutflow = new TH1F("h_cutflow","cutflow histogram",15,0.5,15.5);
+  m_cutflow->GetXaxis()->SetBinLabel(1,"CBC Selected");
+  m_cutflow->GetXaxis()->SetBinLabel(2,"nEvents Looped over");
+  m_cutflow->GetXaxis()->SetBinLabel(3,"GRL");
+  m_cutflow->GetXaxis()->SetBinLabel(4,"event cleaning");
+  m_cutflow->GetXaxis()->SetBinLabel(5,"trigger");
+  m_cutflow->GetXaxis()->SetBinLabel(6,"p_{T}^{lead} > 440 GeV");
+  m_cutflow->GetXaxis()->SetBinLabel(7,"n_{fatjet} == 3");
+  m_cutflow->GetXaxis()->SetBinLabel(8,"n_{fatjet} #geq 4");
+  m_cutflow->GetXaxis()->SetBinLabel(9,"n_{fatjet} #geq 4 & M_{J}^{#Sigma} > 800 GeV");
+  m_cutflow->GetXaxis()->SetBinLabel(10,"n_{fatjet} #geq 4 & M_{J}^{#Sigma} > 800 GeV & |#Delta #eta| < 1.4");
+  m_cutflow->GetXaxis()->SetBinLabel(11,"4jSRb1");
+  m_cutflow->GetXaxis()->SetBinLabel(12,"n_{fatjet} #geq 5");
+  m_cutflow->GetXaxis()->SetBinLabel(13,"n_{fatjet} #geq 5 & M_{J}^{#Sigma} > 600 GeV");
+  m_cutflow->GetXaxis()->SetBinLabel(14,"n_{fatjet} #geq 5 & M_{J}^{#Sigma} > 600 GeV & |#Delta #eta| < 1.4");
+  m_cutflow->GetXaxis()->SetBinLabel(15,"5jSRb1");
+  m_cutflow->SetBinContent(1, ((TH1*)m_inFile->Get("MetaData_EventCount"))->GetBinContent(2));
+  
+  m_miniTree = new TTree("miniTree","miniTree");
+}
+
+void MJ::TemplateMaker::displayGRL(){
+  for (auto const &ent1 : m_GRLMap){
+    cout<<ent1.first<<endl;
+    for( auto const &ent2 : ent1.second ){
+      cout<<ent2.first<<"\t"<<ent2.second<<endl;
+    }
+  }
 }
 
 int MJ::TemplateMaker::readGRL(int ind){
@@ -64,6 +92,6 @@ int MJ::TemplateMaker::readGRL(int ind){
 	}
       }
     }
-  cout<<m_GRLMap.size()<<endl;
+    //  cout<<m_GRLMap.size()<<endl;
   return 0;
 }
