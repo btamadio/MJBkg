@@ -6,8 +6,9 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "MiniEvent.h"
+#include "MiniEvent.cxx"
 #include "TTree.h"
+
 using namespace std;
 namespace MJ{
   class TemplateMaker{

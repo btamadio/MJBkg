@@ -2,12 +2,13 @@
 #include "MiniEvent.h"
 
 MJ::MiniEvent::MiniEvent(){
+  clear();
 }
 
 MJ::MiniEvent::~MiniEvent(){
 }
 
-MJ::MiniEvent::clear(){
+void MJ::MiniEvent::clear(){
   runNumber=0;
   mcChannelNumber=0;
   eventNumber=0;
