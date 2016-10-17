@@ -64,13 +64,13 @@ class templateMaker:
                 for j in range(len(self.yBins)-1):
                     histName = 'templ_b0_ptBin'+str(i+1)+'_etaBin'+str(j+1)+'_njet3'
                     self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)
-                    histName = 'templ_b1_ptBin'+str(i+1)+'_bdtBin'+str(j+1)+'_njet3'
+                    histName = 'templ_b1_ptBin'+str(i+1)+'_etaBin'+str(j+1)+'_njet3'
                     self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)
             for i in range(len(self.ptBins4)-1):
                 for j in range(len(self.yBins)-1):
                     histName = 'templ_b0_ptBin'+str(i+1)+'_etaBin'+str(j+1)+'_njet4'
                     self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)
-                    histName = 'templ_b1_ptBin'+str(i+1)+'_bdtBin'+str(j+1)+'_njet4'
+                    histName = 'templ_b1_ptBin'+str(i+1)+'_etaBin'+str(j+1)+'_njet4'
                     self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)
             for i in range(len(self.ptBins5)-1):
                 for j in range(len(self.yBins)-1):
@@ -82,8 +82,121 @@ class templateMaker:
             self.miniTree.GetEntry(entry)
             if self.miniTree.njet==3:
                 #determine bin and fill appropriate histogram with log(m/pT) for that jet
-                pass
-
+                for i in range(3):
+                    histName = self.getHistName(self.miniTree.jet_pt.at(i),self.miniTree.jet_eta.at(i),self.miniTree.jet_bmatched_Fix70.at(i),self.miniTree.BDTG,self.miniTree.njet_soft,self.miniTree.nbjet_Fix70,self.miniTree.dEta)
+                    if self.miniTree.jet_m.at(i) <= 0:
+                        print 'Warning: jet mass = %f' % self.miniTree.jet_m.at(i)
+                        continue
+                    if histName in self.histDict:
+                        if '_b9_' in histName:
+                            self.histDict[histName].Fill(math.log(self.miniTree.jet_m.at(i)/self.miniTree.jet_pt.at(i)),self.miniTree.weight)
+                        else:
+                            self.histDict[histName].Fill(math.log(self.miniTree.jet_m.at(i)/self.miniTree.jet_pt.at(i)),self.miniTree.weight*self.miniTree.bSF_70)
+                    elif histName is not '':
+                        print 'Error: histogram %s not found.' % histName
+#                        pprint.pprint(self.histDict)
+                        sys.exit(1)
+    def getHistName(self,pt,eta,bMatch,BDT,njet_soft,nbjet,dEta):
+        if self.templateType == 0:
+            #pT/eta/b-match binning
+            ptBin = -1
+            etaBin = -1
+            if pt >= self.ptBins3[-1]:
+                ptBin = len(self.ptBins3)-1
+            for i in range(len(self.ptBins3)-1):
+                if pt >= self.ptBins3[i] and pt < self.ptBins3[i+1]:
+                    ptBin = i+1
+                    break
+            for i in range(len(self.yBins)-1):
+                if abs(eta) >= self.yBins[i] and abs(eta) < self.yBins[i+1]:
+                    etaBin = i+1
+                    break
+            #print 'pt = %f, ptBin = %i, |eta| = %f, etaBin = %i' % (pt,ptBin,abs(eta),etaBin) 
+            histName = 'templ_b'+str(int(bMatch))+'_ptBin'+str(ptBin)+'_etaBin'+str(etaBin)
+            if ptBin == -1: 
+                print 'Error: pT bin not found!'
+                print 'pT =',pt,'pT bins:',self.ptBins3
+                sys.exit(1)
+            if etaBin == -1:
+                print 'Error: eta bin not found!'
+                print 'eta =',eta,'eta bins:',self.yBins
+                sys.exit(1)
+            return histName
+        elif self.templateType == 1:
+            #pT/BDT/b-match binning
+            ptBin = -1
+            bdtBin = -1
+            if pt >= self.ptBins3[-1]:
+                ptBin = len(self.ptBins3)-1
+            for i in range(len(self.ptBins3)-1):
+                if pt >= self.ptBins3[i] and pt < self.ptBins3[i+1]:
+                    ptBin = i+1
+                    break
+            for i in range(len(self.yBins)-1):
+                if BDT >= self.yBins[i] and BDT < self.yBins[i+1]:
+                    bdtBin = i+1
+                    break
+            histName = 'templ_b'+str(int(bMatch))+'_ptBin'+str(ptBin)+'_bdtBin'+str(bdtBin)
+            if ptBin == -1: 
+                print 'Error: pT bin not found!'
+                print 'pT =',pt,'pT bins:',self.ptBins3
+                sys.exit(1)
+            if bdtBin == -1:
+                print 'Error: BDT bin not found!'
+                print 'BDT =',BDT,'BDT bins:',self.yBins
+                sys.exit(1)
+            #print 'pt = %f, ptBin = %i, BDTG = %f, bdtBin = %i, histName = %s' % (pt,ptBin,BDT,bdtBin,histName)             
+            return histName
+        elif self.templateType == 2:
+            #pT/eta/b-tag/njet_soft binning
+            ptBin = -1
+            etaBin = -1
+            njet = -1
+            btag = -1
+            if njet_soft == 0:
+                return ''
+            if njet_soft == 1:
+                if nbjet > 0:
+                    if dEta < 1.4:
+                        return ''
+                    btag = 1
+                else:
+                    btag = 0
+                ptBins = self.ptBins4
+                njet = 4
+            if njet_soft >= 2:
+                ptBins = self.ptBins5
+                njet = 5
+                btag = 9
+            if pt > ptBins[-1]:
+                ptBin = len(ptBins)-1
+            for i in range(len(ptBins)-1):
+                if pt >= ptBins[i] and pt < ptBins[i+1]:
+                    ptBin = i+1
+                    break
+            for i in range(len(self.yBins)-1):
+                if abs(eta) >= self.yBins[i] and abs(eta) < self.yBins[i+1]:
+                    etaBin = i+1
+                    break
+            if ptBin == -1: 
+                print 'Error: pT bin not found!'
+                print 'pT =',pt,'pT bins:',ptBins
+                sys.exit(1)
+            if etaBin == -1:
+                print 'Error: eta bin not found!'
+                print 'eta =',eta,'eta bins:',self.yBins
+                sys.exit(1)            
+            if btag == -1:
+                print 'Error: b-tag status not found!'
+                print 'nbjet =',nbjet
+                sys.exit(1)            
+            if njet == -1:
+                print 'Error: njet not found!'
+                print 'njet =',njet
+                sys.exit(1)            
+            histName = 'templ_b'+str(btag)+'_ptBin'+str(ptBin)+'_etaBin'+str(etaBin)+'_njet'+str(njet)
+            #print 'pT = %f, pT bin = %i, |eta| = %f, eta bin = %i, btag = %i, njet_soft=%i, njet=%i' % (pt,ptBin,abs(eta),etaBin,btag,njet_soft,njet)
+            return histName
 t = templateMaker('../../bkgEstimation/samples/pythia_BDT_PtRatios/main_pythia_BDT_PtRatios.root','pythia_bdt',1,0)
 t.setupOutput()
 t.loopAndFill()
