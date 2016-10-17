@@ -96,6 +96,7 @@ class templateMaker:
                         print 'Error: histogram %s not found.' % histName
 #                        pprint.pprint(self.histDict)
                         sys.exit(1)
+        self.outFile.Write()
     def getHistName(self,pt,eta,bMatch,BDT,njet_soft,nbjet,dEta):
         if self.templateType == 0:
             #pT/eta/b-match binning
@@ -197,6 +198,3 @@ class templateMaker:
             histName = 'templ_b'+str(btag)+'_ptBin'+str(ptBin)+'_etaBin'+str(etaBin)+'_njet'+str(njet)
             #print 'pT = %f, pT bin = %i, |eta| = %f, eta bin = %i, btag = %i, njet_soft=%i, njet=%i' % (pt,ptBin,abs(eta),etaBin,btag,njet_soft,njet)
             return histName
-t = templateMaker('../../bkgEstimation/samples/pythia_BDT_PtRatios/main_pythia_BDT_PtRatios.root','pythia_bdt',1,0)
-t.setupOutput()
-t.loopAndFill()
