@@ -35,9 +35,9 @@ namespace MJ{
     vector<float> m_ptBins4;
     vector<float> m_ptBins5;
     vector<float> m_yBins;
-    string getTemplateName(float,float,int,float,int,int,float);
+    string getTemplateName(float,float,int,float,int);
     string getRegionName(int,float);
-    pair<float,float> getDressedMass(TH1F *);
+    pair<float,float> getDressedMass(TH1F *, float);
     map<string,TH1F> m_hists_m_kin;
     map<string,TH1F> m_hists_m1_kin;
     map<string,TH1F> m_hists_m2_kin;

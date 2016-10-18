@@ -20,7 +20,7 @@ int main(int argc, char *argv[]){
   d.setTemplateFileName(templateFileName);
   d.setTemplateType(templateType);
   d.setOutFileName("output_dressed/"+jobName+"_"+toyNum+".root");
-  d.setDelta(0.27);
+  d.setDelta(0.2);
   try {
     cout<<"Loading file "<<miniTreeFileName<<endl;
     d.initialize();
