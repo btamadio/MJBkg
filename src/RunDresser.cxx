@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
   d.setMiniTreeFileName(miniTreeFileName);
   d.setTemplateFileName(templateFileName);
   d.setTemplateType(templateType);
-  d.setOutFileName("output_dressed/"+jobName+"/"+jobName+"_"+toyNum+".root");
+  d.setOutFileName("/project/projectdirs/atlas/btamadio/RPV_SUSY/MJBkg/output_dressed/"+jobName+"/"+jobName+"_"+toyNum+".root");
   d.setDelta(0.2);
   try {
     cout<<"Loading file "<<miniTreeFileName<<endl;
