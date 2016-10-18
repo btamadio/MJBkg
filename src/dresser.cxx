@@ -86,7 +86,7 @@ void MJ::dresser::initialize(){
 void MJ::dresser::loop(){
   TTree *t = m_miniTree.fChain;
   int nEntries = t->GetEntries();
-  nEntries = 100;
+  //  nEntries = 100;
   cout<<"Looping over miniTree with "<<nEntries<<" entries"<<endl;
   for(unsigned int entry = 0; entry < nEntries; entry++){
     if( entry % 100000 == 0 ){
@@ -102,6 +102,7 @@ void MJ::dresser::loop(){
       regionName+="b9";
       if( m_miniTree.nbjet_Fix70 > 0 ) regionNameB += "b1"; 
       else regionNameB += "b0";
+      //      cout<<regionName<<"\t"<<regionNameB<<endl;
       for(unsigned int i = 0; i < m_miniTree.jet_pt->size(); i++){
 	MJ_kin += m_miniTree.jet_m->at(i);
 	string templateHistName = "";
@@ -199,7 +200,7 @@ void MJ::dresser::loop(){
 	  }
 	}
       }
-      cout<<"MJ_kin = "<<MJ_kin<<"\t MJ_dressNom = "<<MJ_dressNom<<"\t MJ_dressShift = "<<MJ_dressShift<<endl;
+      //      cout<<"MJ_kin = "<<MJ_kin<<"\t MJ_dressNom = "<<MJ_dressNom<<"\t MJ_dressShift = "<<MJ_dressShift<<endl;
       m_hists_MJ_kin.at(regionName).Fill(MJ_kin,m_miniTree.weight);
       m_hists_MJ_kin.at(regionNameB).Fill(MJ_kin,m_miniTree.weight*m_miniTree.bSF_70);
       m_hists_MJ_dressNom.at(regionName).Fill(MJ_dressNom,m_miniTree.weight);
@@ -227,7 +228,7 @@ pair<float,float> MJ::dresser::getDressedMass(TH1F *h, float pt){
   return answer;
 }
 string MJ::dresser::getRegionName(int njet, float dEta){
-  string name = to_string(njet)+"j";
+  string name = to_string(min(5,njet))+"j";
   if (dEta > 1.4) return name+"VR";
   return name+"SR";
 }
