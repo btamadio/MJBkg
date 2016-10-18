@@ -85,7 +85,7 @@ void MJ::dresser::initialize(){
 void MJ::dresser::loop(){
   TTree *t = m_miniTree.fChain;
   int nEntries = t->GetEntries();
-  //  nEntries = 100;
+  nEntries = 100;
   cout<<"Looping over miniTree with "<<nEntries<<" entries"<<endl;
   for(unsigned int entry = 0; entry < nEntries; entry++){
     if( entry % 100000 == 0 ){
@@ -126,6 +126,7 @@ void MJ::dresser::loop(){
       }
     }
   }
+  m_outFile->Write();
 }
 pair<float,float> MJ::dresser::getDressedMass(TH1F *h){
   pair<float,float> answer;
