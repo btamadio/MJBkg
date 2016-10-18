@@ -2,6 +2,8 @@
 #define MJ_DRESSER_H
 #include <vector>
 #include <string>
+#include <map>
+#include <utility>
 #include "TH1F.h"
 #include "TFile.h"
 
@@ -25,6 +27,7 @@ namespace MJ{
     TFile *m_miniTreeFile;
     TFile *m_outFile;
     string m_templateFileName;
+    TFile *m_templateFile;
     string m_outFileName;
     float m_delta;
     miniTree m_miniTree;
@@ -32,8 +35,36 @@ namespace MJ{
     vector<float> m_ptBins4;
     vector<float> m_ptBins5;
     vector<float> m_yBins;
-    vector<float> dressJet(TH1F &);
-    string getTemplateName(float pt, float eta, int bMatch, float BDT, int njet_soft, int nbjet, float dEta);
+    string getTemplateName(float,float,int,float,int,int,float);
+    string getRegionName(int,float);
+    pair<float,float> getDressedMass(TH1F *);
+    map<string,TH1F> m_hists_m_kin;
+    map<string,TH1F> m_hists_m1_kin;
+    map<string,TH1F> m_hists_m2_kin;
+    map<string,TH1F> m_hists_m3_kin;
+    map<string,TH1F> m_hists_m4_kin;
+    map<string,TH1F> m_hists_MJ_kin;
+
+    map<string,TH1F> m_hists_m_dressNom;
+    map<string,TH1F> m_hists_m1_dressNom;
+    map<string,TH1F> m_hists_m2_dressNom;
+    map<string,TH1F> m_hists_m3_dressNom;
+    map<string,TH1F> m_hists_m4_dressNom;
+    map<string,TH1F> m_hists_MJ_dressNom;
+
+    map<string,TH1F> m_hists_m_dressUp;
+    map<string,TH1F> m_hists_m1_dressUp;
+    map<string,TH1F> m_hists_m2_dressUp;
+    map<string,TH1F> m_hists_m3_dressUp;
+    map<string,TH1F> m_hists_m4_dressUp;
+    map<string,TH1F> m_hists_MJ_dressUp;
+
+    map<string,TH1F> m_hists_m_dressDown;
+    map<string,TH1F> m_hists_m1_dressDown;
+    map<string,TH1F> m_hists_m2_dressDown;
+    map<string,TH1F> m_hists_m3_dressDown;
+    map<string,TH1F> m_hists_m4_dressDown;
+    map<string,TH1F> m_hists_MJ_dressDown;
   };
 }
 #endif

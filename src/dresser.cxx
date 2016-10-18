@@ -12,11 +12,15 @@ void MJ::dresser::initialize(){
   //Open minitree file and load miniTree
   m_miniTreeFile = TFile::Open(m_miniTreeFileName.c_str());
   if (!m_miniTreeFile){
-    throw "The file could not be opened";
+    throw "The miniTree file could not be opened";
   }
   TTree *t = (TTree*)m_miniTreeFile->Get("miniTree");
   if (!t){
     throw "Could not find miniTree in file";
+  }
+  m_templateFile = TFile::Open(m_templateFileName.c_str());
+  if(!m_templateFile){
+    throw "The template file could not be opened";
   }
   m_miniTree.Init(t);
   m_outFile = TFile::Open(m_outFileName.c_str(),"RECREATE");
@@ -45,7 +49,38 @@ void MJ::dresser::initialize(){
   //Setup output histograms
   vector<string> regionNames = {"4jVRb0","4jVRb1","4jVRb9","5jVRb0","5jVRb1","5jVRb9",
 				"4jSRb0","4jSRb1","4jSRb9","5jSRb0","5jSRb1","5jSRb9"};
-  
+  int nBins = 200;
+  float xMin = 0;
+  float xMax = 2;
+  for (unsigned int i = 0; i < regionNames.size(); i++){
+    m_hists_m_kin[regionNames.at(i)] = TH1F(("h_jetmass_kin_"+regionNames.at(i)).c_str(),("h_jetmass_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_kin[regionNames.at(i)] = TH1F(("h_jetmass1_kin_"+regionNames.at(i)).c_str(),("h_jetmass1_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_kin[regionNames.at(i)] = TH1F(("h_jetmass2_kin_"+regionNames.at(i)).c_str(),("h_jetmass2_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_kin[regionNames.at(i)] = TH1F(("h_jetmass3_kin_"+regionNames.at(i)).c_str(),("h_jetmass3_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_kin[regionNames.at(i)] = TH1F(("h_jetmass4_kin_"+regionNames.at(i)).c_str(),("h_jetmass4_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_kin[regionNames.at(i)] = TH1F(("h_MJ_kin_"+regionNames.at(i)).c_str(),("h_MJ_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+
+    m_hists_m_dressNom[regionNames.at(i)] = TH1F(("h_jetmass_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_dressNom[regionNames.at(i)] = TH1F(("h_jetmass1_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass1_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressNom[regionNames.at(i)] = TH1F(("h_jetmass2_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass2_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressNom[regionNames.at(i)] = TH1F(("h_jetmass3_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass3_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressNom[regionNames.at(i)] = TH1F(("h_jetmass4_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass4_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressNom[regionNames.at(i)] = TH1F(("h_MJ_dressNom_"+regionNames.at(i)).c_str(),("h_MJ_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+
+    m_hists_m_dressUp[regionNames.at(i)] = TH1F(("h_jetmass_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_dressUp[regionNames.at(i)] = TH1F(("h_jetmass1_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass1_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressUp[regionNames.at(i)] = TH1F(("h_jetmass2_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass2_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressUp[regionNames.at(i)] = TH1F(("h_jetmass3_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass3_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressUp[regionNames.at(i)] = TH1F(("h_jetmass4_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass4_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressUp[regionNames.at(i)] = TH1F(("h_MJ_dressUp_"+regionNames.at(i)).c_str(),("h_MJ_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+
+    m_hists_m_dressDown[regionNames.at(i)] = TH1F(("h_jetmass_dressDown_"+regionNames.at(i)).c_str(),("h_jetmass_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_dressDown[regionNames.at(i)] = TH1F(("h_jetmass1_dressDown_"+regionNames.at(i)).c_str(),("h_jetmass1_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressDown[regionNames.at(i)] = TH1F(("h_jetmass2_dressDown_"+regionNames.at(i)).c_str(),("h_jetmass2_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressDown[regionNames.at(i)] = TH1F(("h_jetmass3_dressDown_"+regionNames.at(i)).c_str(),("h_jetmass3_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressDown[regionNames.at(i)] = TH1F(("h_jetmass4_dressDown_"+regionNames.at(i)).c_str(),("h_jetmass4_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressDown[regionNames.at(i)] = TH1F(("h_MJ_dressDown_"+regionNames.at(i)).c_str(),("h_MJ_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+  }
 }
 void MJ::dresser::loop(){
   TTree *t = m_miniTree.fChain;
@@ -60,6 +95,12 @@ void MJ::dresser::loop(){
     if(m_miniTree.njet >=4){
       for(unsigned int i = 0; i < m_miniTree.jet_pt->size(); i++){
 	string templateHistName = "";
+	//each event will have a b-inclusive region name and a b-tag/b-veto region name
+	string regionName = getRegionName(m_miniTree.njet,m_miniTree.dEta);
+	string regionNameB = regionName;
+	regionName+="b9";
+	if( m_miniTree.nbjet_Fix70 > 0 ) regionNameB += "b1"; 
+	else regionNameB += "b0";
 	try{
 	  templateHistName = getTemplateName(m_miniTree.jet_pt->at(i),
 					     m_miniTree.jet_eta->at(i),
@@ -68,14 +109,34 @@ void MJ::dresser::loop(){
 					     m_miniTree.njet_soft,
 					     m_miniTree.nbjet_Fix70,
 					     m_miniTree.dEta);
-	  //cout<<"Sampling from histogram "<<templateHistName<<endl;
+	  //	  cout<<"Sampling from histogram "<<templateHistName<<endl;
 	}  
 	catch( const char *msg ){
 	  cerr<<msg<<endl;
 	}
+	if ( templateHistName == "") break; //Fuck this shit entirely
+	TH1F *templateHist = (TH1F*)m_templateFile->Get(templateHistName.c_str());
+	if(!templateHist){
+	  cout<<"templateHistName = "<<templateHistName<<endl;
+	  cout<<"Did you give the correct template type?"<<endl;
+	  throw "Template hist could not be found in template file";
+	}
+	pair<float,float> dressedMass = getDressedMass(templateHist);
+	cout<<dressedMass.first<<"\t"<<dressedMass.second<<endl;
       }
     }
   }
+}
+pair<float,float> MJ::dresser::getDressedMass(TH1F *h){
+  pair<float,float> answer;
+  answer.first = 0;
+  answer.second = 0;
+  return answer;
+}
+string MJ::dresser::getRegionName(int njet, float dEta){
+  string name = to_string(njet)+"j";
+  if (dEta > 1.4) return name+"VR";
+  return name+"SR";
 }
 string MJ::dresser::getTemplateName(float pt, float eta, int bMatch, float BDT, int njet_soft, int nbjet, float dEta){
   if(m_templateType == 0){

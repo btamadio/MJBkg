@@ -20,6 +20,7 @@ int main(int argc, char *argv[]){
   d.setTemplateFileName(templateFileName);
   d.setTemplateType(templateType);
   d.setOutFileName("output_dressed/"+jobName+"_"+toyNum+".root");
+  d.setDelta(0.27);
   try {
     cout<<"Loading file "<<miniTreeFileName<<endl;
     d.initialize();
@@ -27,6 +28,11 @@ int main(int argc, char *argv[]){
     cerr<<msg<<endl;
   }
   cout<<"File loaded"<<endl;
-  d.loop();
+  try{
+    d.loop();
+  }catch( const char *msg){
+    cerr<<msg<<endl;
+  }
+  
   return 0;
 }
