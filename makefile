@@ -1,28 +1,22 @@
-install: MakeTemplate
+install: RunDresser
 
-MakeTemplate: obj/MakeTemplate.o obj/TemplateMaker.o obj/MiniEvent.o obj/Tree.o
-	g++ -o MakeTemplate obj/MakeTemplate.o `root-config --libs`
+RunDresser: obj/RunDresser.o obj/dresser.o obj/miniTree.o src/RunDresser.cxx
+	g++ -o RunDresser obj/RunDresser.o `root-config --libs`
 
-obj/TemplateMaker.o: src/TemplateMaker.cxx src/TemplateMaker.h src/Tree.cxx src/Tree.h src/MiniEvent.cxx src/MiniEvent.h
-	g++ -c `root-config --cflags` src/TemplateMaker.cxx
-	mkdir -p obj
-	mv TemplateMaker.o obj
-
-obj/MiniEvent.o: src/MiniEvent.cxx src/MiniEvent.h
-	g++ -c `root-config --cflags` src/MiniEvent.cxx
-	mkdir -p obj
-	mv MiniEvent.o obj
-
-obj/Tree.o: src/Tree.cxx src/Tree.h
-	g++ -c `root-config --cflags` src/Tree.cxx
+obj/miniTree.o: src/miniTree.cxx src/miniTree.h
+	g++ -c `root-config --cflags` src/miniTree.cxx
 	mkdir -p obj	
-	mv Tree.o obj
+	mv miniTree.o obj
 
-obj/MakeTemplate.o: src/TemplateMaker.cxx src/TemplateMaker.h src/Tree.cxx src/Tree.h src/MiniEvent.cxx src/MiniEvent.h
-	g++ -c `root-config --cflags` src/MakeTemplate.cxx
+obj/dresser.o: src/dresser.cxx src/dresser.h src/miniTree.cxx src/miniTree.h
+	g++ -c `root-config --cflags` src/dresser.cxx
 	mkdir -p obj
-	mv MakeTemplate.o obj
+	mv dresser.o obj
+
+obj/RunDresser.o: src/dresser.cxx src/dresser.h src/miniTree.cxx src/miniTree.h src/RunDresser.cxx
+	g++ -c `root-config --cflags` src/RunDresser.cxx
+	mkdir -p obj
+	mv RunDresser.o obj
 
 clean:
-	rm obj/*.o MakeTemplate
-
+	rm obj/*.o RunDresser
