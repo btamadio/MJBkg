@@ -104,7 +104,7 @@ void MJ::dresser::loop(){
       if( m_miniTree.nbjet_Fix70 > 0 ) regionNameB += "b1"; 
       else regionNameB += "b0";
       //      cout<<regionName<<"\t"<<regionNameB<<endl;
-      for(unsigned int i = 0; i < m_miniTree.jet_pt->size(); i++){
+      for(unsigned int i = 0; i < 4; i++){
 	MJ_kin += m_miniTree.jet_m->at(i);
 	string templateHistName = "";
 	//each event will have a b-inclusive region name and a b-tag/b-veto region name
@@ -221,6 +221,7 @@ void MJ::dresser::loop(){
   m_outFile->Write();
 }
 pair<float,float> MJ::dresser::getDressedMass(TH1F *h, float pt){
+  gRandom->SetSeed(0);
   pair<float,float> answer;
   float r0 = h->GetRandom();
   TRandom3 tRandom(0);
