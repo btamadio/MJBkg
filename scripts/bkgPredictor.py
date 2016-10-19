@@ -6,7 +6,6 @@ def median(lst):
         return sorted(lst)[quotient]
     return sum(sorted(lst)[quotient-1:quotient+1])/2
 def mean(lst):
-#    if len(lst) > 0:
     return sum(lst) / float(len(lst))
 def std(lst):
     xbar = mean(lst)
@@ -15,7 +14,6 @@ def std(lst):
         std += (entry-xbar)*(entry-xbar)
     std /= float(len(lst)-1)
     return math.sqrt(std)
-
 class bkgPredictor:
     def __init__(self,dressedFileNames,jobName,lumi=35):
         self.dressedFileNames = dressedFileNames
@@ -93,10 +91,11 @@ class bkgPredictor:
                 if histType == 'MJ':
                     self.histDict_kin[regionName][histType] = self.histDict_kin[regionName][histType].Rebin(self.nMJbins,histName,self.MJbinArray)
                 self.outFile.cd()
+                self.histDict_kin[regionName][histType].Scale(self.lumi)
                 self.histDict_kin[regionName][histType].Write()
         i=0
         for fileName in self.dressedFileNames:
-            if i > 10:
+            if i > 100:
                 continue
             i+=1
             f = ROOT.TFile.Open(fileName)
@@ -113,13 +112,27 @@ class bkgPredictor:
                         self.profDict_dressUp[regionName][histType][bin-1].append(h_dressUp.GetBinContent(bin))
                         self.profDict_dressNom[regionName][histType][bin-1].append(h_dressNom.GetBinContent(bin))
                         self.profDict_dressDown[regionName][histType][bin-1].append(h_dressDown.GetBinContent(bin))
-        pprint.pprint(self.profDict_dressNom['4jSRb9']['MJ'])
+#        pprint.pprint(self.profDict_dressNom['4jSRb9']['MJ'])
         for regionName in self.regionList:
             for histType in self.histList:
                 for bin in range(1,self.histDict_dressNom[regionName][histType].GetNbinsX()+1):
                     self.histDict_dressUp[regionName][histType].SetBinContent(bin,mean(self.profDict_dressUp[regionName][histType][bin-1]))
                     self.histDict_dressNom[regionName][histType].SetBinContent(bin,mean(self.profDict_dressNom[regionName][histType][bin-1]))
                     self.histDict_dressDown[regionName][histType].SetBinContent(bin,mean(self.profDict_dressDown[regionName][histType][bin-1]))
+                if histType is 'MJ':
+                    kHist = self.histDict_kin[regionName][histType]
+                    dHist = self.histDict_dressNom[regionName][histType]
+                    #kinematic hist has already been scaled down
+                    norm = kHist.Integral(kHist.FindBin(self.normRegion[0]),kHist.FindBin(self.normRegion[1])-1)/self.lumi
+                    norm /= dHist.Integral(dHist.FindBin(self.normRegion[0]),dHist.FindBin(self.normRegion[1])-1)
+                    print 'regionName = %s, norm = %f' % (regionName,norm)
+                    self.histDict_dressUp[regionName][histType].Scale(2*norm*self.lumi)
+                    self.histDict_dressNom[regionName][histType].Scale(norm*self.lumi)
+                    self.histDict_dressDown[regionName][histType].Scale(2*norm*self.lumi)
+                else:
+                    self.histDict_dressUp[regionName][histType].Scale(2*self.lumi)
+                    self.histDict_dressNom[regionName][histType].Scale(self.lumi)
+                    self.histDict_dressDown[regionName][histType].Scale(2*self.lumi)
                 self.outFile.cd()
                 self.histDict_dressUp[regionName][histType].Write()
                 self.histDict_dressNom[regionName][histType].Write()
