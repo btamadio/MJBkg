@@ -7,13 +7,13 @@ def median(lst):
     return sum(sorted(lst)[quotient-1:quotient+1])/2
 def mean(lst):
     return sum(lst) / float(len(lst))
-def std(lst):
+def err(lst):
     xbar = mean(lst)
     std = 0.0
     for entry in lst:
         std += (entry-xbar)*(entry-xbar)
     std /= float(len(lst)-1)
-    return math.sqrt(std)
+    return math.sqrt(std)/math.sqrt(len(lst))
 class bkgPredictor:
     def __init__(self,dressedFileNames,jobName,lumi=35):
         self.dressedFileNames = dressedFileNames
@@ -117,8 +117,12 @@ class bkgPredictor:
             for histType in self.histList:
                 for bin in range(1,self.histDict_dressNom[regionName][histType].GetNbinsX()+1):
                     self.histDict_dressUp[regionName][histType].SetBinContent(bin,mean(self.profDict_dressUp[regionName][histType][bin-1]))
+                    self.histDict_dressUp[regionName][histType].SetBinError(bin,err(self.profDict_dressUp[regionName][histType][bin-1]))
+
                     self.histDict_dressNom[regionName][histType].SetBinContent(bin,mean(self.profDict_dressNom[regionName][histType][bin-1]))
+                    self.histDict_dressNom[regionName][histType].SetBinError(bin,err(self.profDict_dressNom[regionName][histType][bin-1]))
                     self.histDict_dressDown[regionName][histType].SetBinContent(bin,mean(self.profDict_dressDown[regionName][histType][bin-1]))
+                    self.histDict_dressDown[regionName][histType].SetBinError(bin,err(self.profDict_dressDown[regionName][histType][bin-1]))
                 if histType is 'MJ':
                     kHist = self.histDict_kin[regionName][histType]
                     dHist = self.histDict_dressNom[regionName][histType]
