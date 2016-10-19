@@ -10,3 +10,4 @@ source /common/atlas/scripts/setupATLAS.sh
 setupATLAS
 lsetup root
 ../RunDresser ${kinematicFile} ${templateFile} ${jobName} ${templateType} ${jobNum}
+echo "Job complete!"
