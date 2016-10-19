@@ -24,6 +24,7 @@ void MJ::dresser::initialize(){
     throw "The template file could not be opened";
   }
   m_miniTree.Init(t);
+  cout<<"Creating output file "<<m_outFileName<<endl;
   m_outFile = TFile::Open(m_outFileName.c_str(),"RECREATE");
   //Set pT and eta binning -> at some point change this to use config file instead
   if(m_templateType == 0){
@@ -112,7 +113,8 @@ void MJ::dresser::loop(){
 					     m_miniTree.jet_eta->at(i),
 					     m_miniTree.jet_bmatched_Fix70->at(i),
 					     m_miniTree.BDTG,
-					     m_miniTree.nbjet_Fix70);
+					     m_miniTree.nbjet_Fix70,
+					     m_miniTree.njet);
 	  //	  cout<<"Sampling from histogram "<<templateHistName<<endl;
 	}  
 	catch( const char *msg ){
@@ -232,7 +234,7 @@ string MJ::dresser::getRegionName(int njet, float dEta){
   if (dEta > 1.4) return name+"VR";
   return name+"SR";
 }
-string MJ::dresser::getTemplateName(float pt, float eta, int bMatch, float BDT, int nbjet){
+string MJ::dresser::getTemplateName(float pt, float eta, int bMatch, float BDT, int nbjet, int njet){
   if(m_templateType == 0){
     int ptBin = -1;
     int etaBin = -1;
@@ -282,18 +284,17 @@ string MJ::dresser::getTemplateName(float pt, float eta, int bMatch, float BDT, 
   else if (m_templateType == 2){
     int ptBin = -1;
     int etaBin = -1;
-    int njet = -1;
     int btag = -1;
+    //cout<<"pt = "<<"\t eta = "<<eta<<"\t bMatch = "<<bMatch<<"\t BDT = "<<BDT<<"\t nbjet = "<<nbjet<<endl;
+    //    cout<<  "templ_b"+to_string(btag)+"_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin)+"_njet"+to_string(njet) <<endl;
     vector<float> ptBins;
     if (njet == 4 ){
       if (nbjet > 0) btag = 1;
       else btag = 0;
       ptBins = m_ptBins4;
-      njet = 4;
     }
-    if (njet >= 5){
+    else if (njet >= 5){
       ptBins = m_ptBins5;
-      njet = 5;
       btag = 9;
     }
     if ( pt >= ptBins.back() ){
@@ -314,7 +315,7 @@ string MJ::dresser::getTemplateName(float pt, float eta, int bMatch, float BDT, 
     if( ptBin == -1 || etaBin == -1 || btag == -1 || njet == -1){
       throw "Could not find pT bin, eta bin, b-tag status, or njet";
     }
-    return  "templ_b"+to_string(btag)+"_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin)+"_njet"+to_string(njet);
+    return  "templ_b"+to_string(btag)+"_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin)+"_njet"+to_string(min(5,njet));
   }
   else{
     throw "Template type not found";
