@@ -13,6 +13,7 @@ class plotMaker:
         self.inFile = ROOT.TFile.Open(inFile)
         self.jobName = jobName
         self.lumi=lumi
+        self.legs = {}
         self.cans = {}
         self.pad1s = {}
         self.pad2s = {}
@@ -100,6 +101,7 @@ class plotMaker:
             errDown = abs(dHistDown.GetBinContent(bin) - dHistNom.GetBinContent(bin))
             eHist.SetBinError(bin,(errUp+errDown)/2.0)
         eHist.Draw('e2')
+        eHist.SetMaximum(1E5)
         dHistNom.Draw('hist same')
 #        dHistUp.Draw('hist same')
 #        dHistDown.Draw('hist same')
@@ -114,6 +116,17 @@ class plotMaker:
             lat.DrawLatexNDC(0.4,0.78,str(int(self.lumi))+' fb^{-1} Pythia')
         elif 'data' in self.jobName:
             lat.DrawLatexNDC(0.4,0.78,'#sqrt{s} = 13 TeV, '+str(int(self.lumi))+' fb^{-1}')
+        self.legs[canName] = ROOT.TLegend(0.65,0.6,0.85,0.8)
+        leg = self.legs[canName]
+        leg.AddEntry(kHist,'Kinematic','LP')
+        leg.AddEntry(eHist,'Prediction','LF')
+        leg.SetLineColor(0)
+        leg.SetTextSize(0.05)
+        leg.SetShadowColor(0)
+        leg.SetFillStyle(0)
+        leg.SetFillColor(0)
+        leg.Draw()
+
         self.cans[canName].cd()
         self.pad2s[canName] = ROOT.TPad(canName+'_p2',canName+'_p2',0,0.05,1,0.3)
         self.pad2s[canName].SetTopMargin(0)
@@ -136,8 +149,8 @@ class plotMaker:
 
         rHist.Draw('e2')
         rHistNom.Draw('ep same')
-        rHist.SetMinimum(0)
-        rHist.SetMaximum(2.2)
+        rHist.SetMinimum(0.5)
+        rHist.SetMaximum(1.7)
 #        rHistUp.Draw('hist same')
 #        rHistDown.Draw('hist same')
         rHist.GetYaxis().SetNdivisions(505)
@@ -153,4 +166,4 @@ class plotMaker:
         rHist.GetXaxis().SetLabelSize(15)
         
 p=plotMaker(args.inFile,args.jobName)
-p.makePlot('MJ','4jSRb1')
+p.makePlot('MJ','4jSRb9')
