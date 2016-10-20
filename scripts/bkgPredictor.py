@@ -95,10 +95,14 @@ class bkgPredictor:
                 self.histDict_kin[regionName][histType].Write()
         i=0
         for fileName in self.dressedFileNames:
-            if i > 100:
-                continue
+#            if i > 100:
+#                continue
+            if i%100 == 0:
+                print 'processing toy number %i' % i
             i+=1
             f = ROOT.TFile.Open(fileName)
+            if not f:
+                continue
             for regionName in self.regionList:
                 for histType in self.histList:
                     h_dressUp = f.Get('h_'+histType+'_dressUp_'+regionName)

@@ -109,6 +109,13 @@ class plotMaker:
             eHist.SetBinError(bin,(errUp+errDown)/2.0)
         eHist.Draw('e2')
         yMax = pow(10,math.ceil(math.log(kHist.GetMaximum(),10)))
+        lastBinCont = 0
+        bin = kHist.GetNbinsX()
+        while lastBinCont == 0 and bin > 1:
+            lastBinCont = kHist.GetBinContent(bin)
+            bin -=1
+        yMin = pow(10,math.floor(math.log(lastBinCont,10)))/2
+        eHist.SetMinimum(yMin)
         eHist.SetMaximum(yMax)
         dHistNom.Draw('hist same')
 
