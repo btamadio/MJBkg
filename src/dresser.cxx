@@ -6,8 +6,14 @@
 #include <iostream>
 using namespace std;
 MJ::dresser::dresser(){
+  m_MJcut = 0;
+  m_blinded = false;
 }
 MJ::dresser::~dresser(){
+}
+void MJ::dresser::blind(float mjCut){
+  m_MJcut = mjCut;
+  m_blinded = true;
 }
 void MJ::dresser::initialize(){
   //Open minitree file and load miniTree
@@ -49,8 +55,10 @@ void MJ::dresser::initialize(){
     m_yBins = {0,0.5,1.0,1.5,2.0};
   }
   //Setup output histograms
-  vector<string> regionNames = {"4jVRb0","4jVRb1","4jVRb9","5jVRb0","5jVRb1","5jVRb9",
-				"4jSRb0","4jSRb1","4jSRb9","5jSRb0","5jSRb1","5jSRb9"};
+  vector<string> regionNames = {"4jVRb0","4jVRb1","4jVRb9","4jVRbM","4jVRbU",
+				"5jVRb0","5jVRb1","5jVRb9","5jVRbM","5jVRbU",
+				"4jSRb0","4jSRb1","4jSRb9","4jSRbM","4jSRbU",
+				"5jSRb0","5jSRb1","5jSRb9","5jSRbM","5jSRbU"};
   int nBins = 200;
   float xMin = 0;
   float xMax = 2;
@@ -96,16 +104,32 @@ void MJ::dresser::loop(){
     m_miniTree.GetEntry(entry);
     if(m_miniTree.njet >=4){
       float MJ_kin = 0;
+      int unBlindEvent = 1;
+      if( m_blinded ){
+	for(unsigned int i = 0; i < 4; i++){
+	  MJ_kin += m_miniTree.jet_m->at(i);
+	}
+	if(MJ_kin > m_MJcut){
+	  unBlindEvent = 0;
+	}
+      }
+      MJ_kin = 0;
       float MJ_dressNom = 0;
       float MJ_dressShift = 0;
-      string regionName = getRegionName(m_miniTree.njet,m_miniTree.dEta);
-      string regionNameB = regionName;
-      regionName+="b9";
+      //regionName 0 based only on njet and dEta
+      string regionName0 = getRegionName(m_miniTree.njet,m_miniTree.dEta);
+      //b-inclusive region name
+      string regionName=regionName0+"b9";
+      //b-tag/b-veto region name
+      string regionNameB = regionName0;
       if( m_miniTree.nbjet_Fix70 > 0 ) regionNameB += "b1"; 
       else regionNameB += "b0";
-      //      cout<<regionName<<"\t"<<regionNameB<<endl;
+      //b-match/b-unmatch region name (different for each jet)
       for(unsigned int i = 0; i < 4; i++){
 	MJ_kin += m_miniTree.jet_m->at(i);
+	string regionNameM = regionName0;
+	if( m_miniTree.jet_bmatched_Fix70->at(i) == 1)regionNameM += "bM";
+	else regionNameM += "bU";
 	string templateHistName = "";
 	//each event will have a b-inclusive region name and a b-tag/b-veto region name
 	try{
@@ -130,81 +154,101 @@ void MJ::dresser::loop(){
 	MJ_dressNom += dressedMass.first;
 	MJ_dressShift += dressedMass.second;
 	//Fill inclusive hists for every jet
-	m_hists_m_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight);
-	m_hists_m_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	m_hists_m_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
+	m_hists_m_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	m_hists_m_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 
 	m_hists_m_dressNom.at(regionName).Fill(dressedMass.first,m_miniTree.weight);
 	m_hists_m_dressNom.at(regionNameB).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
+	m_hists_m_dressNom.at(regionNameM).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
 
 	if( dressedMass.second > dressedMass.first ){
 	  m_hists_m_dressUp.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	  m_hists_m_dressUp.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m_dressUp.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	}
 	else{
 	  m_hists_m_dressDown.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	  m_hists_m_dressDown.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m_dressDown.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	}
 	//Fill exclusive hists based on jet pT order
 	if (i==0){ 
-	  m_hists_m1_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight);
-	  m_hists_m1_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
+	  m_hists_m1_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m1_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 	  m_hists_m1_dressNom.at(regionName).Fill(dressedMass.first,m_miniTree.weight);
 	  m_hists_m1_dressNom.at(regionNameB).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_dressNom.at(regionNameM).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
 	  if(dressedMass.second > dressedMass.first){
 	    m_hists_m1_dressUp.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	    m_hists_m1_dressUp.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	    m_hists_m1_dressUp.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	  }
 	  else{
 	    m_hists_m1_dressDown.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	    m_hists_m1_dressDown.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	    m_hists_m1_dressDown.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	  }
 	}
 	if (i==1){ 
-	  m_hists_m2_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight);
-	  m_hists_m2_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
+	  m_hists_m2_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m2_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 	  m_hists_m2_dressNom.at(regionName).Fill(dressedMass.first,m_miniTree.weight);
 	  m_hists_m2_dressNom.at(regionNameB).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_dressNom.at(regionNameM).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
 	  if(dressedMass.second > dressedMass.first){
 	    m_hists_m2_dressUp.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	    m_hists_m2_dressUp.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	    m_hists_m2_dressUp.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	  }
 	  else{
 	    m_hists_m2_dressDown.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	    m_hists_m2_dressDown.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	    m_hists_m2_dressDown.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	  }
 	}
 	if (i==2){ 
-	  m_hists_m3_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight);
-	  m_hists_m3_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
+	  m_hists_m3_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m3_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 	  m_hists_m3_dressNom.at(regionName).Fill(dressedMass.first,m_miniTree.weight);
 	  m_hists_m3_dressNom.at(regionNameB).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_dressNom.at(regionNameM).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
 	  if(dressedMass.second > dressedMass.first){
 	    m_hists_m3_dressUp.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	    m_hists_m3_dressUp.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	    m_hists_m3_dressUp.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	  }
 	  else{
 	    m_hists_m3_dressDown.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	    m_hists_m3_dressDown.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	    m_hists_m3_dressDown.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	  }
 	}
 	if (i==3){ 
-	  m_hists_m4_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight);
-	  m_hists_m4_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
+	  m_hists_m4_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m4_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 	  m_hists_m4_dressNom.at(regionName).Fill(dressedMass.first,m_miniTree.weight);
 	  m_hists_m4_dressNom.at(regionNameB).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_dressNom.at(regionNameM).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
 	  if(dressedMass.second > dressedMass.first){
 	    m_hists_m4_dressUp.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	    m_hists_m4_dressUp.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	    m_hists_m4_dressUp.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	  }
 	  else{
 	    m_hists_m4_dressDown.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	    m_hists_m4_dressDown.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	    m_hists_m4_dressDown.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	  }
 	}
       }
       //      cout<<"MJ_kin = "<<MJ_kin<<"\t MJ_dressNom = "<<MJ_dressNom<<"\t MJ_dressShift = "<<MJ_dressShift<<endl;
-      m_hists_MJ_kin.at(regionName).Fill(MJ_kin,m_miniTree.weight);
-      m_hists_MJ_kin.at(regionNameB).Fill(MJ_kin,m_miniTree.weight*m_miniTree.bSF_70);
+      m_hists_MJ_kin.at(regionName).Fill(MJ_kin,m_miniTree.weight*unBlindEvent);
+      m_hists_MJ_kin.at(regionNameB).Fill(MJ_kin,m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
       m_hists_MJ_dressNom.at(regionName).Fill(MJ_dressNom,m_miniTree.weight);
       m_hists_MJ_dressNom.at(regionNameB).Fill(MJ_dressNom,m_miniTree.weight*m_miniTree.bSF_70);
       if( MJ_dressShift > MJ_dressNom){

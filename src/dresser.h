@@ -19,6 +19,7 @@ namespace MJ{
     void setTemplateType( int t ){ m_templateType = t; }
     void initialize();
     void loop();
+    void blind(float);
     dresser();
     ~dresser();
   private:
@@ -30,6 +31,8 @@ namespace MJ{
     TFile *m_templateFile;
     string m_outFileName;
     float m_delta;
+    float m_MJcut;
+    bool m_blinded;
     miniTree m_miniTree;
     vector<float> m_ptBins3;
     vector<float> m_ptBins4;
@@ -37,6 +40,7 @@ namespace MJ{
     vector<float> m_yBins;
     string getTemplateName(float,float,int,float,int,int);
     string getRegionName(int,float);
+
     pair<float,float> getDressedMass(TH1F *, float);
     map<string,TH1F> m_hists_m_kin;
     map<string,TH1F> m_hists_m1_kin;

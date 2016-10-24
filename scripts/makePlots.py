@@ -11,7 +11,7 @@ parser.add_argument('date')
 args = parser.parse_args()
 
 class plotMaker:
-    def __init__(self,inFile,jobName,date,lumi=35):
+    def __init__(self,inFile,jobName,date,lumi=28):
         self.outDir = '/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/bkgEstimation/'
         self.outDir+=date+'_'+jobName
         os.system('mkdir -p '+self.outDir)
@@ -118,7 +118,11 @@ class plotMaker:
         eHist.SetMinimum(yMin)
         eHist.SetMaximum(yMax)
         dHistNom.Draw('hist same')
-
+#        if 'SR' in region and var is 'MJ':
+#            for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
+#                kHist.SetBinContent(bin,0)
+#                kHist.SetBinError(bin,0)
+        kHist.SetBinErrorOption(1)
         kHist.Draw('same ep')
         eHist.GetXaxis().SetTitle(labelDict[var][0])
         eHist.GetYaxis().SetTitle(labelDict[var][1])
@@ -135,7 +139,7 @@ class plotMaker:
         if 'pythia' in self.jobName:
             lat.DrawLatexNDC(0.4,0.78,str(int(self.lumi))+' fb^{-1} Pythia')
         elif 'data' in self.jobName:
-            lat.DrawLatexNDC(0.4,0.78,'#sqrt{s} = 13 TeV, '+str(int(self.lumi))+' fb^{-1}')
+            lat.DrawLatexNDC(0.35,0.78,'#sqrt{s} = 13 TeV, '+str(int(self.lumi))+' fb^{-1}')
         self.legs[canName] = ROOT.TLegend(0.65,0.55,0.85,0.75)
         leg = self.legs[canName]
         leg.AddEntry(kHist,'Kinematic','LP')
@@ -159,7 +163,11 @@ class plotMaker:
             err = (errUp+errDown)/2.0
             if 'pythia' in self.jobName:
                 lat.DrawLatexNDC(0.65,0.82,'#splitline{n_{pred} = %.1f #pm %.1f}{n_{obs} = %.1f}' % (nPred,err,nObs))
-
+            elif 'data' in self.jobName:
+                if 'SR' in region:
+                    lat.DrawLatexNDC(0.65,0.82,'n_{pred} = %.1f #pm %.1f' % (nPred,err))
+                else:
+                    lat.DrawLatexNDC(0.65,0.82,'#splitline{n_{pred} = %.1f #pm %.1f}{n_{obs} = %.1f}' % (nPred,err,nObs))
         self.cans[canName].cd()
         self.pad2s[canName] = ROOT.TPad(canName+'_p2',canName+'_p2',0,0.05,1,0.3)
         self.pad2s[canName].SetTopMargin(0)

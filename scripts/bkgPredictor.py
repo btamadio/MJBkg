@@ -25,11 +25,9 @@ class bkgPredictor:
         self.nMassBins = 200
         self.massBinLow = 0.0
         self.massBinUp = 2.0
-        self.mjCut = 800.0
         self.normRegion = (0.2,0.6)
         self.setupOutput()
         self.loopAndFill()
-
     def setupOutput(self):
         self.outFile = ROOT.TFile.Open('../output_prediction/'+self.jobName+'.root','RECREATE')
         self.regionList = ['4jVRb0','4jVRb1','4jVRb9','4jSRb0','4jSRb1','4jSRb9',
