@@ -53,6 +53,88 @@ class plotMaker:
         elif 'VR' in region:
             regionLabel+='{|#Delta #eta| > 1.4}}'
         return regionLabel
+    def plotProfiles(self,njet):
+        canName = 'profiles_'+str(njet)
+        self.cans[canName]=ROOT.TCanvas(canName,canName,800,800)
+        self.cans[canName].cd()
+        self.pad1s[canName] = ROOT.TPad(canName+'_p1',canName+'_p1',0,0.3,1,1.0)
+        self.pad1s[canName].SetBottomMargin(0.01)
+        self.pad1s[canName].Draw()
+        self.pad1s[canName].cd()
+        kHist = self.inFile.Get('h_mpT_kin_prof'+str(njet))
+        dHist = self.inFile.Get('h_mpT_dress_prof'+str(njet))
+        kHist.SetMarkerColor(ROOT.kBlack)
+        kHist.SetLineColor(ROOT.kBlack)
+        kHist.SetLineWidth(2)
+        kHist.SetMarkerStyle(20)
+        dHist.SetLineColor(ROOT.kRed)
+        dHist.SetLineColor(2)
+        dHist.SetMarkerColor(2)
+        dHist.SetLineWidth(2)
+        dHist.Draw()
+        kHist.Draw('same')
+        dHist.SetMinimum(0.1)
+        dHist.SetMaximum(0.2)
+        dHist.GetYaxis().SetTitle('<m/p_{T}>')
+        lat = ROOT.TLatex()
+        if 'bdt' in self.jobName:
+            lat.DrawLatexNDC(0.24,0.4,'#splitline{p_{T}/BDT}{binning}')
+        if 'eta' in self.jobName:
+            lat.DrawLatexNDC(0.24,0.4,'#splitline{p_{T}/|#eta|}{binning}')
+        if 'ichep' in self.jobName:
+            lat.DrawLatexNDC(0.24,0.4,'#splitline{ICHEP}{binning}')
+        if njet == 5:
+            lat.DrawLatexNDC(0.24,0.22,'n_{jet} #geq 5')
+        else:
+            lat.DrawLatexNDC(0.24,0.22,'n_{jet} = '+str(njet))
+        ROOT.ATLASLabel(0.4,0.85,'Internal',0.05,0.115,1)
+        if 'pythia' in self.jobName:
+            lat.DrawLatexNDC(0.4,0.78,str(int(self.lumi))+' fb^{-1} Pythia')
+        elif 'data' in self.jobName:
+            lat.DrawLatexNDC(0.35,0.78,'#sqrt{s} = 13 TeV, '+str(int(self.lumi))+' fb^{-1}')
+        self.legs[canName] = ROOT.TLegend(0.65,0.55,0.85,0.75)
+        leg = self.legs[canName]
+        leg.AddEntry(kHist,'Kinematic','LP')
+        leg.AddEntry(dHist,'Dressed','LF')
+        leg.SetLineColor(0)
+        leg.SetTextSize(0.05)
+        leg.SetShadowColor(0)
+        leg.SetFillStyle(0)
+        leg.SetFillColor(0)
+        leg.Draw()
+        self.cans[canName].cd()
+        self.pad2s[canName] = ROOT.TPad(canName+'_p2',canName+'_p2',0,0.05,1,0.3)
+        self.pad2s[canName].SetTopMargin(0)
+        self.pad2s[canName].SetBottomMargin(0.2)
+        self.pad2s[canName].SetGridy()
+        self.pad2s[canName].Draw()
+        self.pad2s[canName].cd()
+        self.rHistsKin[canName] = kHist.Clone()
+        rHistKin = self.rHistsKin[canName].ProjectionX()
+        h2 = dHist.ProjectionX()
+        rHistKin.Divide(h2)
+
+        rHistKin.Draw()
+        rHistKin.GetXaxis().SetTitle('jet p_{T} [TeV]')
+        rHistKin.GetYaxis().SetTitle('Kin/Pred')
+        rHistKin.SetMinimum(0.89)
+        rHistKin.SetMaximum(1.11)
+        rHistKin.GetYaxis().SetNdivisions(505)
+        rHistKin.GetYaxis().SetTitleSize(20)
+        rHistKin.GetYaxis().SetTitleFont(43)
+        rHistKin.GetYaxis().SetTitleOffset(1.55)
+        rHistKin.GetYaxis().SetLabelFont(43)
+        rHistKin.GetYaxis().SetLabelSize(15)
+        rHistKin.GetXaxis().SetTitleSize(17)
+        rHistKin.GetXaxis().SetTitleFont(43)
+        rHistKin.GetXaxis().SetTitleOffset(3.8)
+        rHistKin.GetXaxis().SetLabelFont(43)
+        rHistKin.GetXaxis().SetLabelSize(15)
+        outFileName = self.outDir+'/plot_profile_njet'+str(njet)+'_'+self.jobName
+        self.cans[canName].Print(outFileName+'.pdf')
+        self.cans[canName].Print(outFileName+'.png')
+        self.cans[canName].Print(outFileName+'.C')
+        os.system('chmod a+r '+self.outDir+'/*')
     def makePlot(self,var,region):
         os.system('mkdir -p '+self.outDir+'/'+region)
         os.system('chmod a+rx '+self.outDir+'/'+region)
@@ -210,13 +292,16 @@ class plotMaker:
         os.system('chmod a+r '+self.outDir+'/'+region+'/*')
 
 p=plotMaker(args.inFile,args.jobName,args.date)
-for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']:
-    for region in ['4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
-                   '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
-                   '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
-                   '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']:
-        if var is not 'MJ':
-            p.makePlot(var,region)
-        else:
-            if 'bU' not in region and 'bM' not in region:
-                p.makePlot(var,region)
+p.plotProfiles(3)
+p.plotProfiles(4)
+p.plotProfiles(5)
+# for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']:
+#    for region in ['4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
+#                   '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
+#                   '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
+#                   '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']:
+#        if var is not 'MJ':
+#            p.makePlot(var,region)
+#        else:
+#            if 'bU' not in region and 'bM' not in region:
+#                p.makePlot(var,region)

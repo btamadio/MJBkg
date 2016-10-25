@@ -32,6 +32,14 @@ void MJ::dresser::initialize(){
   m_miniTree.Init(t);
   cout<<"Creating output file "<<m_outFileName<<endl;
   m_outFile = TFile::Open(m_outFileName.c_str(),"RECREATE");
+  m_outTree=m_miniTree.fChain->CloneTree(0);
+
+  b_jet_m_dressed_nom = new vector<double>;
+  b_jet_m_dressed_smear = new vector<double>;
+
+  m_outTree->Branch("jet_m_dressed_nom",&b_jet_m_dressed_nom);
+  m_outTree->Branch("jet_m_dressed_smear",&b_jet_m_dressed_smear);
+
   //Set pT and eta binning -> at some point change this to use config file instead
   if(m_templateType == 0){
     //pt/eta/b-match binning
@@ -55,9 +63,11 @@ void MJ::dresser::initialize(){
     m_yBins = {0,0.5,1.0,1.5,2.0};
   }
   //Setup output histograms
-  vector<string> regionNames = {"4jVRb0","4jVRb1","4jVRb9","4jVRbM","4jVRbU",
-				"5jVRb0","5jVRb1","5jVRb9","5jVRbM","5jVRbU",
+  vector<string> regionNames = {"3jVRb0","3jVRb1","3jVRb9","3jVRbM","3jVRbU",
+				"3jSRb0","3jSRb1","3jSRb9","3jSRbM","3jSRbU",
+				"4jVRb0","4jVRb1","4jVRb9","4jVRbM","4jVRbU",
 				"4jSRb0","4jSRb1","4jSRb9","4jSRbM","4jSRbU",
+				"5jVRb0","5jVRb1","5jVRb9","5jVRbM","5jVRbU",
 				"5jSRb0","5jSRb1","5jSRb9","5jSRbM","5jSRbU"};
   int nBins = 200;
   float xMin = 0;
@@ -98,15 +108,18 @@ void MJ::dresser::loop(){
   //  nEntries = 100;
   cout<<"Looping over miniTree with "<<nEntries<<" entries"<<endl;
   for(unsigned int entry = 0; entry < nEntries; entry++){
+    b_jet_m_dressed_nom->clear();
+    b_jet_m_dressed_smear->clear();
+
     if( entry % 100000 == 0 ){
       cout<<"Processing entry "<<entry<<endl;
     }
     m_miniTree.GetEntry(entry);
-    if(m_miniTree.njet >=4){
+    if(m_miniTree.njet >=3){
       float MJ_kin = 0;
       int unBlindEvent = 1;
       if( m_blinded ){
-	for(unsigned int i = 0; i < 4; i++){
+	for(unsigned int i = 0; i < min(4,m_miniTree.njet); i++){
 	  MJ_kin += m_miniTree.jet_m->at(i);
 	}
 	if(MJ_kin > m_MJcut){
@@ -125,7 +138,7 @@ void MJ::dresser::loop(){
       if( m_miniTree.nbjet_Fix70 > 0 ) regionNameB += "b1"; 
       else regionNameB += "b0";
       //b-match/b-unmatch region name (different for each jet)
-      for(unsigned int i = 0; i < 4; i++){
+      for(unsigned int i = 0; i < min(4,m_miniTree.njet); i++){
 	MJ_kin += m_miniTree.jet_m->at(i);
 	string regionNameM = regionName0;
 	if( m_miniTree.jet_bmatched_Fix70->at(i) == 1)regionNameM += "bM";
@@ -153,6 +166,9 @@ void MJ::dresser::loop(){
 	pair<float,float> dressedMass = getDressedMass(templateHist,m_miniTree.jet_pt->at(i));
 	MJ_dressNom += dressedMass.first;
 	MJ_dressShift += dressedMass.second;
+	b_jet_m_dressed_nom->push_back(dressedMass.first);
+	b_jet_m_dressed_smear->push_back(dressedMass.second);
+
 	//Fill inclusive hists for every jet
 	m_hists_m_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
 	m_hists_m_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
@@ -261,6 +277,7 @@ void MJ::dresser::loop(){
       }
 
     }
+    m_outTree->Fill();
   }
   m_outFile->Write();
 }
