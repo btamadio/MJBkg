@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import ROOT,os,array,pprint, math,time,glob,sys
+from controlDict import controlDict
 def median(lst):
     quotient,remainder = divmod(len(lst),2)
     if remainder:
@@ -83,37 +84,31 @@ class bkgPredictor:
                     self.histDict_dressUp[regionName][histType] = ROOT.TH1F(histName_dressUp,histName_dressUp,self.nMassBins,self.massBinLow,self.massBinUp)
                     self.histDict_dressNom[regionName][histType] = ROOT.TH1F(histName_dressNom,histName_dressNom,self.nMassBins,self.massBinLow,self.massBinUp)
                     self.histDict_dressDown[regionName][histType] = ROOT.TH1F(histName_dressDown,histName_dressDown,self.nMassBins,self.massBinLow,self.massBinUp)
+
     def plotResponse(self):
         f = ROOT.TFile.Open(self.dressedFileNames[0])
         t = f.Get('miniTree')
-
-        nBinsX = 4
-        xLow = 0
-        xUp = 2.0
-
-        nBinsY = 10
-        yLow = -0.7
-        yUp = 0.5
-        
-        nBinsZ = 20
-        zLow = 0.0
-        zUp = 2.0
-
-        if self.templateType == 0:
-            print 'template type 0: pT vs. eta'
-            self.hist3D_dress = ROOT.TH3F('h_jetmass_dress_3D','h_dress',nBinsX,xLow,xUp,nBinsY,yLow,yUp,nBinsZ,zLow,zUp)
-            self.hist3D_kin = ROOT.TH3F('h_jetmass_kin_3D','h_kin',nBinsX,xLow,xUp,nBinsY,yLow,yUp,nBinsZ,zLow,zUp)
-            t.Draw('jet_m_dressed_nom:log10(jet_pt):abs(jet_eta)>>h_jetmass_dress_3D','njet>=4','goff')
-            t.Draw('jet_m:log10(jet_pt):abs(jet_eta)>>h_jetmass_kin_3D','njet>=4','goff')
-        elif self.templateType == 1:
-            print 'template type 1: pT vs. BDT'
-            self.hist3D_dress = ROOT.TH3F('h_jetmass_dress_3D','h_jetmass_dress_3D',nBinsX,xLow,xUp,nBinsY,yLow,yUp,nBinsZ,zLow,zUp)
-            self.hist3D_kin = ROOT.TH3F('h_jetmass_kin_3D','h_jetmass_kin_3D',nBinsX,xLow,xUp,nBinsY,yLow,yUp,nBinsZ,zLow,zUp)
-            t.Draw('jet_m_dressed_nom:log(jet_pt):BDTG>>h_jetmass_dress_3D','njet>=4','goff')            
-            t.Draw('jet_m:log(jet_pt):BDTG>>h_jetmass_kin_3D','njet>=4','goff')            
+        xBins = controlDict[self.templateType]['ptBins3']
+        self.dressProf3 = ROOT.TProfile('h_mpT_dress_prof3','h_mpT_dress_prof3',len(xBins)-1,array.array('d',xBins))
+        self.dressProf4 = ROOT.TProfile('h_mpT_dress_prof4','h_mpT_dress_prof4',len(xBins)-1,array.array('d',xBins))
+        self.dressProf5 = ROOT.TProfile('h_mpT_dress_prof5','h_mpT_dress_prof5',len(xBins)-1,array.array('d',xBins))
+        self.kinProf3 = ROOT.TProfile('h_mpT_kin_prof3','h_mpT_kin_prof3',len(xBins)-1,array.array('d',xBins))
+        self.kinProf4 = ROOT.TProfile('h_mpT_kin_prof4','h_mpT_kin_prof4',len(xBins)-1,array.array('d',xBins))
+        self.kinProf5 = ROOT.TProfile('h_mpT_kin_prof5','h_mpT_kin_prof5',len(xBins)-1,array.array('d',xBins))
+        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof3','njet==3','goff prof')
+        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof4','njet==4','goff prof')
+        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof5','njet>=5','goff prof')
+        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof3','njet==3','goff prof')
+        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof4','njet==4','goff prof')
+        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof5','njet>=5','goff prof')
         self.outFile.cd()
-        self.hist3D_dress.Write()
-        self.hist3D_kin.Write()
+        self.dressProf3.Write()
+        self.dressProf4.Write()
+        self.dressProf5.Write()
+        self.kinProf3.Write()
+        self.kinProf4.Write()
+        self.kinProf5.Write()
+
     def loopAndFill(self):
         #loop over pseudoexperiment files and fill prediction histograms
         #first we just copy the kinematic histogram over from the input file, rebinning the MJ histogram
