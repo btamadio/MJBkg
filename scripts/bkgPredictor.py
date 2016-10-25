@@ -30,8 +30,10 @@ class bkgPredictor:
         self.loopAndFill()
     def setupOutput(self):
         self.outFile = ROOT.TFile.Open('../output_prediction/'+self.jobName+'.root','RECREATE')
-        self.regionList = ['4jVRb0','4jVRb1','4jVRb9','4jSRb0','4jSRb1','4jSRb9',
-                           '5jVRb0','5jVRb1','5jVRb9','5jSRb0','5jSRb1','5jSRb9']
+        self.regionList = ['4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
+                           '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
+                           '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
+                           '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']
         self.histList   = ['jetmass','jetmass1','jetmass2','jetmass3','jetmass4','MJ']
         #The histograms are accessed by calling histDict[regionName][histType]
         #For example, to get the kinematic leading jet mass histogram for jets in the region 4jSRb1:
@@ -130,7 +132,9 @@ class bkgPredictor:
                     dHist = self.histDict_dressNom[regionName][histType]
                     #kinematic hist has already been scaled down
                     norm = kHist.Integral(kHist.FindBin(self.normRegion[0]),kHist.FindBin(self.normRegion[1])-1)/self.lumi
-                    norm /= dHist.Integral(dHist.FindBin(self.normRegion[0]),dHist.FindBin(self.normRegion[1])-1)
+                    denom = dHist.Integral(dHist.FindBin(self.normRegion[0]),dHist.FindBin(self.normRegion[1])-1)
+                    if denom != 0:
+                        norm /= denom
                     print 'regionName = %s, norm = %f' % (regionName,norm)
                     self.histDict_dressUp[regionName][histType].Scale(2*norm*self.lumi)
                     self.histDict_dressNom[regionName][histType].Scale(norm*self.lumi)
@@ -143,12 +147,3 @@ class bkgPredictor:
                 self.histDict_dressUp[regionName][histType].Write()
                 self.histDict_dressNom[regionName][histType].Write()
                 self.histDict_dressDown[regionName][histType].Write()
-    #     for name in self.regionList:
-    #         for bin in range(1,self.histDict[name].GetNbinsX()+1):
-    #             self.histDict[name].SetBinContent(bin,mean(self.profileDict[name][bin-1]))
-    #         self.normDict[name] = (self.obsDict[name].Integral(self.obsDict[name].FindBin(self.normRegion[0]),self.obsDict[name].FindBin(self.normRegion[1]))) / (self.histDict[name].Integral(self.histDict[name].FindBin(self.normRegion[0]),self.histDict[name].FindBin(self.normRegion[1]))) 
-    #         self.histDict[name].Scale(self.normDict[name])  
-    # def calcErrors(self):
-    #     for name in self.regionList:
-    #         for bin in range(1,self.histDict[name].GetNbinsX()+1):
-    #             self.histDict[name].SetBinError(bin,std(self.profileDict[name][bin-1]))

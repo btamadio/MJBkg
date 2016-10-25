@@ -44,6 +44,10 @@ class plotMaker:
             regionLabel+='b-tag}'
         elif 'b9' in region:
             regionLabel+='b-inclusive}'
+        elif 'bM' in region:
+            regionLabel+='b-matched}'
+        elif 'bU' in region:
+            regionLabel+='non-b-matched}'
         if 'SR' in region:
             regionLabel+='{|#Delta #eta| < 1.4}}'
         elif 'VR' in region:
@@ -81,7 +85,6 @@ class plotMaker:
         dHistNom.SetMarkerColor(2)
         dHistNom.SetLineWidth(2)
 
-        
         dHistUp.SetLineColor(ROOT.kRed)
         dHistDown.SetLineColor(ROOT.kRed)
         dHistUp.SetLineStyle(ROOT.kDashed)
@@ -109,6 +112,8 @@ class plotMaker:
             eHist.SetBinError(bin,(errUp+errDown)/2.0)
         eHist.Draw('e2')
         yMax = pow(10,math.ceil(math.log(kHist.GetMaximum(),10)))
+        if (yMax-kHist.GetMaximum())/yMax < 0.4:
+            yMax*=5
         lastBinCont = 0
         bin = kHist.GetNbinsX()
         while lastBinCont == 0 and bin > 1:
@@ -118,10 +123,10 @@ class plotMaker:
         eHist.SetMinimum(yMin)
         eHist.SetMaximum(yMax)
         dHistNom.Draw('hist same')
-#        if 'SR' in region and var is 'MJ':
-#            for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
-#                kHist.SetBinContent(bin,0)
-#                kHist.SetBinError(bin,0)
+        if 'SR' in region and var is 'MJ':
+            for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
+                kHist.SetBinContent(bin,0)
+                kHist.SetBinError(bin,0)
         kHist.SetBinErrorOption(1)
         kHist.Draw('same ep')
         eHist.GetXaxis().SetTitle(labelDict[var][0])
@@ -203,8 +208,15 @@ class plotMaker:
         self.cans[canName].Print(outFileName+'.png')
         self.cans[canName].Print(outFileName+'.C')
         os.system('chmod a+r '+self.outDir+'/'+region+'/*')
+
 p=plotMaker(args.inFile,args.jobName,args.date)
 for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']:
-    for region in ['4jVRb0','4jVRb1','4jVRb9','4jSRb0','4jSRb1','4jSRb9',
-                   '5jVRb0','5jVRb1','5jVRb9','5jSRb0','5jSRb1','5jSRb9']:
-        p.makePlot(var,region)
+    for region in ['4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
+                   '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
+                   '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
+                   '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']:
+        if var is not 'MJ':
+            p.makePlot(var,region)
+        else:
+            if 'bU' not in region and 'bM' not in region:
+                p.makePlot(var,region)
