@@ -4,8 +4,9 @@ regions =   ['4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
              '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
              '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbU',
              '5jSRb0','5jSRb1','5jSRb9','5jVRbM','5jSRbM']
-jobNames = ['data_eta','data_bdt','data_ichep']
-date = '10_21'
+#jobNames = ['data_eta','data_bdt','data_ichep']
+jobNames = ['data_eta','data_eta_corr']
+dates = ['10_21','10_25']
 output = """<HTML>
 <HEAD> </HEAD>
 <BODY> 
@@ -17,7 +18,9 @@ for var in variables:
         if var is 'MJ' and ('bM' in region or 'bU' in region):
             continue
         output+='<TR>'
-        for jobName in jobNames:
+        for i in range(len(jobNames)):
+            jobName = jobNames[i]
+            date = dates[i]
             fName = '../'+date+'_'+jobName+'/'+region+'/plot_'+var+'_SR_cut_800gev_'+region+'_'+jobName+'.png'
             output+='<TD><CENTER><img src="'+fName+'" height="800" width="800"><BR>(<a href="'+fName+'">link</a>)</CENTER></TD>'
         output+='</TR>'

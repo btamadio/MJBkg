@@ -53,16 +53,23 @@ class plotMaker:
         elif 'VR' in region:
             regionLabel+='{|#Delta #eta| > 1.4}}'
         return regionLabel
-    def plotProfiles(self,njet):
+    def plotProfiles(self,njet,reg=''):
         canName = 'profiles_'+str(njet)
+        if reg is not '':
+            canName+='_'+reg
         self.cans[canName]=ROOT.TCanvas(canName,canName,800,800)
         self.cans[canName].cd()
         self.pad1s[canName] = ROOT.TPad(canName+'_p1',canName+'_p1',0,0.3,1,1.0)
         self.pad1s[canName].SetBottomMargin(0.01)
         self.pad1s[canName].Draw()
         self.pad1s[canName].cd()
-        kHist = self.inFile.Get('h_mpT_kin_prof'+str(njet))
-        dHist = self.inFile.Get('h_mpT_dress_prof'+str(njet))
+        kHistName = 'h_mpT_kin_prof'+str(njet)
+        dHistName = 'h_mpT_dress_prof'+str(njet)
+        if reg is not '':
+            kHistName+='_'+reg
+            dHistName+='_'+reg
+        kHist = self.inFile.Get(kHistName)
+        dHist = self.inFile.Get(dHistName)
         kHist.SetMarkerColor(ROOT.kBlack)
         kHist.SetLineColor(ROOT.kBlack)
         kHist.SetLineWidth(2)
@@ -74,7 +81,7 @@ class plotMaker:
         dHist.Draw()
         kHist.Draw('same')
         dHist.SetMinimum(0.1)
-        dHist.SetMaximum(0.2)
+        dHist.SetMaximum(0.3)
         dHist.GetYaxis().SetTitle('<m/p_{T}>')
         lat = ROOT.TLatex()
         if 'bdt' in self.jobName:
@@ -130,11 +137,19 @@ class plotMaker:
         rHistKin.GetXaxis().SetTitleOffset(3.8)
         rHistKin.GetXaxis().SetLabelFont(43)
         rHistKin.GetXaxis().SetLabelSize(15)
-        outFileName = self.outDir+'/plot_profile_njet'+str(njet)+'_'+self.jobName
+        outFileName = self.outDir+'/plot_profile_njet'+str(njet)+'_'
+        if reg is not '':
+            outFileName+=reg+'_'
+        outFileName+=self.jobName
         self.cans[canName].Print(outFileName+'.pdf')
         self.cans[canName].Print(outFileName+'.png')
         self.cans[canName].Print(outFileName+'.C')
         os.system('chmod a+r '+self.outDir+'/*')
+
+        if njet == 4 and reg is 'b0':
+            for i in range(1,rHistKin.GetNbinsX()+1):
+                print rHistKin.GetBinContent(i)
+
     def makePlot(self,var,region):
         os.system('mkdir -p '+self.outDir+'/'+region)
         os.system('chmod a+rx '+self.outDir+'/'+region)
@@ -294,14 +309,20 @@ class plotMaker:
 p=plotMaker(args.inFile,args.jobName,args.date)
 p.plotProfiles(3)
 p.plotProfiles(4)
+p.plotProfiles(4,'VR')
+p.plotProfiles(4,'SR')
+p.plotProfiles(4,'bU')
+p.plotProfiles(4,'bM')
+p.plotProfiles(4,'b0')
+p.plotProfiles(4,'b1')
 p.plotProfiles(5)
-# for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']:
-#    for region in ['4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
-#                   '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
-#                   '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
-#                   '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']:
-#        if var is not 'MJ':
-#            p.makePlot(var,region)
-#        else:
-#            if 'bU' not in region and 'bM' not in region:
-#                p.makePlot(var,region)
+for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']:
+   for region in ['4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
+                  '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
+                  '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
+                  '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']:
+       if var is not 'MJ':
+           p.makePlot(var,region)
+       else:
+           if 'bU' not in region and 'bM' not in region:
+               p.makePlot(var,region)

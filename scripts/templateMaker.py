@@ -155,7 +155,12 @@ class templateMaker:
             njet = -1
             btag = -1
             if njet_soft == 0:
-                return ''
+                ptBins = self.ptBins3
+                njet=3
+                if nbjet>0:
+                    btag=1
+                else:
+                    btag=0
             if njet_soft == 1:
                 if nbjet > 0:
                     if dEta < 1.4:

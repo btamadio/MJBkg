@@ -8,6 +8,7 @@ using namespace std;
 MJ::dresser::dresser(){
   m_MJcut = 0;
   m_blinded = false;
+  m_doCorrections = false;
 }
 MJ::dresser::~dresser(){
 }
@@ -43,6 +44,7 @@ void MJ::dresser::initialize(){
   //Set pT and eta binning -> at some point change this to use config file instead
   if(m_templateType == 0){
     //pt/eta/b-match binning
+    m_mass_corr={0.954133571238,0.948404899958,0.956278711583,0.952626861986,0.959399108078,0.963385261357,0.974391124037,0.988950678532,1.01091335428,1.01189224987,1.01042652523,1.00728729436,1.0276423612,1.01782248233,1.06589420251};
     m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
@@ -50,6 +52,7 @@ void MJ::dresser::initialize(){
   }
   if(m_templateType == 1){
     //pt/BDT/b-match binning
+    m_mass_corr = {0.939667192686,0.928873031517,0.937543507244,0.928610367594,0.922163166882,0.929776827829,0.933804093709,0.960249116385,1.01748010243,1.01612941012,1.01702777425,1.03660248656,1.02611660903,1.02866085827,1.06813653666};
     m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
@@ -282,13 +285,27 @@ void MJ::dresser::loop(){
   m_outFile->Write();
 }
 pair<float,float> MJ::dresser::getDressedMass(TH1F *h, float pt){
+  int ptBin = -1;
+  if (pt > m_ptBins3.back()){
+    ptBin = m_ptBins3.size()-2;
+  }
+  for( unsigned int i = 0; i < m_ptBins3.size()-1; i++){
+    if (pt >= m_ptBins3.at(i) && pt < m_ptBins3.at(i+1)){
+      ptBin = i;
+      break;
+    }
+  }
+  float massCorr = 1;
+  if (m_doCorrections && m_mass_corr.size() > 0){
+    massCorr = m_mass_corr.at(ptBin);
+  }
   gRandom->SetSeed(0);
   pair<float,float> answer;
   float r0 = h->GetRandom();
   TRandom3 tRandom(0);
   float r1 = tRandom.Gaus(0,m_delta);
-  answer.first = pt*exp(r0);
-  answer.second = pt*exp(r0)*(1+r1);
+  answer.first = pt*exp(r0)*massCorr;
+  answer.second = pt*exp(r0)*(1+r1)*massCorr;
   return answer;
 }
 string MJ::dresser::getRegionName(int njet, float dEta){

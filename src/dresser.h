@@ -17,6 +17,7 @@ namespace MJ{
     void setOutFileName(string s){ m_outFileName = s; }
     void setDelta( float d ){ m_delta = d; }
     void setTemplateType( int t ){ m_templateType = t; }
+    void doCorrections(){ m_doCorrections = true; }
     void initialize();
     void loop();
     void blind(float);
@@ -37,7 +38,8 @@ namespace MJ{
     TTree *m_outTree;
     vector<double> *b_jet_m_dressed_nom;
     vector<double> *b_jet_m_dressed_smear;
-    
+    bool m_doCorrections;
+    vector<float> m_mass_corr;
     vector<float> m_ptBins3;
     vector<float> m_ptBins4;
     vector<float> m_ptBins5;
