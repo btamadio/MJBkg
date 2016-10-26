@@ -6,6 +6,8 @@
 #include <utility>
 #include "TH1F.h"
 #include "TFile.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
 
 #include "miniTree.h"
 using namespace std;
@@ -40,14 +42,24 @@ namespace MJ{
     vector<double> *b_jet_m_dressed_smear;
     bool m_doCorrections;
     vector<float> m_mass_corr;
-    vector<float> m_ptBins3;
-    vector<float> m_ptBins4;
-    vector<float> m_ptBins5;
-    vector<float> m_yBins;
+    vector<double> m_ptBins3;
+    vector<double> m_ptBins4;
+    vector<double> m_ptBins5;
+    vector<double> m_yBins;
     string getTemplateName(float,float,int,float,int,int);
     string getRegionName(int,float);
-    
+    pair<int,int> getTemplateBin(float, float, int);
     pair<float,float> getDressedMass(TH1F *, float);
+    map<string,TProfile> m_prof1d_kin;
+    map<string,TProfile> m_prof1d_dressUp;
+    map<string,TProfile> m_prof1d_dressNom;
+    map<string,TProfile> m_prof1d_dressDown;
+
+    map<string,TProfile2D> m_prof2d_kin;
+    map<string,TProfile2D> m_prof2d_dressUp;
+    map<string,TProfile2D> m_prof2d_dressNom;
+    map<string,TProfile2D> m_prof2d_dressDown;
+
     map<string,TH1F> m_hists_m_kin;
     map<string,TH1F> m_hists_m1_kin;
     map<string,TH1F> m_hists_m2_kin;
