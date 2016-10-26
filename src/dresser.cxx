@@ -72,36 +72,58 @@ void MJ::dresser::initialize(){
 				"4jSRb0","4jSRb1","4jSRb9","4jSRbM","4jSRbU",
 				"5jVRb0","5jVRb1","5jVRb9","5jVRbM","5jVRbU",
 				"5jSRb0","5jSRb1","5jSRb9","5jSRbM","5jSRbU"};
-  int nBins = 200;
-  float xMin = 0;
-  float xMax = 2;
   for (unsigned int i = 0; i < regionNames.size(); i++){
+    vector<double> ptBins;
+    if (regionNames.at(i).find("3j") != string::npos){ ptBins = m_ptBins3; }
+    else if (regionNames.at(i).find("4j") != string::npos) { ptBins = m_ptBins4; }
+    else if (regionNames.at(i).find("5j") != string::npos) { ptBins = m_ptBins5; }
+    //Declare 1D profile hists with pt bins same as templates
+    m_prof1d_kin[regionNames.at(i)] = TProfile(("h_prof1d_kin_"+regionNames.at(i)).c_str(),("h_prof1d_kin_"+regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+    m_prof1d_dressUp[regionNames.at(i)] = TProfile(("h_prof1d_dressUp_"+regionNames.at(i)).c_str(),("h_prof1d_dressUp_"+regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+    m_prof1d_dressNom[regionNames.at(i)] = TProfile(("h_prof1d_dressNom_"+regionNames.at(i)).c_str(),("h_prof1d_dressNom_"+regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+    m_prof1d_dressDown[regionNames.at(i)] = TProfile(("h_prof1d_dressDown_"+regionNames.at(i)).c_str(),("h_prof1d_dressDown_"+regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+
+    //Declare 2D profile hists with 2d binning same as templates
+    m_prof2d_kin[regionNames.at(i)] = TProfile2D(("h_prof2d_kin_"+regionNames.at(i)).c_str(),("h_prof2d_kin_"+regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data(),m_yBins.size()-1,m_yBins.data());
+    m_prof2d_dressUp[regionNames.at(i)] = TProfile2D(("h_prof2d_dressUp_"+regionNames.at(i)).c_str(),("h_prof2d_dressUp_"+regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data(),m_yBins.size()-1,m_yBins.data());
+    m_prof2d_dressNom[regionNames.at(i)] = TProfile2D(("h_prof2d_dressNom_"+regionNames.at(i)).c_str(),("h_prof2d_dressNom_"+regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data(),m_yBins.size()-1,m_yBins.data());
+    m_prof2d_dressDown[regionNames.at(i)] = TProfile2D(("h_prof2d_dressDown_"+regionNames.at(i)).c_str(),("h_prof2d_dressDown_"+regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data(),m_yBins.size()-1,m_yBins.data());
+
+    int nBins = 200;
+    float xMin = 0;
+    float xMax = 1.2;
     m_hists_m_kin[regionNames.at(i)] = TH1F(("h_jetmass_kin_"+regionNames.at(i)).c_str(),("h_jetmass_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m1_kin[regionNames.at(i)] = TH1F(("h_jetmass1_kin_"+regionNames.at(i)).c_str(),("h_jetmass1_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m2_kin[regionNames.at(i)] = TH1F(("h_jetmass2_kin_"+regionNames.at(i)).c_str(),("h_jetmass2_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m3_kin[regionNames.at(i)] = TH1F(("h_jetmass3_kin_"+regionNames.at(i)).c_str(),("h_jetmass3_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m4_kin[regionNames.at(i)] = TH1F(("h_jetmass4_kin_"+regionNames.at(i)).c_str(),("h_jetmass4_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_MJ_kin[regionNames.at(i)] = TH1F(("h_MJ_kin_"+regionNames.at(i)).c_str(),("h_MJ_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-
     m_hists_m_dressNom[regionNames.at(i)] = TH1F(("h_jetmass_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m1_dressNom[regionNames.at(i)] = TH1F(("h_jetmass1_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass1_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m2_dressNom[regionNames.at(i)] = TH1F(("h_jetmass2_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass2_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m3_dressNom[regionNames.at(i)] = TH1F(("h_jetmass3_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass3_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m4_dressNom[regionNames.at(i)] = TH1F(("h_jetmass4_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass4_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_MJ_dressNom[regionNames.at(i)] = TH1F(("h_MJ_dressNom_"+regionNames.at(i)).c_str(),("h_MJ_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-
     m_hists_m_dressUp[regionNames.at(i)] = TH1F(("h_jetmass_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m1_dressUp[regionNames.at(i)] = TH1F(("h_jetmass1_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass1_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m2_dressUp[regionNames.at(i)] = TH1F(("h_jetmass2_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass2_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m3_dressUp[regionNames.at(i)] = TH1F(("h_jetmass3_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass3_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m4_dressUp[regionNames.at(i)] = TH1F(("h_jetmass4_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass4_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_MJ_dressUp[regionNames.at(i)] = TH1F(("h_MJ_dressUp_"+regionNames.at(i)).c_str(),("h_MJ_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
-
     m_hists_m_dressDown[regionNames.at(i)] = TH1F(("h_jetmass_dressDown_"+regionNames.at(i)).c_str(),("h_jetmass_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+
+
+    m_hists_m1_kin[regionNames.at(i)] = TH1F(("h_jetmass1_kin_"+regionNames.at(i)).c_str(),("h_jetmass1_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_dressNom[regionNames.at(i)] = TH1F(("h_jetmass1_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass1_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_dressUp[regionNames.at(i)] = TH1F(("h_jetmass1_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass1_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m1_dressDown[regionNames.at(i)] = TH1F(("h_jetmass1_dressDown_"+regionNames.at(i)).c_str(),("h_jetmass1_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+
+    m_hists_m2_kin[regionNames.at(i)] = TH1F(("h_jetmass2_kin_"+regionNames.at(i)).c_str(),("h_jetmass2_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressNom[regionNames.at(i)] = TH1F(("h_jetmass2_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass2_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressUp[regionNames.at(i)] = TH1F(("h_jetmass2_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass2_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m2_dressDown[regionNames.at(i)] = TH1F(("h_jetmass2_dressDown_"+regionNames.at(i)).c_str(),("h_jetmass2_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+
+    xMax = 0.6;
+    m_hists_m3_kin[regionNames.at(i)] = TH1F(("h_jetmass3_kin_"+regionNames.at(i)).c_str(),("h_jetmass3_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressNom[regionNames.at(i)] = TH1F(("h_jetmass3_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass3_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressUp[regionNames.at(i)] = TH1F(("h_jetmass3_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass3_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m3_dressDown[regionNames.at(i)] = TH1F(("h_jetmass3_dressDown_"+regionNames.at(i)).c_str(),("h_jetmass3_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+
+    xMax = 0.4;
+    m_hists_m4_kin[regionNames.at(i)] = TH1F(("h_jetmass4_kin_"+regionNames.at(i)).c_str(),("h_jetmass4_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressNom[regionNames.at(i)] = TH1F(("h_jetmass4_dressNom_"+regionNames.at(i)).c_str(),("h_jetmass4_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressUp[regionNames.at(i)] = TH1F(("h_jetmass4_dressUp_"+regionNames.at(i)).c_str(),("h_jetmass4_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m4_dressDown[regionNames.at(i)] = TH1F(("h_jetmass4_dressDown_"+regionNames.at(i)).c_str(),("h_jetmass4_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    
+    xMax = 2.0;
+    m_hists_MJ_kin[regionNames.at(i)] = TH1F(("h_MJ_kin_"+regionNames.at(i)).c_str(),("h_MJ_kin_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressNom[regionNames.at(i)] = TH1F(("h_MJ_dressNom_"+regionNames.at(i)).c_str(),("h_MJ_dressNom_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressUp[regionNames.at(i)] = TH1F(("h_MJ_dressUp_"+regionNames.at(i)).c_str(),("h_MJ_dressUp_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_MJ_dressDown[regionNames.at(i)] = TH1F(("h_MJ_dressDown_"+regionNames.at(i)).c_str(),("h_MJ_dressDown_"+regionNames.at(i)).c_str(),nBins,xMin,xMax);
   }
 }
@@ -149,13 +171,15 @@ void MJ::dresser::loop(){
 	string templateHistName = "";
 	//each event will have a b-inclusive region name and a b-tag/b-veto region name
 	try{
+	  int nsoft = 0;
+	  //For ICHEP method, we have to consider number of soft jets when dressing 3-jet events
+	  if(m_templateType == 2 and m_miniTree.njet==3){ nsoft = m_miniTree.njet_soft; }
 	  templateHistName = getTemplateName(m_miniTree.jet_pt->at(i),
 					     m_miniTree.jet_eta->at(i),
 					     m_miniTree.jet_bmatched_Fix70->at(i),
 					     m_miniTree.BDTG,
 					     m_miniTree.nbjet_Fix70,
-					     m_miniTree.njet);
-	  //	  cout<<"Sampling from histogram "<<templateHistName<<endl;
+					     m_miniTree.njet+nsoft);
 	}  
 	catch( const char *msg ){
 	  cerr<<msg<<endl;
@@ -181,15 +205,47 @@ void MJ::dresser::loop(){
 	m_hists_m_dressNom.at(regionNameB).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
 	m_hists_m_dressNom.at(regionNameM).Fill(dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
 
+	//x and y values for profile histograms
+	float xi = m_miniTree.jet_pt->at(i);
+	float yi = fabs(m_miniTree.jet_eta->at(i));
+	if( m_templateType == 1 ){ yi = m_miniTree.BDTG; }
+	//Fill profile hists
+	m_prof1d_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight);
+	m_prof1d_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	m_prof1d_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	m_prof2d_kin.at(regionName).Fill(xi,yi,m_miniTree.jet_m->at(i),m_miniTree.weight);
+	m_prof2d_kin.at(regionNameB).Fill(xi,yi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	m_prof2d_kin.at(regionNameM).Fill(xi,yi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+
+	m_prof1d_dressNom.at(regionName).Fill(xi,dressedMass.first,m_miniTree.weight);
+	m_prof1d_dressNom.at(regionNameB).Fill(xi,dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
+	m_prof1d_dressNom.at(regionNameM).Fill(xi,dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
+	m_prof2d_dressNom.at(regionName).Fill(xi,yi,dressedMass.first,m_miniTree.weight);
+	m_prof2d_dressNom.at(regionNameB).Fill(xi,yi,dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
+	m_prof2d_dressNom.at(regionNameM).Fill(xi,yi,dressedMass.first,m_miniTree.weight*m_miniTree.bSF_70);
+
 	if( dressedMass.second > dressedMass.first ){
 	  m_hists_m_dressUp.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	  m_hists_m_dressUp.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m_dressUp.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof1d_dressUp.at(regionName).Fill(xi,dressedMass.second,m_miniTree.weight);
+	  m_prof1d_dressUp.at(regionNameB).Fill(xi,dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof1d_dressUp.at(regionNameM).Fill(xi,dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof2d_dressUp.at(regionName).Fill(xi,yi,dressedMass.second,m_miniTree.weight);
+	  m_prof2d_dressUp.at(regionNameB).Fill(xi,yi,dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof2d_dressUp.at(regionNameM).Fill(xi,yi,dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+
 	}
 	else{
 	  m_hists_m_dressDown.at(regionName).Fill(dressedMass.second,m_miniTree.weight);
 	  m_hists_m_dressDown.at(regionNameB).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m_dressDown.at(regionNameM).Fill(dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof1d_dressDown.at(regionName).Fill(xi,dressedMass.second,m_miniTree.weight);
+	  m_prof1d_dressDown.at(regionNameB).Fill(xi,dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof1d_dressDown.at(regionNameM).Fill(xi,dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof2d_dressDown.at(regionName).Fill(xi,yi,dressedMass.second,m_miniTree.weight);
+	  m_prof2d_dressDown.at(regionNameB).Fill(xi,yi,dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof2d_dressDown.at(regionNameM).Fill(xi,yi,dressedMass.second,m_miniTree.weight*m_miniTree.bSF_70);
 	}
 	//Fill exclusive hists based on jet pT order
 	if (i==0){ 
@@ -285,6 +341,7 @@ void MJ::dresser::loop(){
   m_outFile->Write();
 }
 pair<float,float> MJ::dresser::getDressedMass(TH1F *h, float pt){
+  //FIX
   int ptBin = -1;
   if (pt > m_ptBins3.back()){
     ptBin = m_ptBins3.size()-2;
@@ -313,83 +370,61 @@ string MJ::dresser::getRegionName(int njet, float dEta){
   if (dEta > 1.4) return name+"VR";
   return name+"SR";
 }
+pair<int,int> MJ::dresser::getTemplateBin(float pt, float y, int njet=3){
+  int ptBin = -1;
+  int yBin = -1;
+  pair<int,int> bins;
+  bins.first = -1;
+  bins.second = -1;
+  vector<double> ptBins;
+  if (njet==3){ ptBins = m_ptBins3; }
+  else if (njet==4){ ptBins = m_ptBins4; }
+  else if (njet>=5){ ptBins = m_ptBins5; }
+  if ( pt >= ptBins.back() ){
+    bins.first = ptBins.size()-1;
+  }
+  for( unsigned int i = 0; i < ptBins.size()-1; i++){
+    if (pt >= ptBins.at(i) && pt < ptBins.at(i+1)){
+      bins.first = i+1;
+      break;
+    }
+  }
+  for( unsigned int i = 0; i < m_yBins.size()-1; i++){
+    if (y >= m_yBins.at(i) && y < m_yBins.at(i+1)){
+      bins.second = i+1;
+      break;
+    }
+  }  
+}
 string MJ::dresser::getTemplateName(float pt, float eta, int bMatch, float BDT, int nbjet, int njet){
   if(m_templateType == 0){
-    int ptBin = -1;
-    int etaBin = -1;
-    if ( pt >= m_ptBins3.back() ){
-      ptBin = m_ptBins3.size()-1;
-    }
-    for( unsigned int i = 0; i < m_ptBins3.size()-1; i++){
-      if (pt >= m_ptBins3.at(i) && pt < m_ptBins3.at(i+1)){
-	ptBin = i+1;
-	break;
-      }
-    }
-    for( unsigned int i = 0; i < m_yBins.size()-1; i++){
-      if (fabs(eta) >= m_yBins.at(i) && fabs(eta) < m_yBins.at(i+1)){
-	etaBin = i+1;
-	break;
-      }
-    }
-    if( ptBin == -1 || etaBin == -1 ){
-      throw "Could not find pT or BDT bin";
-    }
+    pair<int,int> bins = getTemplateBin(pt,fabs(eta));
+    int ptBin = bins.first;
+    int etaBin = bins.second;
+    if( ptBin == -1 || etaBin == -1 ){ throw "Could not find pT or BDT bin"; }
     return "templ_b"+to_string(bMatch)+"_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin);
   }
   else if (m_templateType == 1){
-    int ptBin = -1;
-    int bdtBin = -1;
-    if ( pt >= m_ptBins3.back() ){
-      ptBin = m_ptBins3.size()-1;
-    }
-    for( unsigned int i = 0; i < m_ptBins3.size()-1; i++){
-      if (pt >= m_ptBins3.at(i) && pt < m_ptBins3.at(i+1)){
-	ptBin = i+1;
-	break;
-      }
-    }
-    for( unsigned int i = 0; i < m_yBins.size()-1; i++){
-      if (BDT >= m_yBins.at(i) && BDT < m_yBins.at(i+1)){
-	bdtBin = i+1;
-	break;
-      }
-    }
+    pair<int,int> bins = getTemplateBin(pt,BDT);
+    int ptBin = bins.first;
+    int bdtBin = bins.second;
+
     if( ptBin == -1 || bdtBin == -1 ){
       throw "Could not find pT or BDT bin";
     }
     return "templ_b"+to_string(bMatch)+"_ptBin"+to_string(ptBin)+"_bdtBin"+to_string(bdtBin);
   }
   else if (m_templateType == 2){
-    int ptBin = -1;
-    int etaBin = -1;
+    pair<int,int> bins = getTemplateBin(pt,fabs(eta),njet);
+    int ptBin = bins.first;
+    int etaBin = bins.second;
     int btag = -1;
-    //cout<<"pt = "<<"\t eta = "<<eta<<"\t bMatch = "<<bMatch<<"\t BDT = "<<BDT<<"\t nbjet = "<<nbjet<<endl;
-    //    cout<<  "templ_b"+to_string(btag)+"_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin)+"_njet"+to_string(njet) <<endl;
-    vector<float> ptBins;
-    if (njet == 4 ){
+    if (njet <= 4 ){
       if (nbjet > 0) btag = 1;
       else btag = 0;
-      ptBins = m_ptBins4;
     }
     else if (njet >= 5){
-      ptBins = m_ptBins5;
       btag = 9;
-    }
-    if ( pt >= ptBins.back() ){
-      ptBin = ptBins.size()-1;
-    }
-    for( unsigned int i = 0; i < ptBins.size()-1; i++){
-      if (pt >= ptBins.at(i) && pt < ptBins.at(i+1)){
-	ptBin = i+1;
-	break;
-      }
-    }
-    for( unsigned int i = 0; i < m_yBins.size()-1; i++){
-      if (fabs(eta) >= m_yBins.at(i) && fabs(eta) < m_yBins.at(i+1)){
-	etaBin = i+1;
-	break;
-      }
     }
     if( ptBin == -1 || etaBin == -1 || btag == -1 || njet == -1){
       throw "Could not find pT bin, eta bin, b-tag status, or njet";
