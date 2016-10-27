@@ -9,7 +9,7 @@ parser.add_argument('inFile')
 parser.add_argument('jobName')
 parser.add_argument('date')
 args = parser.parse_args()
-
+ROOT.gErrorIgnoreLevel = ROOT.kWarning
 class plotMaker:
     def __init__(self,inFile,jobName,date,lumi=28):
         self.outDir = '/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/bkgEstimation/'
@@ -33,6 +33,8 @@ class plotMaker:
         self.rHistsKin = {}
     def regionLabel(self,region):
         regionLabel = '#splitline{N_{jet} '
+        if '3j' in region:
+            regionLabel+='= 3}'        
         if '4j' in region:
             regionLabel+='= 4}'
         elif '5j' in region:
@@ -53,112 +55,18 @@ class plotMaker:
         elif 'VR' in region:
             regionLabel+='{|#Delta #eta| > 1.4}}'
         return regionLabel
-    def plotProfiles(self,njet,reg=''):
-        canName = 'profiles_'+str(njet)
-        if reg is not '':
-            canName+='_'+reg
-        self.cans[canName]=ROOT.TCanvas(canName,canName,800,800)
-        self.cans[canName].cd()
-        self.pad1s[canName] = ROOT.TPad(canName+'_p1',canName+'_p1',0,0.3,1,1.0)
-        self.pad1s[canName].SetBottomMargin(0.01)
-        self.pad1s[canName].Draw()
-        self.pad1s[canName].cd()
-        kHistName = 'h_mpT_kin_prof'+str(njet)
-        dHistName = 'h_mpT_dress_prof'+str(njet)
-        if reg is not '':
-            kHistName+='_'+reg
-            dHistName+='_'+reg
-        kHist = self.inFile.Get(kHistName)
-        dHist = self.inFile.Get(dHistName)
-        kHist.SetMarkerColor(ROOT.kBlack)
-        kHist.SetLineColor(ROOT.kBlack)
-        kHist.SetLineWidth(2)
-        kHist.SetMarkerStyle(20)
-        dHist.SetLineColor(ROOT.kRed)
-        dHist.SetLineColor(2)
-        dHist.SetMarkerColor(2)
-        dHist.SetLineWidth(2)
-        dHist.Draw()
-        kHist.Draw('same')
-        dHist.SetMinimum(0.1)
-        dHist.SetMaximum(0.3)
-        dHist.GetYaxis().SetTitle('<m/p_{T}>')
-        lat = ROOT.TLatex()
-        if 'bdt' in self.jobName:
-            lat.DrawLatexNDC(0.24,0.4,'#splitline{p_{T}/BDT}{binning}')
-        if 'eta' in self.jobName:
-            lat.DrawLatexNDC(0.24,0.4,'#splitline{p_{T}/|#eta|}{binning}')
-        if 'ichep' in self.jobName:
-            lat.DrawLatexNDC(0.24,0.4,'#splitline{ICHEP}{binning}')
-        if njet == 5:
-            lat.DrawLatexNDC(0.24,0.22,'n_{jet} #geq 5')
-        else:
-            lat.DrawLatexNDC(0.24,0.22,'n_{jet} = '+str(njet))
-        ROOT.ATLASLabel(0.4,0.85,'Internal',0.05,0.115,1)
-        if 'pythia' in self.jobName:
-            lat.DrawLatexNDC(0.4,0.78,str(int(self.lumi))+' fb^{-1} Pythia')
-        elif 'data' in self.jobName:
-            lat.DrawLatexNDC(0.35,0.78,'#sqrt{s} = 13 TeV, '+str(int(self.lumi))+' fb^{-1}')
-        self.legs[canName] = ROOT.TLegend(0.65,0.55,0.85,0.75)
-        leg = self.legs[canName]
-        leg.AddEntry(kHist,'Kinematic','LP')
-        leg.AddEntry(dHist,'Dressed','LF')
-        leg.SetLineColor(0)
-        leg.SetTextSize(0.05)
-        leg.SetShadowColor(0)
-        leg.SetFillStyle(0)
-        leg.SetFillColor(0)
-        leg.Draw()
-        self.cans[canName].cd()
-        self.pad2s[canName] = ROOT.TPad(canName+'_p2',canName+'_p2',0,0.05,1,0.3)
-        self.pad2s[canName].SetTopMargin(0)
-        self.pad2s[canName].SetBottomMargin(0.2)
-        self.pad2s[canName].SetGridy()
-        self.pad2s[canName].Draw()
-        self.pad2s[canName].cd()
-        self.rHistsKin[canName] = kHist.Clone()
-        rHistKin = self.rHistsKin[canName].ProjectionX()
-        h2 = dHist.ProjectionX()
-        rHistKin.Divide(h2)
-
-        rHistKin.Draw()
-        rHistKin.GetXaxis().SetTitle('jet p_{T} [TeV]')
-        rHistKin.GetYaxis().SetTitle('Kin/Pred')
-        rHistKin.SetMinimum(0.89)
-        rHistKin.SetMaximum(1.11)
-        rHistKin.GetYaxis().SetNdivisions(505)
-        rHistKin.GetYaxis().SetTitleSize(20)
-        rHistKin.GetYaxis().SetTitleFont(43)
-        rHistKin.GetYaxis().SetTitleOffset(1.55)
-        rHistKin.GetYaxis().SetLabelFont(43)
-        rHistKin.GetYaxis().SetLabelSize(15)
-        rHistKin.GetXaxis().SetTitleSize(17)
-        rHistKin.GetXaxis().SetTitleFont(43)
-        rHistKin.GetXaxis().SetTitleOffset(3.8)
-        rHistKin.GetXaxis().SetLabelFont(43)
-        rHistKin.GetXaxis().SetLabelSize(15)
-        outFileName = self.outDir+'/plot_profile_njet'+str(njet)+'_'
-        if reg is not '':
-            outFileName+=reg+'_'
-        outFileName+=self.jobName
-        self.cans[canName].Print(outFileName+'.pdf')
-        self.cans[canName].Print(outFileName+'.png')
-        self.cans[canName].Print(outFileName+'.C')
-        os.system('chmod a+r '+self.outDir+'/*')
-
-        if njet == 4 and reg is 'b0':
-            for i in range(1,rHistKin.GetNbinsX()+1):
-                print rHistKin.GetBinContent(i)
-
     def makePlot(self,var,region):
+        if var is 'jetmass4' and '3j' in region:
+            return
         os.system('mkdir -p '+self.outDir+'/'+region)
         os.system('chmod a+rx '+self.outDir+'/'+region)
         labelDict = {'jetmass':('jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
-                      'jetmass1':('leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
-                      'jetmass2':('2nd leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
-                      'jetmass3':('3rd leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
-                      'jetmass4':('4th leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
-                      'MJ':('M_{J}^{#Sigma} [TeV]','Events / Bin Width [TeV^{-1}]')}
+                     'jetmass1':('leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
+                     'jetmass2':('2nd leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
+                     'jetmass3':('3rd leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
+                     'jetmass4':('4th leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
+                     'MJ':('M_{J}^{#Sigma} [TeV]','Events / Bin Width [TeV^{-1}]'),
+                     'prof1d':('jet p_{T} [TeV]','<m_{jet}> [TeV]')}
         
         canName = var+'_'+region
         self.cans[canName]=ROOT.TCanvas(canName,canName,800,800)
@@ -167,7 +75,8 @@ class plotMaker:
         self.pad1s[canName].SetBottomMargin(0.01)
         self.pad1s[canName].Draw()
         self.pad1s[canName].cd()
-        self.pad1s[canName].SetLogy()
+        if var is not 'prof1d':
+            self.pad1s[canName].SetLogy()
         self.kHists[canName] = self.inFile.Get('h_'+var+'_kin_'+region)
         self.dHistsUp[canName] = self.inFile.Get('h_'+var+'_dressUp_'+region)
         self.dHistsNom[canName] = self.inFile.Get('h_'+var+'_dressNom_'+region)
@@ -176,6 +85,11 @@ class plotMaker:
         dHistUp = self.dHistsUp[canName]
         dHistDown = self.dHistsDown[canName]
         kHist = self.kHists[canName]
+        if var is 'prof1d':
+            dHistNom = self.dHistsNom[canName].ProjectionX()
+            dHistUp = self.dHistsUp[canName].ProjectionX()
+            dHistDown = self.dHistsDown[canName].ProjectionX()
+            kHist = self.kHists[canName].ProjectionX()
 
         dHistNom.SetLineColor(ROOT.kRed)
         dHistNom.SetLineColor(2)
@@ -192,7 +106,7 @@ class plotMaker:
         kHist.SetLineWidth(2)
         kHist.SetMarkerStyle(20)
 
-        if var is not 'MJ':
+        if var is not 'MJ' and var is not 'prof1d':
             dHistNom.Rebin(10)
             dHistUp.Rebin(10)
             dHistDown.Rebin(10)
@@ -208,6 +122,8 @@ class plotMaker:
             errDown = abs(dHistDown.GetBinContent(bin) - dHistNom.GetBinContent(bin))
             eHist.SetBinError(bin,(errUp+errDown)/2.0)
         eHist.Draw('e2')
+        if kHist.GetMaximum() <= 0:
+            print 'Error, empty histogram. var = %s, region = %s'%(var,region)
         yMax = pow(10,math.ceil(math.log(kHist.GetMaximum(),10)))
         if (yMax-kHist.GetMaximum())/yMax < 0.4:
             yMax*=5
@@ -217,25 +133,33 @@ class plotMaker:
             lastBinCont = kHist.GetBinContent(bin)
             bin -=1
         yMin = pow(10,math.floor(math.log(lastBinCont,10)))/2
-        eHist.SetMinimum(yMin)
-        eHist.SetMaximum(yMax)
+        if var is 'prof1d':
+            eHist.SetMinimum(0.0)
+            eHist.SetMaximum(0.25)
+        else:
+            eHist.SetMinimum(yMin)
+            eHist.SetMaximum(yMax)
         dHistNom.Draw('hist same')
-        if 'SR' in region and var is 'MJ':
+        if 'SR' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region:
             for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
                 kHist.SetBinContent(bin,0)
                 kHist.SetBinError(bin,0)
-        kHist.SetBinErrorOption(1)
+        if var is not 'prof1d':
+            kHist.SetBinErrorOption(1)
         kHist.Draw('same ep')
         eHist.GetXaxis().SetTitle(labelDict[var][0])
         eHist.GetYaxis().SetTitle(labelDict[var][1])
         lat = ROOT.TLatex()
+        yLoc = 0.4
+        if var is 'prof1d':
+            yLoc += 0.2
         if 'bdt' in self.jobName:
-            lat.DrawLatexNDC(0.24,0.4,'#splitline{p_{T}/BDT}{binning}')
+            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/BDT}{binning}')
         if 'eta' in self.jobName:
-            lat.DrawLatexNDC(0.24,0.4,'#splitline{p_{T}/|#eta|}{binning}')
+            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|}{binning}')
         if 'ichep' in self.jobName:
-            lat.DrawLatexNDC(0.24,0.4,'#splitline{ICHEP}{binning}')
-        lat.DrawLatexNDC(0.24,0.22,self.regionLabel(region))
+            lat.DrawLatexNDC(0.24,yLoc,'#splitline{ICHEP}{binning}')
+        lat.DrawLatexNDC(0.24,yLoc-0.18,self.regionLabel(region))
 
         ROOT.ATLASLabel(0.4,0.85,'Internal',0.05,0.115,1)
         if 'pythia' in self.jobName:
@@ -281,13 +205,18 @@ class plotMaker:
         self.rHistsKin[canName] = kHist.Clone()
         rHistPred = self.rHistsPred[canName]
         rHistKin  = self.rHistsKin[canName]
+
         rHistPred.Divide(dHistNom)
         rHistKin.Divide(dHistNom)
         rHistPred.Draw('e2')
         rHistKin.Draw('ep same')
         rHistPred.GetYaxis().SetTitle('Kin/Pred')
+
         rHistPred.SetMinimum(0.0)
         rHistPred.SetMaximum(1.7)
+        if var is 'prof1d':
+            rHistPred.SetMinimum(0.8)
+            rHistPred.SetMaximum(1.2)
         rHistPred.GetYaxis().SetNdivisions(505)
         rHistPred.GetYaxis().SetTitleSize(20)
         rHistPred.GetYaxis().SetTitleFont(43)
@@ -299,25 +228,22 @@ class plotMaker:
         rHistPred.GetXaxis().SetTitleOffset(3.8)
         rHistPred.GetXaxis().SetLabelFont(43)
         rHistPred.GetXaxis().SetLabelSize(15)
-
         outFileName = self.outDir+'/'+region+'/plot_'+var+'_SR_cut_'+str(int(self.MJcut*1000))+'gev_'+region+'_'+self.jobName
+        if var is 'prof1d':
+            outFileName = self.outDir+'/'+region+'/plot_'+var+'_'+region+'_'+self.jobName
+
         self.cans[canName].Print(outFileName+'.pdf')
         self.cans[canName].Print(outFileName+'.png')
         self.cans[canName].Print(outFileName+'.C')
         os.system('chmod a+r '+self.outDir+'/'+region+'/*')
-
-p=plotMaker(args.inFile,args.jobName,args.date)
-p.plotProfiles(3)
-p.plotProfiles(4)
-p.plotProfiles(4,'VR')
-p.plotProfiles(4,'SR')
-p.plotProfiles(4,'bU')
-p.plotProfiles(4,'bM')
-p.plotProfiles(4,'b0')
-p.plotProfiles(4,'b1')
-p.plotProfiles(5)
-for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']:
-   for region in ['4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
+lumi = 28
+if 'pythia' in args.jobName:
+    lumi = 35
+p=plotMaker(args.inFile,args.jobName,args.date,lumi)
+for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4','prof1d']:
+   for region in ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
+                  '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM',
+                  '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
                   '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
                   '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
                   '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']:
