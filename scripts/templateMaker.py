@@ -76,6 +76,24 @@ class templateMaker:
                 for j in range(len(self.yBins)-1):
                     histName = 'templ_b9_ptBin'+str(i+1)+'_etaBin'+str(j+1)+'_njet5'
                     self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)
+        elif self.templateType == 3:
+            #pt/eta/q/g-match binning
+            for i in range(len(self.ptBins3)-1):
+                for j in range(len(self.yBins)-1):
+                    histName = 'templ_q1_ptBin'+str(i+1)+'_etaBin'+str(j+1)
+                    self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)
+                    histName = 'templ_g1_ptBin'+str(i+1)+'_etaBin'+str(j+1)
+                    self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)
+        elif self.templateType == 4:
+            #pt/eta/n_subjet
+            for i in range(len(self.ptBins3)-1):
+                for j in range(len(self.yBins)-1):
+                    histName = 'templ_n1_ptBin'+str(i+1)+'_etaBin'+str(j+1)
+                    self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)
+                    histName = 'templ_n2_ptBin'+str(i+1)+'_etaBin'+str(j+1)
+                    self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)        
+                    histName = 'templ_n3_ptBin'+str(i+1)+'_etaBin'+str(j+1)
+                    self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)        
         print 'Created %i template histograms' % len(self.histDict)
     def loopAndFill(self):
         for entry in range(self.eventStart,self.eventEnd):
@@ -83,7 +101,7 @@ class templateMaker:
             if self.miniTree.njet==3:
                 #determine bin and fill appropriate histogram with log(m/pT) for that jet
                 for i in range(3):
-                    histName = self.getHistName(self.miniTree.jet_pt.at(i),self.miniTree.jet_eta.at(i),self.miniTree.jet_bmatched_Fix70.at(i),self.miniTree.BDTG,self.miniTree.njet_soft,self.miniTree.nbjet_Fix70,self.miniTree.dEta)
+                    histName = self.getHistName(self.miniTree.jet_pt.at(i),self.miniTree.jet_eta.at(i),self.miniTree.jet_bmatched_Fix70.at(i),self.miniTree.jet_qmatched.at(i),self.miniTree.jet_gmatched.at(i),self.miniTree.jet_NTrimSubjets.at(i),self.miniTree.BDTG,self.miniTree.njet_soft,self.miniTree.nbjet_Fix70,self.miniTree.dEta)
                     if self.miniTree.jet_m.at(i) <= 0:
                         print 'Warning: jet mass = %f' % self.miniTree.jet_m.at(i)
                         continue
@@ -97,7 +115,7 @@ class templateMaker:
 #                        pprint.pprint(self.histDict)
                         sys.exit(1)
         self.outFile.Write()
-    def getHistName(self,pt,eta,bMatch,BDT,njet_soft,nbjet,dEta):
+    def getHistName(self,pt,eta,bMatch,qMatch,gMatch,nSubjets,BDT,njet_soft,nbjet,dEta):
         if self.templateType == 0:
             #pT/eta/b-match binning
             ptBin = -1
@@ -202,4 +220,58 @@ class templateMaker:
                 sys.exit(1)            
             histName = 'templ_b'+str(btag)+'_ptBin'+str(ptBin)+'_etaBin'+str(etaBin)+'_njet'+str(njet)
             #print 'pT = %f, pT bin = %i, |eta| = %f, eta bin = %i, btag = %i, njet_soft=%i, njet=%i' % (pt,ptBin,abs(eta),etaBin,btag,njet_soft,njet)
+            return histName
+        elif self.templateType == 3:
+            #pT/eta/qg-match binning
+            ptBin = -1
+            etaBin = -1
+            if pt >= self.ptBins3[-1]:
+                ptBin = len(self.ptBins3)-1
+            for i in range(len(self.ptBins3)-1):
+                if pt >= self.ptBins3[i] and pt < self.ptBins3[i+1]:
+                    ptBin = i+1
+                    break
+            for i in range(len(self.yBins)-1):
+                if abs(eta) >= self.yBins[i] and abs(eta) < self.yBins[i+1]:
+                    etaBin = i+1
+                    break
+            #print 'pt = %f, ptBin = %i, |eta| = %f, etaBin = %i' % (pt,ptBin,abs(eta),etaBin) 
+            qgMatch = ''
+            if qMatch == 1:
+                qgMatch = 'q'
+            elif gMatch == 1:
+                qgMatch = 'g'
+            histName = 'templ_'+qgMatch+'1_ptBin'+str(ptBin)+'_etaBin'+str(etaBin)
+            if ptBin == -1: 
+                print 'Error: pT bin not found!'
+                print 'pT =',pt,'pT bins:',self.ptBins3
+                sys.exit(1)
+            if etaBin == -1:
+                print 'Error: eta bin not found!'
+                print 'eta =',eta,'eta bins:',self.yBins
+                sys.exit(1)
+            return histName
+        elif self.templateType == 4:
+            #pT/eta/n_subjet
+            ptBin = -1
+            etaBin = -1
+            if pt >= self.ptBins3[-1]:
+                ptBin = len(self.ptBins3)-1
+            for i in range(len(self.ptBins3)-1):
+                if pt >= self.ptBins3[i] and pt < self.ptBins3[i+1]:
+                    ptBin = i+1
+                    break
+            for i in range(len(self.yBins)-1):
+                if abs(eta) >= self.yBins[i] and abs(eta) < self.yBins[i+1]:
+                    etaBin = i+1
+                    break
+            histName = 'templ_n'+str(min(3,nSubjets))+'_ptBin'+str(ptBin)+'_etaBin'+str(etaBin)
+            if ptBin == -1: 
+                print 'Error: pT bin not found!'
+                print 'pT =',pt,'pT bins:',self.ptBins3
+                sys.exit(1)
+            if etaBin == -1:
+                print 'Error: eta bin not found!'
+                print 'eta =',eta,'eta bins:',self.yBins
+                sys.exit(1)
             return histName

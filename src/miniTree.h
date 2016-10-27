@@ -45,6 +45,8 @@ namespace MJ{
     vector<int>     *jet_bmatched_Flt77;
     vector<int>     *jet_bmatched_Flt85;
     vector<int>     *jet_NTrimSubjets; 
+    vector<int>     *jet_qmatched;
+    vector<int>     *jet_gmatched;
     Double_t        dEta;
     Double_t        HT;
     Double_t        MJ;
@@ -79,6 +81,8 @@ namespace MJ{
     TBranch        *b_jet_phi;   //!
     TBranch        *b_jet_m;   //!
     TBranch        *b_jet_NTrimSubjets; //!
+    TBranch        *b_jet_qmatched; //!
+    TBranch        *b_jet_gmatched; //!
     TBranch        *b_jet_bmatched_Fix60;   //!
     TBranch        *b_jet_bmatched_Fix70;   //!
     TBranch        *b_jet_bmatched_Fix77;   //!
