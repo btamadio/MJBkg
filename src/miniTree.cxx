@@ -71,6 +71,8 @@ void MJ::miniTree::Init(TTree *tree)
    jet_bmatched_Flt77 = 0;
    jet_bmatched_Flt85 = 0;
    jet_NTrimSubjets = 0;
+   jet_qmatched = 0;
+   jet_gmatched = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -109,6 +111,8 @@ void MJ::miniTree::Init(TTree *tree)
    fChain->SetBranchAddress("jet_bmatched_Flt77", &jet_bmatched_Flt77, &b_jet_bmatched_Flt77);
    fChain->SetBranchAddress("jet_bmatched_Flt85", &jet_bmatched_Flt85, &b_jet_bmatched_Flt85);
    fChain->SetBranchAddress("jet_NTrimSubjets", &jet_NTrimSubjets, &b_jet_NTrimSubjets);
+   fChain->SetBranchAddress("jet_qmatched",&jet_qmatched,&b_jet_qmatched);
+   fChain->SetBranchAddress("jet_gmatched",&jet_gmatched,&b_jet_gmatched);
    fChain->SetBranchAddress("dEta", &dEta, &b_dEta);
    fChain->SetBranchAddress("HT", &HT, &b_HT);
    fChain->SetBranchAddress("MJ", &MJ, &b_MJ);

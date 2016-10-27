@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
   string outFileName = "/project/projectdirs/atlas/btamadio/RPV_SUSY/MJBkg/output_dressed/"+jobName+"/"+jobName+"_"+toyNum+".root";
   d.setOutFileName(outFileName);
   d.setDelta(0.05);
-  d.doCorrections();
+  //  d.doCorrections();
   if (MJcut > 0){ 
     d.blind(MJcut); 
     cout<<"Blinding events with MJ > "<<MJcut<<" TeV"<<endl;
