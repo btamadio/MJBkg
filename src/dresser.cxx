@@ -44,7 +44,8 @@ void MJ::dresser::initialize(){
   //Set pT and eta binning -> at some point change this to use config file instead
   if(m_templateType == 0){
     //pt/eta/b-match binning
-    m_mass_corr={0.954133571238,0.948404899958,0.956278711583,0.952626861986,0.959399108078,0.963385261357,0.974391124037,0.988950678532,1.01091335428,1.01189224987,1.01042652523,1.00728729436,1.0276423612,1.01782248233,1.06589420251};
+    m_mass_corr_VR = {0.983362145257,0.984200169158,0.977797358721,0.975586979428,0.965202321645,0.971748206872,0.967629836047,0.979667146605,1.00193059003,1.00949003403,1.00232763577,1.00610321852,1.02012570449,1.02305972305,1.02047826149};
+    m_mass_corr_SR = {0.93841504343,0.94891312853,0.959466634316,0.954854062213,0.956942093602,0.966843703694,0.96797316068,1.00082622301,1.00404081975,1.01879979757,1.00896991546,0.999664340742,1.03408107469,1.03983996364,1.03891668862};
     m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
@@ -52,7 +53,8 @@ void MJ::dresser::initialize(){
   }
   if(m_templateType == 1){
     //pt/BDT/b-match binning
-    m_mass_corr = {0.939667192686,0.928873031517,0.937543507244,0.928610367594,0.922163166882,0.929776827829,0.933804093709,0.960249116385,1.01748010243,1.01612941012,1.01702777425,1.03660248656,1.02611660903,1.02866085827,1.06813653666};
+    m_mass_corr_VR = {0.959685289567,0.957709608929,0.947837051562,0.940335033262,0.9322820971,0.933017654959,0.928334743188,0.950262690972,0.996308204029,0.988455862098,0.998695106437,1.02482723224,1.01294858582,0.987037064786,0.990726877637};
+    m_mass_corr_SR = {0.923421968046,0.923686365314,0.935026497931,0.919090223557,0.929793760039,0.925617188694,0.952878954078,0.984055586603,1.02224369428,1.04107465795,1.03994203767,1.02630570584,1.03837595079,1.04730864121,1.02766402224};
     m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
@@ -60,6 +62,8 @@ void MJ::dresser::initialize(){
   }
   if(m_templateType == 2){
     //ICHEP binning (soft jets + b-tag)
+    m_mass_corr_VR = {0.980540972943,0.970721504435,0.960668549837,0.972736355391,1.00519312687,0.99959476931,1.0087786744,1.01870688226};
+    m_mass_corr_SR = {0.953294883664,0.950459331057,0.959022698708,0.979696945942,1.00168405958,1.01372029197,1.004838362,0.995798837315};
     m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins4 = {0.2,0.244,0.293,0.364,0.445,0.52,0.6,0.733,0.896};
     m_ptBins5 = {0.2,0.244,0.293,0.364,0.445,0.52,0.6,0.733};
@@ -190,7 +194,11 @@ void MJ::dresser::loop(){
 	  cout<<"Did you give the correct template type?"<<endl;
 	  throw "Template hist could not be found in template file";
 	}
-	pair<float,float> dressedMass = getDressedMass(templateHist,m_miniTree.jet_pt->at(i));
+	bool correct = true;
+	if(m_miniTree.njet == 3){
+	  correct = false;
+	}
+	pair<float,float> dressedMass = getDressedMass(templateHist,m_miniTree.jet_pt->at(i),m_miniTree.dEta, correct);
 	MJ_dressNom += dressedMass.first;
 	MJ_dressShift += dressedMass.second;
 	b_jet_m_dressed_nom->push_back(dressedMass.first);
@@ -344,21 +352,36 @@ void MJ::dresser::loop(){
   }
   m_outFile->Write();
 }
-pair<float,float> MJ::dresser::getDressedMass(TH1F *h, float pt){
-  //FIX
-  int ptBin = -1;
-  if (pt > m_ptBins3.back()){
-    ptBin = m_ptBins3.size()-2;
-  }
-  for( unsigned int i = 0; i < m_ptBins3.size()-1; i++){
-    if (pt >= m_ptBins3.at(i) && pt < m_ptBins3.at(i+1)){
-      ptBin = i;
-      break;
+pair<float,float> MJ::dresser::getDressedMass(TH1F *h, float pt, float dEta, bool correct){
+  pair<int,int> bins;
+  if(m_templateType==2){
+    string histName = string(h->GetName());
+    if(histName.find("njet3") != string::npos){
+      bins = getTemplateBin(pt,0.0,3);
+    }
+    else if(histName.find("njet4") != string::npos){
+      bins = getTemplateBin(pt,0.0,4);
+    }
+    else if(histName.find("njet5") != string::npos){
+      bins = getTemplateBin(pt,0.0,5);
+    }
+    else{
+      cout<<"Bin Not found!"<<endl;
+      exit(1);
     }
   }
+  else{
+    bins = getTemplateBin(pt,0.0,3);
+  }
+  int ptBin = bins.first;
   float massCorr = 1;
-  if (m_doCorrections && m_mass_corr.size() > 0){
-    massCorr = m_mass_corr.at(ptBin);
+  if (m_doCorrections and correct){
+    if(dEta < 1.4){
+      massCorr = m_mass_corr_SR.at(ptBin-1);
+    }
+    else{
+      massCorr = m_mass_corr_VR.at(ptBin-1);
+    }
   }
   gRandom->SetSeed(0);
   pair<float,float> answer;

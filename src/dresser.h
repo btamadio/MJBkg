@@ -41,7 +41,8 @@ namespace MJ{
     vector<double> *b_jet_m_dressed_nom;
     vector<double> *b_jet_m_dressed_smear;
     bool m_doCorrections;
-    vector<float> m_mass_corr;
+    vector<float> m_mass_corr_SR;
+    vector<float> m_mass_corr_VR;
     vector<double> m_ptBins3;
     vector<double> m_ptBins4;
     vector<double> m_ptBins5;
@@ -49,7 +50,7 @@ namespace MJ{
     string getTemplateName(float,float,int,float,int,int);
     string getRegionName(int,float);
     pair<int,int> getTemplateBin(float, float, int);
-    pair<float,float> getDressedMass(TH1F *, float);
+    pair<float,float> getDressedMass(TH1F *, float, float, bool);
     map<string,TProfile> m_prof1d_kin;
     map<string,TProfile> m_prof1d_dressUp;
     map<string,TProfile> m_prof1d_dressNom;

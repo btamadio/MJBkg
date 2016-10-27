@@ -220,6 +220,10 @@ class plotMaker:
         if var is 'prof1d':
             rHistPred.SetMinimum(0.8)
             rHistPred.SetMaximum(1.2)
+            if region is '4jVRb0' or region is '4jSRb0':
+                print region
+                for i in range(1,rHistKin.GetNbinsX()+1):
+                    print '',rHistKin.GetBinContent(i)
         rHistPred.GetYaxis().SetNdivisions(505)
         rHistPred.GetYaxis().SetTitleSize(20)
         rHistPred.GetYaxis().SetTitleFont(43)
