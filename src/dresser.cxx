@@ -207,6 +207,10 @@ void MJ::dresser::loop(){
 
 	//x and y values for profile histograms
 	float xi = m_miniTree.jet_pt->at(i);
+	//If overflow in pT, put this jet into the last bin
+	if (xi >= m_prof1d_kin.at(regionName).GetXaxis()->GetBinUpEdge( m_prof1d_kin.at(regionName).GetNbinsX())){
+	  xi = m_prof1d_kin.at(regionName).GetXaxis()->GetBinCenter(m_prof1d_kin.at(regionName).GetNbinsX());
+	}
 	float yi = fabs(m_miniTree.jet_eta->at(i));
 	if( m_templateType == 1 ){ yi = m_miniTree.BDTG; }
 	//Fill profile hists
@@ -395,6 +399,7 @@ pair<int,int> MJ::dresser::getTemplateBin(float pt, float y, int njet=3){
       break;
     }
   }  
+  return bins;
 }
 string MJ::dresser::getTemplateName(float pt, float eta, int bMatch, float BDT, int nbjet, int njet){
   if(m_templateType == 0){

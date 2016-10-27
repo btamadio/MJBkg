@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 variables = ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']
-regions =   ['4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
+regions =   ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
+             '3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
+             '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
              '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
              '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbU',
              '5jSRb0','5jSRb1','5jSRb9','5jVRbM','5jSRbM']
-#jobNames = ['data_eta','data_bdt','data_ichep']
-jobNames = ['data_eta','data_eta_corr']
-dates = ['10_21','10_25']
+
+#jobNames = ['pythia_eta_uncorr','pythia_bdt_uncorr','pythia_ichep_uncorr']
+jobNames = ['data_eta_uncorr','data_bdt_uncorr','data_ichep_uncorr']
+dates = ['10_26','10_26','10_26']
 output = """<HTML>
 <HEAD> </HEAD>
 <BODY> 

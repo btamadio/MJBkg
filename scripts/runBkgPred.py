@@ -2,20 +2,20 @@
 import ROOT,os,array,pprint, math,time,glob,sys
 from bkgPredictor import bkgPredictor
 
-name = 'data_eta'
-dressedFileNames = glob.glob('../output_dressed/'+name+'/*.root')
-p0 = bkgPredictor(dressedFileNames,name,1.0,0)
-p0.loopAndFill()
-p0.plotResponse()
+jobNameList = ['data_eta_uncorr','data_bdt_uncorr','data_ichep_uncorr']
+filesList = [glob.glob('../output_dressed/data_eta/*.root'),
+             glob.glob('../output_dressed/data_bdt/*.root'),
+             glob.glob('../output_dressed/data_ichep/*.root')]
+for i in range(len(jobNameList)):
+    p = bkgPredictor(filesList[i],jobNameList[i],1,i)
+    p.getResponse()
+    p.loopAndFill()
 
-#name ='data_bdt'
-#dressedFileNames = glob.glob('../output_dressed/'+name+'/*.root')
-#p2 = bkgPredictor(dressedFileNames,name,1.0,1)
-#p2.loopAndFill()
-#p2.plotResponse()
-
-#name = 'data_ichep'
-#dressedFileNames = glob.glob('../output_dressed/'+name+'/*.root')
-#p3 = bkgPredictor(dressedFileNames,name,1.0,2)
-#p3.loopAndFill()
-#p3.plotResponse()
+jobNameList = ['pythia_eta_uncorr','pythia_bdt_uncorr','pythia_ichep_uncorr']
+filesList = [glob.glob('../output_dressed/pythia_eta/*.root'),
+             glob.glob('../output_dressed/pythia_bdt/*.root'),
+             glob.glob('../output_dressed/pythia_ichep/*.root')]
+for i in range(len(jobNameList)):
+    p = bkgPredictor(filesList[i],jobNameList[i],35,i)
+    p.getResponse()
+    p.loopAndFill()

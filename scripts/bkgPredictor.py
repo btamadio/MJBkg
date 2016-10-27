@@ -37,7 +37,9 @@ class bkgPredictor:
             self.outFile = ROOT.TFile.Open(outFileName,'UPDATE')
         else:
             self.outFile = ROOT.TFile.Open(outFileName,'CREATE')
-        self.regionList = ['4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
+        self.regionList = ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
+                           '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM',
+                           '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
                            '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
                            '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
                            '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']
@@ -49,103 +51,79 @@ class bkgPredictor:
         self.histDict_dressUp = {}
         self.histDict_dressNom = {}
         self.histDict_dressDown = {}
-        self.profDict_dressNom = {}
-        self.profDict_dressUp = {}
-        self.profDict_dressDown = {}
+        self.listDict_dressNom = {}
+        self.listDict_dressUp = {}
+        self.listDict_dressDown = {}
+        self.prof1Dict_kin = {}
+        self.prof1Dict_dressUp = {}
+        self.prof1Dict_dressNom = {}
+        self.prof1Dict_dressDown = {}
+        self.prof2Dict_kin = {}
+        self.prof2Dict_dressUp = {}
+        self.prof2Dict_dressNom = {}
+        self.prof2Dict_dressDown = {}
         for regionName in self.regionList:
             self.histDict_kin[regionName] = {}
             self.histDict_dressUp[regionName] = {}
             self.histDict_dressNom[regionName] = {}
             self.histDict_dressDown[regionName] = {}
-            self.profDict_dressUp[regionName] = {}
-            self.profDict_dressNom[regionName] = {}
-            self.profDict_dressDown[regionName] = {}
+            self.listDict_dressUp[regionName] = {}
+            self.listDict_dressNom[regionName] = {}
+            self.listDict_dressDown[regionName] = {}
+
             for histType in self.histList:
-                self.profDict_dressUp[regionName][histType] = []
-                self.profDict_dressNom[regionName][histType] = []
-                self.profDict_dressDown[regionName][histType] = []
+                self.listDict_dressUp[regionName][histType] = []
+                self.listDict_dressNom[regionName][histType] = []
+                self.listDict_dressDown[regionName][histType] = []
                 histName_kin = 'h_'+histType+'_kin_'+regionName
                 histName_dressUp = 'h_'+histType+'_dressUp_'+regionName
                 histName_dressNom = 'h_'+histType+'_dressNom_'+regionName
                 histName_dressDown = 'h_'+histType+'_dressDown_'+regionName
                 if histType is 'MJ':
                     for i in range(self.nMJbins):
-                        self.profDict_dressUp[regionName][histType].append([])
-                        self.profDict_dressNom[regionName][histType].append([])
-                        self.profDict_dressDown[regionName][histType].append([])
+                        self.listDict_dressUp[regionName][histType].append([])
+                        self.listDict_dressNom[regionName][histType].append([])
+                        self.listDict_dressDown[regionName][histType].append([])
+#                        self.histDict_kin[regionName][histType] = f.Get(histName).Clone()
                     self.histDict_dressUp[regionName][histType] = ROOT.TH1F(histName_dressUp,histName_dressUp,self.nMJbins,self.MJbinArray)
                     self.histDict_dressNom[regionName][histType] = ROOT.TH1F(histName_dressNom,histName_dressNom,self.nMJbins,self.MJbinArray)
                     self.histDict_dressDown[regionName][histType] = ROOT.TH1F(histName_dressDown,histName_dressDown,self.nMJbins,self.MJbinArray)
                 else:
+                    #For individual jet mass plots, binning depends on pT order
+                    xUp = 1.2
+                    if histType is 'jetmass3':
+                        xUp = 0.6
+                    elif histType is 'jetmass4':
+                        xUp = 0.4
                     for i in range(self.nMassBins):
-                        self.profDict_dressUp[regionName][histType].append([])
-                        self.profDict_dressNom[regionName][histType].append([])
-                        self.profDict_dressDown[regionName][histType].append([])
-                    self.histDict_dressUp[regionName][histType] = ROOT.TH1F(histName_dressUp,histName_dressUp,self.nMassBins,self.massBinLow,self.massBinUp)
-                    self.histDict_dressNom[regionName][histType] = ROOT.TH1F(histName_dressNom,histName_dressNom,self.nMassBins,self.massBinLow,self.massBinUp)
-                    self.histDict_dressDown[regionName][histType] = ROOT.TH1F(histName_dressDown,histName_dressDown,self.nMassBins,self.massBinLow,self.massBinUp)
+                        self.listDict_dressUp[regionName][histType].append([])
+                        self.listDict_dressNom[regionName][histType].append([])
+                        self.listDict_dressDown[regionName][histType].append([])
+                    self.histDict_dressUp[regionName][histType] = ROOT.TH1F(histName_dressUp,histName_dressUp,self.nMassBins,self.massBinLow,xUp)
+                    self.histDict_dressNom[regionName][histType] = ROOT.TH1F(histName_dressNom,histName_dressNom,self.nMassBins,self.massBinLow,xUp)
+                    self.histDict_dressDown[regionName][histType] = ROOT.TH1F(histName_dressDown,histName_dressDown,self.nMassBins,self.massBinLow,xUp)
 
-    def plotResponse(self):
+    def getResponse(self):
         f = ROOT.TFile.Open(self.dressedFileNames[0])
-        t = f.Get('miniTree')
-        xBins = controlDict[self.templateType]['ptBins3']
-        self.dressProf3 = ROOT.TProfile('h_mpT_dress_prof3','h_mpT_dress_prof3',len(xBins)-1,array.array('d',xBins))
-        self.dressProf4 = ROOT.TProfile('h_mpT_dress_prof4','h_mpT_dress_prof4',len(xBins)-1,array.array('d',xBins))
-        self.dressProf4_VR = ROOT.TProfile('h_mpT_dress_prof4_VR','h_mpT_dress_prof4_VR',len(xBins)-1,array.array('d',xBins))
-        self.dressProf4_SR = ROOT.TProfile('h_mpT_dress_prof4_SR','h_mpT_dress_prof4_SR',len(xBins)-1,array.array('d',xBins))
-        self.dressProf4_bU = ROOT.TProfile('h_mpT_dress_prof4_bU','h_mpT_dress_prof4_bU',len(xBins)-1,array.array('d',xBins))
-        self.dressProf4_bM = ROOT.TProfile('h_mpT_dress_prof4_bM','h_mpT_dress_prof4_bM',len(xBins)-1,array.array('d',xBins))
-        self.dressProf4_b0 = ROOT.TProfile('h_mpT_dress_prof4_b0','h_mpT_dress_prof4_b0',len(xBins)-1,array.array('d',xBins))
-        self.dressProf4_b1 = ROOT.TProfile('h_mpT_dress_prof4_b1','h_mpT_dress_prof4_b1',len(xBins)-1,array.array('d',xBins))
-        self.dressProf5 = ROOT.TProfile('h_mpT_dress_prof5','h_mpT_dress_prof5',len(xBins)-1,array.array('d',xBins))
-        self.kinProf3 = ROOT.TProfile('h_mpT_kin_prof3','h_mpT_kin_prof3',len(xBins)-1,array.array('d',xBins))
-        self.kinProf4 = ROOT.TProfile('h_mpT_kin_prof4','h_mpT_kin_prof4',len(xBins)-1,array.array('d',xBins))
-        self.kinProf4_VR = ROOT.TProfile('h_mpT_kin_prof4_VR','h_mpT_kin_prof4_VR',len(xBins)-1,array.array('d',xBins))
-        self.kinProf4_SR = ROOT.TProfile('h_mpT_kin_prof4_SR','h_mpT_kin_prof4_SR',len(xBins)-1,array.array('d',xBins))
-        self.kinProf4_bU = ROOT.TProfile('h_mpT_kin_prof4_bU','h_mpT_kin_prof4_bU',len(xBins)-1,array.array('d',xBins))
-        self.kinProf4_bM = ROOT.TProfile('h_mpT_kin_prof4_bM','h_mpT_kin_prof4_bM',len(xBins)-1,array.array('d',xBins))
-        self.kinProf4_b0 = ROOT.TProfile('h_mpT_kin_prof4_b0','h_mpT_kin_prof4_b0',len(xBins)-1,array.array('d',xBins))
-        self.kinProf4_b1 = ROOT.TProfile('h_mpT_kin_prof4_b1','h_mpT_kin_prof4_b1',len(xBins)-1,array.array('d',xBins))
-        self.kinProf5 = ROOT.TProfile('h_mpT_kin_prof5','h_mpT_kin_prof5',len(xBins)-1,array.array('d',xBins))
-        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof3','njet==3','goff prof')
-        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof4','njet==4','goff prof')
-        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof4_VR','njet==4 && dEta>1.4','goff prof')
-        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof4_SR','njet==4 && dEta<1.4','goff prof')
-        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof4_bU','njet==4 && jet_bmatched_Fix70==0','goff prof')
-        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof4_bM','njet==4 && jet_bmatched_Fix70==1','goff prof')
-        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof4_b0','njet==4 && nbjet_Fix70==0','goff prof')
-        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof4_b1','njet==4 && nbjet_Fix70>0','goff prof')
-        t.Draw('jet_m_dressed_nom/jet_pt:jet_pt>>h_mpT_dress_prof5','njet>=5','goff prof')
-
-        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof3','njet==3','goff prof')
-        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof4','njet==4','goff prof')
-        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof4_VR','njet==4 && dEta > 1.4','goff prof')
-        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof4_SR','njet==4 && dEta < 1.4','goff prof')
-        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof4_bU','njet==4 && jet_bmatched_Fix70==0','goff prof')
-        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof4_bM','njet==4 && jet_bmatched_Fix70==1','goff prof')
-        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof4_b0','njet==4 && nbjet_Fix70==0','goff prof')
-        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof4_b1','njet==4 && nbjet_Fix70>0','goff prof')
-        t.Draw('jet_m/jet_pt:jet_pt>>h_mpT_kin_prof5','njet>=5','goff prof')
-        self.outFile.cd()
-        self.dressProf3.Write()
-        self.dressProf4.Write()
-        self.dressProf4_VR.Write()
-        self.dressProf4_SR.Write()
-        self.dressProf4_bU.Write()
-        self.dressProf4_bM.Write()
-        self.dressProf4_b0.Write()
-        self.dressProf4_b1.Write()
-        self.dressProf5.Write()
-        self.kinProf3.Write()
-        self.kinProf4.Write()
-        self.kinProf4_VR.Write()
-        self.kinProf4_SR.Write()
-        self.kinProf4_bU.Write()
-        self.kinProf4_bM.Write()
-        self.kinProf4_b0.Write()
-        self.kinProf4_b1.Write()
-        self.kinProf5.Write()
-
+        for regionName in self.regionList:
+            self.prof1Dict_kin[regionName] = f.Get('h_prof1d_kin_'+regionName)
+            self.prof1Dict_dressUp[regionName] = f.Get('h_prof1d_dressUp_'+regionName)
+            self.prof1Dict_dressNom[regionName] = f.Get('h_prof1d_dressNom_'+regionName)
+            self.prof1Dict_dressDown[regionName] = f.Get('h_prof1d_dressDown_'+regionName)
+            self.prof2Dict_kin[regionName] = f.Get('h_prof2d_kin_'+regionName)
+            self.prof2Dict_dressUp[regionName] = f.Get('h_prof2d_dressUp_'+regionName)
+            self.prof2Dict_dressNom[regionName] = f.Get('h_prof2d_dressNom_'+regionName)
+            self.prof2Dict_dressDown[regionName] = f.Get('h_prof2d_dressDown_'+regionName)
+            self.outFile.cd()
+            self.prof1Dict_kin[regionName].Write()
+            self.prof1Dict_dressUp[regionName].Write()
+            self.prof1Dict_dressNom[regionName].Write()
+            self.prof1Dict_dressDown[regionName].Write()
+            self.prof2Dict_kin[regionName].Write()
+            self.prof2Dict_dressUp[regionName].Write()
+            self.prof2Dict_dressNom[regionName].Write()
+            self.prof2Dict_dressDown[regionName].Write()
+            
     def loopAndFill(self):
         #loop over pseudoexperiment files and fill prediction histograms
         #first we just copy the kinematic histogram over from the input file, rebinning the MJ histogram
@@ -179,20 +157,20 @@ class bkgPredictor:
                         h_dressNom = h_dressNom.Rebin(self.nMJbins,'',self.MJbinArray)
                         h_dressDown = h_dressDown.Rebin(self.nMJbins,'',self.MJbinArray)
                     for bin in range(1,h_dressNom.GetNbinsX()+1):
-                        self.profDict_dressUp[regionName][histType][bin-1].append(h_dressUp.GetBinContent(bin))
-                        self.profDict_dressNom[regionName][histType][bin-1].append(h_dressNom.GetBinContent(bin))
-                        self.profDict_dressDown[regionName][histType][bin-1].append(h_dressDown.GetBinContent(bin))
+                        self.listDict_dressUp[regionName][histType][bin-1].append(h_dressUp.GetBinContent(bin))
+                        self.listDict_dressNom[regionName][histType][bin-1].append(h_dressNom.GetBinContent(bin))
+                        self.listDict_dressDown[regionName][histType][bin-1].append(h_dressDown.GetBinContent(bin))
 
         for regionName in self.regionList:
             for histType in self.histList:
                 for bin in range(1,self.histDict_dressNom[regionName][histType].GetNbinsX()+1):
-                    self.histDict_dressUp[regionName][histType].SetBinContent(bin,mean(self.profDict_dressUp[regionName][histType][bin-1]))
-                    self.histDict_dressUp[regionName][histType].SetBinError(bin,err(self.profDict_dressUp[regionName][histType][bin-1]))
+                    self.histDict_dressUp[regionName][histType].SetBinContent(bin,mean(self.listDict_dressUp[regionName][histType][bin-1]))
+                    self.histDict_dressUp[regionName][histType].SetBinError(bin,err(self.listDict_dressUp[regionName][histType][bin-1]))
 
-                    self.histDict_dressNom[regionName][histType].SetBinContent(bin,mean(self.profDict_dressNom[regionName][histType][bin-1]))
-                    self.histDict_dressNom[regionName][histType].SetBinError(bin,err(self.profDict_dressNom[regionName][histType][bin-1]))
-                    self.histDict_dressDown[regionName][histType].SetBinContent(bin,mean(self.profDict_dressDown[regionName][histType][bin-1]))
-                    self.histDict_dressDown[regionName][histType].SetBinError(bin,err(self.profDict_dressDown[regionName][histType][bin-1]))
+                    self.histDict_dressNom[regionName][histType].SetBinContent(bin,mean(self.listDict_dressNom[regionName][histType][bin-1]))
+                    self.histDict_dressNom[regionName][histType].SetBinError(bin,err(self.listDict_dressNom[regionName][histType][bin-1]))
+                    self.histDict_dressDown[regionName][histType].SetBinContent(bin,mean(self.listDict_dressDown[regionName][histType][bin-1]))
+                    self.histDict_dressDown[regionName][histType].SetBinError(bin,err(self.listDict_dressDown[regionName][histType][bin-1]))
                 if histType is 'MJ':
                     kHist = self.histDict_kin[regionName][histType]
                     dHist = self.histDict_dressNom[regionName][histType]
@@ -210,6 +188,7 @@ class bkgPredictor:
                     self.histDict_dressNom[regionName][histType].Scale(self.lumi)
                     self.histDict_dressDown[regionName][histType].Scale(2*self.lumi)
                 self.outFile.cd()
+                
                 self.histDict_dressUp[regionName][histType].Write()
                 self.histDict_dressNom[regionName][histType].Write()
                 self.histDict_dressDown[regionName][histType].Write()
