@@ -166,7 +166,10 @@ class plotMaker:
             lat.DrawLatexNDC(0.4,0.78,str(int(self.lumi))+' fb^{-1} Pythia')
         elif 'data' in self.jobName:
             lat.DrawLatexNDC(0.35,0.78,'#sqrt{s} = 13 TeV, '+str(int(self.lumi))+' fb^{-1}')
-        self.legs[canName] = ROOT.TLegend(0.65,0.55,0.85,0.75)
+        if var is 'prof1d':
+            self.legs[canName] = ROOT.TLegend(0.65,0.7,0.85,0.9)
+        else:            
+            self.legs[canName] = ROOT.TLegend(0.65,0.55,0.85,0.75)
         leg = self.legs[canName]
         leg.AddEntry(kHist,'Kinematic','LP')
         leg.AddEntry(eHist,'Prediction','LF')
