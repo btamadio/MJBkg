@@ -69,6 +69,20 @@ void MJ::dresser::initialize(){
     m_ptBins5 = {0.2,0.244,0.293,0.364,0.445,0.52,0.6,0.733};
     m_yBins = {0,0.5,1.0,1.5,2.0};
   }
+  if(m_templateType == 3){
+    //pt/eta/qg-match binning
+    m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
+    m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
+    m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
+    m_yBins = {0,0.5,1.0,1.5,2.0};
+  }
+  if(m_templateType == 4){
+    //pt/eta/n_subjet binning
+    m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
+    m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
+    m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
+    m_yBins = {0,0.5,1.0,1.5,2.0};
+  }
   //Setup output histograms
   vector<string> regionNames = {"3jVRb0","3jVRb1","3jVRb9","3jVRbM","3jVRbU",
 				"3jSRb0","3jSRb1","3jSRb9","3jSRbM","3jSRbU",
@@ -181,6 +195,9 @@ void MJ::dresser::loop(){
 	  templateHistName = getTemplateName(m_miniTree.jet_pt->at(i),
 					     m_miniTree.jet_eta->at(i),
 					     m_miniTree.jet_bmatched_Fix70->at(i),
+					     m_miniTree.jet_qmatched->at(i),
+					     m_miniTree.jet_gmatched->at(i),
+					     m_miniTree.jet_NTrimSubjets->at(i),
 					     m_miniTree.BDTG,
 					     m_miniTree.nbjet_Fix70,
 					     m_miniTree.njet+nsoft);
@@ -424,7 +441,7 @@ pair<int,int> MJ::dresser::getTemplateBin(float pt, float y, int njet=3){
   }  
   return bins;
 }
-string MJ::dresser::getTemplateName(float pt, float eta, int bMatch, float BDT, int nbjet, int njet){
+string MJ::dresser::getTemplateName(float pt, float eta, int bMatch, int qMatch, int gMatch, int nSubjets, float BDT, int nbjet, int njet){
   if(m_templateType == 0){
     pair<int,int> bins = getTemplateBin(pt,fabs(eta));
     int ptBin = bins.first;
@@ -458,6 +475,38 @@ string MJ::dresser::getTemplateName(float pt, float eta, int bMatch, float BDT, 
       throw "Could not find pT bin, eta bin, b-tag status, or njet";
     }
     return  "templ_b"+to_string(btag)+"_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin)+"_njet"+to_string(min(5,njet));
+  }
+  else if(m_templateType == 3){
+    pair<int,int> bins = getTemplateBin(pt,fabs(eta));
+    int ptBin = bins.first;
+    int etaBin = bins.second;
+    if( ptBin == -1 || etaBin == -1 ){ throw "Could not find pT or BDT bin"; }
+    if( qMatch == 1){
+      return "templ_q1_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin);
+    }
+    else if( gMatch == 1){
+      return "templ_g1_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin);
+    }
+    else{
+
+      TRandom3 r=TRandom3(0);
+      bool flip = r.Rndm() > 0.5;
+      //      cout<<"qMatch = "<<qMatch<<" gMatch = "<<gMatch<<" flip = "<<flip<<endl;      
+      if ( flip ){
+	return "templ_q1_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin);
+      }
+      else{
+	return "templ_g1_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin);
+      }
+    }
+    return "";
+  }
+  else if(m_templateType == 4){
+    pair<int,int> bins = getTemplateBin(pt,fabs(eta));
+    int ptBin = bins.first;
+    int etaBin = bins.second;
+    if( ptBin == -1 || etaBin == -1 ){ throw "Could not find pT or BDT bin"; }
+    return "templ_n"+to_string(min(3,nSubjets))+"_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin);
   }
   else{
     throw "Template type not found";

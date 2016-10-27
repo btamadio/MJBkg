@@ -47,7 +47,7 @@ namespace MJ{
     vector<double> m_ptBins4;
     vector<double> m_ptBins5;
     vector<double> m_yBins;
-    string getTemplateName(float,float,int,float,int,int);
+    string getTemplateName(float,float,int,int,int,int,float,int,int);
     string getRegionName(int,float);
     pair<int,int> getTemplateBin(float, float, int);
     pair<float,float> getDressedMass(TH1F *, float, float, bool);
