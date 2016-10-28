@@ -23,7 +23,10 @@ for var in variables:
         output+='<TR>'
         for i in range(len(jobNames)):
             jobName = jobNames[i]
+<<<<<<< HEAD
             date = dates[i]
+=======
+>>>>>>> origin/master
             fName = '../'+date+'_'+jobName+'/'+region+'/plot_'+var+'_SR_cut_800gev_'+region+'_'+jobName+'.png'
             output+='<TD><CENTER><img src="'+fName+'" height="800" width="800"><BR>(<a href="'+fName+'">link</a>)</CENTER></TD>'
         output+='</TR>'
