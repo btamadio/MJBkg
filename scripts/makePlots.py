@@ -154,11 +154,15 @@ class plotMaker:
         if var is 'prof1d':
             yLoc += 0.2
         if 'bdt' in self.jobName:
-            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/BDT}{binning}')
+            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/BDT/b-match}{binning}')
         if 'eta' in self.jobName:
-            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|}{binning}')
+            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|/b-match}{binning}')
         if 'ichep' in self.jobName:
             lat.DrawLatexNDC(0.24,yLoc,'#splitline{ICHEP}{binning}')
+        if 'qg' in self.jobName:
+            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|/qg-match}{binning}')
+        if 'nsubjet' in self.jobName:
+            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|/n_{subjet}}{binning}')
         lat.DrawLatexNDC(0.24,yLoc-0.18,self.regionLabel(region))
 
         ROOT.ATLASLabel(0.4,0.85,'Internal',0.05,0.115,1)
