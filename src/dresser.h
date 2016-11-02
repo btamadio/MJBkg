@@ -39,7 +39,8 @@ namespace MJ{
     miniTree m_miniTree;
     TTree *m_outTree;
     vector<double> *b_jet_m_dressed_nom;
-    vector<double> *b_jet_m_dressed_smear;
+    vector<double> *b_jet_m_dressed_up;
+    vector<double> *b_jet_m_dressed_down;
     bool m_doCorrections;
     vector<float> m_mass_corr_SR;
     vector<float> m_mass_corr_VR;
@@ -52,7 +53,7 @@ namespace MJ{
     string getRegionName(int,float);
     
     pair<int,int> getTemplateBin(float, float, int);
-    pair<float,float> getDressedMass(TH1F *, float, float, bool);
+    vector<float> getDressedMass(TH1F *, float, float, bool);
     map<string,TProfile> m_prof1d_kin;
     map<string,TProfile> m_prof1d_dressUp;
     map<string,TProfile> m_prof1d_dressNom;

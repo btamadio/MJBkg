@@ -3,7 +3,7 @@ import argparse,ROOT,os,math,glob
 parser = argparse.ArgumentParser(add_help=False, description='make plots')
 parser.add_argument('inDir')
 args = parser.parse_args()
-region = '4jSRb0'
+region = '4jVRb0'
 inFileList = [ROOT.TFile.Open(fileName) for fileName in glob.glob(args.inDir+'/*')]
 def mean(lst):
     return sum(lst) / float(len(lst))
@@ -20,4 +20,4 @@ for inFile in inFileList:
         dressProf[bin-1].append(hDress.GetBinContent(bin))
 for i in range(len(dressProf)):
     dressAvg.append(mean(dressProf[i]))
-    print abs(dressAvg[i]-kinProf[i])/kinProf[i]
+    print (dressAvg[i]-kinProf[i])/kinProf[i]
