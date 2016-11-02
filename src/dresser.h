@@ -58,11 +58,6 @@ namespace MJ{
     map<string,TProfile> m_prof1d_dressNom;
     map<string,TProfile> m_prof1d_dressDown;
 
-    map<string,TProfile2D> m_prof2d_kin;
-    map<string,TProfile2D> m_prof2d_dressUp;
-    map<string,TProfile2D> m_prof2d_dressNom;
-    map<string,TProfile2D> m_prof2d_dressDown;
-
     map<string,TH1F> m_hists_m_kin;
     map<string,TH1F> m_hists_m1_kin;
     map<string,TH1F> m_hists_m2_kin;

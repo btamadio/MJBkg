@@ -15,7 +15,7 @@ jobNames = ['pythia_eta',
 templateTypes = ['0','1','2','3','4']
 counter = 0
 #for i in range(len(templateFiles)):
-for i in [2]:
+for i in [0,1,3,4]:
     for j in range(nToys):
         cmd = 'qsub run_dressing_job.sh '+kinFile+' '+templateFiles[i]+' '+jobNames[i]+' '+templateTypes[i]+' '+str(j)
         os.system(cmd)

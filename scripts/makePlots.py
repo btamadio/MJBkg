@@ -33,6 +33,24 @@ class plotMaker:
         self.rHistsKin = {}
     def regionLabel(self,region):
         regionLabel = '#splitline{N_{jet} '
+        if region is '3js0':
+            regionLabel +='= 3}{n_{soft jet} = 0}'
+            return regionLabel
+        elif '3js1' in region:
+            regionLabel +='= 3}{n_{soft jet} = 1}'
+            return regionLabel
+        elif '3js2' in region:
+            regionLabel +='= 3}{n_{soft jet} #geq 2}'
+            return regionLabel
+        elif '4js0' in region:
+            regionLabel +='= 4}{n_{soft jet} = 0}'
+            return regionLabel
+        elif '4js1' in region:
+            regionLabel +='= 4}{n_{soft jet} #geq 1}'
+            return regionLabel
+        elif region is '5j':
+            regionLabel +='#geq 5}{}'
+            return regionLabel
         if '3j' in region:
             regionLabel+='= 3}'        
         if '4j' in region:
@@ -129,11 +147,13 @@ class plotMaker:
             errUp = abs(dHistUp.GetBinContent(bin) - dHistNom.GetBinContent(bin))
             errDown = abs(dHistDown.GetBinContent(bin) - dHistNom.GetBinContent(bin))
             errSyst = 0.5*(errUp+errDown)
-#            errSyst = max(errUp,errDown)
             errStat = eHist.GetBinError(bin)
             errTot = math.sqrt(errSyst*errSyst+errStat*errStat)
-#            errTot = errSyst
-            eHist.SetBinError(bin,errTot)
+            if var is 'prof1d':
+                eHist.SetBinError(bin,errStat)
+            else:
+#                eHist.SetBinError(bin,errTot)
+                eHist.SetBinError(bin,errSyst)
         eHist.Draw('e2')
         if kHist.GetMaximum() <= 0:
             print 'Error, empty histogram. var = %s, region = %s'%(var,region)
@@ -229,7 +249,7 @@ class plotMaker:
         rHistPred.Divide(dHistNom)
         rHistKin.Divide(dHistNom)
         rHistPred.Draw('e2')
-        rHistKin.Draw('ep same')
+        rHistKin.Draw('e0 same')
         rHistPred.GetYaxis().SetTitle('Kin/Pred')
 
         rHistPred.SetMinimum(0.0)
@@ -265,11 +285,11 @@ if 'pythia' in args.jobName:
     lumi = 35
 p=plotMaker(args.inFile,args.jobName,args.date,lumi)
 for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4','prof1d']:
-   for region in ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
-                  '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM',
+   for region in ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM','3js0','3js1','3js2',
+                  '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM','4js0','4js1',
                   '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
                   '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
-                  '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
+                  '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM','5j',
                   '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']:
        if var is not 'MJ':
            p.makePlot(var,region)

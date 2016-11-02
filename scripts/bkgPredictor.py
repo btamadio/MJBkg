@@ -37,11 +37,11 @@ class bkgPredictor:
             self.outFile = ROOT.TFile.Open(outFileName,'RECREATE')
         else:
             self.outFile = ROOT.TFile.Open(outFileName,'CREATE')
-        self.regionList = ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
-                           '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM',
+        self.regionList = ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM','3js0','3js1','3js2',
+                           '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM','4js0','4js1',
                            '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
                            '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
-                           '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
+                           '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM','5j',
                            '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']
         self.histList   = ['jetmass','jetmass1','jetmass2','jetmass3','jetmass4','MJ']
         #The histograms are accessed by calling histDict[regionName][histType]
@@ -58,10 +58,7 @@ class bkgPredictor:
         self.prof1Dict_dressUp = {}
         self.prof1Dict_dressNom = {}
         self.prof1Dict_dressDown = {}
-        self.prof2Dict_kin = {}
-        self.prof2Dict_dressUp = {}
-        self.prof2Dict_dressNom = {}
-        self.prof2Dict_dressDown = {}
+
         for regionName in self.regionList:
             self.histDict_kin[regionName] = {}
             self.histDict_dressUp[regionName] = {}
@@ -104,25 +101,28 @@ class bkgPredictor:
                     self.histDict_dressDown[regionName][histType] = ROOT.TH1F(histName_dressDown,histName_dressDown,self.nMassBins,self.massBinLow,xUp)
 
     def getResponse(self):
-        f = ROOT.TFile.Open(self.dressedFileNames[0])
+        f=ROOT.TFile.Open(self.dressedFileNames[0])
         for regionName in self.regionList:
             self.prof1Dict_kin[regionName] = f.Get('h_prof1d_kin_'+regionName)
             self.prof1Dict_dressUp[regionName] = f.Get('h_prof1d_dressUp_'+regionName)
             self.prof1Dict_dressNom[regionName] = f.Get('h_prof1d_dressNom_'+regionName)
             self.prof1Dict_dressDown[regionName] = f.Get('h_prof1d_dressDown_'+regionName)
-            self.prof2Dict_kin[regionName] = f.Get('h_prof2d_kin_'+regionName)
-            self.prof2Dict_dressUp[regionName] = f.Get('h_prof2d_dressUp_'+regionName)
-            self.prof2Dict_dressNom[regionName] = f.Get('h_prof2d_dressNom_'+regionName)
-            self.prof2Dict_dressDown[regionName] = f.Get('h_prof2d_dressDown_'+regionName)
-            self.outFile.cd()
+            self.prof1Dict_kin[regionName].SetDirectory(0)
+            self.prof1Dict_dressUp[regionName].SetDirectory(0)
+            self.prof1Dict_dressNom[regionName].SetDirectory(0)
+            self.prof1Dict_dressDown[regionName].SetDirectory(0)
+        for i in range(1,len(self.dressedFileNames)):
+            fi = ROOT.TFile.Open(self.dressedFileNames[i])
+            for regionName in self.regionList:
+                self.prof1Dict_dressUp[regionName].Add(fi.Get('h_prof1d_dressUp_'+regionName))
+                self.prof1Dict_dressNom[regionName].Add(fi.Get('h_prof1d_dressNom_'+regionName))
+                self.prof1Dict_dressDown[regionName].Add(fi.Get('h_prof1d_dressDown_'+regionName))
+        self.outFile.cd()
+        for regionName in self.regionList:
             self.prof1Dict_kin[regionName].Write()
             self.prof1Dict_dressUp[regionName].Write()
             self.prof1Dict_dressNom[regionName].Write()
             self.prof1Dict_dressDown[regionName].Write()
-            self.prof2Dict_kin[regionName].Write()
-            self.prof2Dict_dressUp[regionName].Write()
-            self.prof2Dict_dressNom[regionName].Write()
-            self.prof2Dict_dressDown[regionName].Write()
             
     def loopAndFill(self):
         #loop over pseudoexperiment files and fill prediction histograms
@@ -165,11 +165,10 @@ class bkgPredictor:
             for histType in self.histList:
                 for bin in range(1,self.histDict_dressNom[regionName][histType].GetNbinsX()+1):
                     self.histDict_dressUp[regionName][histType].SetBinContent(bin,mean(self.listDict_dressUp[regionName][histType][bin-1]))
-                    self.histDict_dressUp[regionName][histType].SetBinError(bin,err(self.listDict_dressUp[regionName][histType][bin-1]))
-
                     self.histDict_dressNom[regionName][histType].SetBinContent(bin,mean(self.listDict_dressNom[regionName][histType][bin-1]))
-                    self.histDict_dressNom[regionName][histType].SetBinError(bin,err(self.listDict_dressNom[regionName][histType][bin-1]))
                     self.histDict_dressDown[regionName][histType].SetBinContent(bin,mean(self.listDict_dressDown[regionName][histType][bin-1]))
+                    self.histDict_dressUp[regionName][histType].SetBinError(bin,err(self.listDict_dressUp[regionName][histType][bin-1]))
+                    self.histDict_dressNom[regionName][histType].SetBinError(bin,err(self.listDict_dressNom[regionName][histType][bin-1]))
                     self.histDict_dressDown[regionName][histType].SetBinError(bin,err(self.listDict_dressDown[regionName][histType][bin-1]))
                 if histType is 'MJ':
                     kHist = self.histDict_kin[regionName][histType]
