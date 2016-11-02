@@ -60,12 +60,20 @@ class plotMaker:
             return
         os.system('mkdir -p '+self.outDir+'/'+region)
         os.system('chmod a+rx '+self.outDir+'/'+region)
-        labelDict = {'jetmass':('jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
-                     'jetmass1':('leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
-                     'jetmass2':('2nd leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
-                     'jetmass3':('3rd leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
-                     'jetmass4':('4th leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
-                     'MJ':('M_{J}^{#Sigma} [TeV]','Events / Bin Width [TeV^{-1}]'),
+        # labelDict = {'jetmass':('jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
+        #              'jetmass1':('leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
+        #              'jetmass2':('2nd leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
+        #              'jetmass3':('3rd leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
+        #              'jetmass4':('4th leading jet mass [TeV]','Jets / Bin Width [TeV^{-1}]'),
+        #              'MJ':('M_{J}^{#Sigma} [TeV]','Events / Bin Width [TeV^{-1}]'),
+        #              'prof1d':('jet p_{T} [TeV]','<m_{jet}> [TeV]')}
+
+        labelDict = {'jetmass':('jet mass [TeV]','Jets'),
+                     'jetmass1':('leading jet mass [TeV]','Jets'),
+                     'jetmass2':('2nd leading jet mass [TeV]','Jets'),
+                     'jetmass3':('3rd leading jet mass [TeV]','Jets'),
+                     'jetmass4':('4th leading jet mass [TeV]','Jets'),
+                     'MJ':('M_{J}^{#Sigma} [TeV]','Events'),
                      'prof1d':('jet p_{T} [TeV]','<m_{jet}> [TeV]')}
         
         canName = var+'_'+region
@@ -120,7 +128,12 @@ class plotMaker:
         for bin in range(1,dHistNom.GetNbinsX()+1):
             errUp = abs(dHistUp.GetBinContent(bin) - dHistNom.GetBinContent(bin))
             errDown = abs(dHistDown.GetBinContent(bin) - dHistNom.GetBinContent(bin))
-            eHist.SetBinError(bin,(errUp+errDown)/2.0)
+            errSyst = 0.5*(errUp+errDown)
+#            errSyst = max(errUp,errDown)
+            errStat = eHist.GetBinError(bin)
+            errTot = math.sqrt(errSyst*errSyst+errStat*errStat)
+#            errTot = errSyst
+            eHist.SetBinError(bin,errTot)
         eHist.Draw('e2')
         if kHist.GetMaximum() <= 0:
             print 'Error, empty histogram. var = %s, region = %s'%(var,region)

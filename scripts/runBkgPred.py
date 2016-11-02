@@ -20,8 +20,15 @@ from bkgPredictor import bkgPredictor
 #     p.getResponse()
 #     p.loopAndFill()
 
-jobNameList = ['pythia_qg','pythia_nsubjet']
-filesList = [glob.glob('../output_dressed/pythia_qg/*.root'),
+jobNameList = ['pythia_eta',
+               'pythia_bdt',
+               'pythia_ichep',
+               'pythia_qg',
+               'pythia_nsubjet']
+filesList = [glob.glob('../output_dressed/pythia_eta/*.root'),
+             glob.glob('../output_dressed/pythia_bdt/*.root'),
+             glob.glob('../output_dressed/pythia_ichep/*.root'),
+             glob.glob('../output_dressed/pythia_qg/*.root'),
              glob.glob('../output_dressed/pythia_nsubjet/*.root')]
 for i in range(len(jobNameList)):
     p = bkgPredictor(filesList[i],jobNameList[i],35,i)

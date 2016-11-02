@@ -26,7 +26,7 @@ int main(int argc, char *argv[]){
   d.setTemplateType(templateType);
   string outFileName = "/project/projectdirs/atlas/btamadio/RPV_SUSY/MJBkg/output_dressed/"+jobName+"/"+jobName+"_"+toyNum+".root";
   d.setOutFileName(outFileName);
-  d.setDelta(0.05);
+  //  d.setDelta(0.05);
   //  d.doCorrections();
   if (MJcut > 0){ 
     d.blind(MJcut); 

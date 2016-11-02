@@ -14,7 +14,7 @@ def err(lst):
     for entry in lst:
         std += (entry-xbar)*(entry-xbar)
     std /= float(len(lst)-1)
-    return math.sqrt(std)/math.sqrt(len(lst))
+    return math.sqrt(std)
 class bkgPredictor:
     def __init__(self,dressedFileNames,jobName,lumi=35,templateType=0):
         self.dressedFileNames = dressedFileNames
@@ -34,7 +34,7 @@ class bkgPredictor:
     def setupOutput(self):
         outFileName = '../output_prediction/'+self.jobName+'.root'
         if os.path.isfile(outFileName):
-            self.outFile = ROOT.TFile.Open(outFileName,'UPDATE')
+            self.outFile = ROOT.TFile.Open(outFileName,'RECREATE')
         else:
             self.outFile = ROOT.TFile.Open(outFileName,'CREATE')
         self.regionList = ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
