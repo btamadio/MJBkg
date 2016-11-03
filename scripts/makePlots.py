@@ -152,8 +152,8 @@ class plotMaker:
             if var is 'prof1d':
                 eHist.SetBinError(bin,errStat)
             else:
-#                eHist.SetBinError(bin,errTot)
-                eHist.SetBinError(bin,errSyst)
+                eHist.SetBinError(bin,errTot)
+#                eHist.SetBinError(bin,errSyst)
         eHist.Draw('e2')
         if kHist.GetMaximum() <= 0:
             print 'Error, empty histogram. var = %s, region = %s'%(var,region)
@@ -198,11 +198,11 @@ class plotMaker:
             lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|/n_{subjet}}{binning}')
         lat.DrawLatexNDC(0.24,yLoc-0.18,self.regionLabel(region))
 
-        ROOT.ATLASLabel(0.4,0.85,'Internal',0.05,0.115,1)
+        ROOT.ATLASLabel(0.35,0.85,'Internal',0.05,0.115,1)
         if 'pythia' in self.jobName:
-            lat.DrawLatexNDC(0.4,0.78,str(int(self.lumi))+' fb^{-1} Pythia')
+            lat.DrawLatexNDC(0.35,0.78,str(int(self.lumi))+' fb^{-1} Pythia')
         elif 'data' in self.jobName:
-            lat.DrawLatexNDC(0.35,0.78,'#sqrt{s} = 13 TeV, '+str(int(self.lumi))+' fb^{-1}')
+            lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, '+str(int(self.lumi))+' fb^{-1}')
         if var is 'prof1d':
             self.legs[canName] = ROOT.TLegend(0.65,0.7,0.85,0.9)
         else:            
@@ -221,19 +221,23 @@ class plotMaker:
         nPred = 0
         if var is 'MJ':
             nObs = kHist.Integral(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1)
-            nPred = dHistNom.Integral(dHistNom.FindBin(self.MJcut),dHistNom.GetNbinsX()+1)
+            errStat = ROOT.Double(0)
+            nPred = dHistNom.IntegralAndError(dHistNom.FindBin(self.MJcut),dHistNom.GetNbinsX()+1,errStat)
+#            nPred = dHistNom.Integral(dHistNom.FindBin(self.MJcut),dHistNom.GetNbinsX()+1)
             nPredUp = dHistUp.Integral(dHistUp.FindBin(self.MJcut),dHistUp.GetNbinsX()+1)
             nPredDown = dHistDown.Integral(dHistDown.FindBin(self.MJcut),dHistDown.GetNbinsX()+1)
+
             errUp = abs(nPredUp-nPred)
             errDown = abs(nPredDown-nPred)
-            err = (errUp+errDown)/2.0
+            errSyst = (errUp+errDown)/2.0
+
             if 'pythia' in self.jobName:
-                lat.DrawLatexNDC(0.65,0.82,'#splitline{n_{pred} = %.1f #pm %.1f}{n_{obs} = %.1f}' % (nPred,err,nObs))
+                lat.DrawLatexNDC(0.6,0.82,'#splitline{n_{pred} = %.1f #pm %.1f #pm %.1f}{n_{obs} = %.1f}' % (nPred,errStat,errSyst,nObs))
             elif 'data' in self.jobName:
                 if 'SR' in region:
-                    lat.DrawLatexNDC(0.65,0.82,'n_{pred} = %.1f #pm %.1f' % (nPred,err))
+                    lat.DrawLatexNDC(0.6,0.82,'n_{pred} = %.1f #pm %.1f' % (nPred,err))
                 else:
-                    lat.DrawLatexNDC(0.65,0.82,'#splitline{n_{pred} = %.1f #pm %.1f}{n_{obs} = %.1f}' % (nPred,err,nObs))
+                    lat.DrawLatexNDC(0.6,0.82,'#splitline{n_{pred} = %.1f #pm %.1f #pm %.1f}{n_{obs} = %i}' % (nPred,errStat,errSyst,int(round(nObs))))
         self.cans[canName].cd()
         self.pad2s[canName] = ROOT.TPad(canName+'_p2',canName+'_p2',0,0.05,1,0.3)
         self.pad2s[canName].SetTopMargin(0)
@@ -272,10 +276,7 @@ class plotMaker:
         rHistPred.GetXaxis().SetTitleOffset(3.8)
         rHistPred.GetXaxis().SetLabelFont(43)
         rHistPred.GetXaxis().SetLabelSize(15)
-        outFileName = self.outDir+'/'+region+'/plot_'+var+'_SR_cut_'+str(int(self.MJcut*1000))+'gev_'+region+'_'+self.jobName
-        if var is 'prof1d':
-            outFileName = self.outDir+'/'+region+'/plot_'+var+'_'+region+'_'+self.jobName
-
+        outFileName = self.outDir+'/'+region+'/plot_'+var+'_'+region+'_'+self.jobName
         self.cans[canName].Print(outFileName+'.pdf')
         self.cans[canName].Print(outFileName+'.png')
         self.cans[canName].Print(outFileName+'.C')

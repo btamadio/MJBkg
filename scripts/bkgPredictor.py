@@ -179,13 +179,13 @@ class bkgPredictor:
                     if denom != 0:
                         norm /= denom
                     print 'regionName = %s, norm = %f' % (regionName,norm)
-                    self.histDict_dressUp[regionName][histType].Scale(2*norm*self.lumi)
+                    self.histDict_dressUp[regionName][histType].Scale(norm*self.lumi)
                     self.histDict_dressNom[regionName][histType].Scale(norm*self.lumi)
-                    self.histDict_dressDown[regionName][histType].Scale(2*norm*self.lumi)
+                    self.histDict_dressDown[regionName][histType].Scale(norm*self.lumi)
                 else:
-                    self.histDict_dressUp[regionName][histType].Scale(2*self.lumi)
+                    self.histDict_dressUp[regionName][histType].Scale(self.lumi)
                     self.histDict_dressNom[regionName][histType].Scale(self.lumi)
-                    self.histDict_dressDown[regionName][histType].Scale(2*self.lumi)
+                    self.histDict_dressDown[regionName][histType].Scale(self.lumi)
                 self.outFile.cd()
                 
                 self.histDict_dressUp[regionName][histType].Write()
