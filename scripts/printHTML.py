@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-variables = ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']
+variables = ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4','srYield']
 regions =   ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
              '3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
              '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
@@ -7,7 +7,7 @@ regions =   ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
              '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbU',
              '5jSRb0','5jSRb1','5jSRb9','5jVRbM','5jSRbM']
 jobNames = ['pythia_eta','pythia_bdt','pythia_ichep','pythia_qg','pythia_nsubjet']
-date = '11_03'
+date = '11_04'
 output = """<HTML>
 <HEAD> </HEAD>
 <BODY> 
@@ -16,7 +16,7 @@ output = """<HTML>
 """
 for var in variables:
     for region in regions:
-        if var is 'MJ' and ('bM' in region or 'bU' in region):
+        if (var is 'MJ' or var is 'srYield') and ('bM' in region or 'bU' in region):
             continue
         if var is 'jetmass4' and '3j' in region:
             continue
@@ -24,7 +24,10 @@ for var in variables:
         for i in range(len(jobNames)):
             jobName = jobNames[i]
             fName = '../'+date+'_'+jobName+'/'+region+'/plot_'+var+'_'+region+'_'+jobName+'.png'
-            output+='<TD><CENTER><img src="'+fName+'" height="800" width="800"><BR>(<a href="'+fName+'">link</a>)</CENTER></TD>'
+            height = '800'
+            if var is 'srYield':
+                height = '600'
+            output+='<TD><CENTER><img src="'+fName+'" height="'+height+'" width="800"><BR>(<a href="'+fName+'">link</a>)</CENTER></TD>'
         output+='</TR>'
 output+="""
 </TABLE></CENTER> 

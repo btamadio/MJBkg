@@ -26,6 +26,7 @@ namespace MJ{
     dresser();
     ~dresser();
   private:
+    vector<string> m_regionNames;
     int m_templateType;
     string m_miniTreeFileName;
     TFile *m_miniTreeFile;
@@ -54,10 +55,15 @@ namespace MJ{
     
     pair<int,int> getTemplateBin(float, float, int);
     vector<float> getDressedMass(TH1F *, float, float, bool);
+
+
     map<string,TProfile> m_prof1d_kin;
-    map<string,TProfile> m_prof1d_dressUp;
-    map<string,TProfile> m_prof1d_dressNom;
-    map<string,TProfile> m_prof1d_dressDown;
+    map<string,TProfile> m_prof1d_cen_kin;
+    map<string,TProfile> m_prof1d_for_kin;
+
+    map<string,TProfile> m_prof1d_dress;
+    map<string,TProfile> m_prof1d_cen_dress;
+    map<string,TProfile> m_prof1d_for_dress;
 
     map<string,TH1F> m_hists_m_kin;
     map<string,TH1F> m_hists_m1_kin;

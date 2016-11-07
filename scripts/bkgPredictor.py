@@ -21,11 +21,12 @@ class bkgPredictor:
         self.nToys = len(self.dressedFileNames)
         self.jobName = jobName
         self.lumi = lumi
+        self.MJcut = 0.8
         self.templateType = templateType
         self.MJbins = [0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.40,0.45,0.5,0.6,0.8,1.0,2.0]
         self.nMJbins = len(self.MJbins)-1
         self.MJbinArray = array.array('d',self.MJbins)
-        self.nMassBins = 200
+        self.nMassBins = 20
         self.massBinLow = 0.0
         self.massBinUp = 2.0
         self.normRegion = (0.2,0.6)
@@ -55,11 +56,15 @@ class bkgPredictor:
         self.listDict_dressUp = {}
         self.listDict_dressDown = {}
         self.prof1Dict_kin = {}
-        self.prof1Dict_dressUp = {}
-        self.prof1Dict_dressNom = {}
-        self.prof1Dict_dressDown = {}
-
+        self.prof1Dict_cen_kin = {}
+        self.prof1Dict_for_kin = {}
+        self.prof1Dict_dress = {}
+        self.prof1Dict_cen_dress = {}
+        self.prof1Dict_for_dress = {}
+        self.srYield_listDict = {}
+        self.srYield_histDict = {}
         for regionName in self.regionList:
+            self.srYield_listDict[regionName] = []
             self.histDict_kin[regionName] = {}
             self.histDict_dressUp[regionName] = {}
             self.histDict_dressNom[regionName] = {}
@@ -104,25 +109,36 @@ class bkgPredictor:
         f=ROOT.TFile.Open(self.dressedFileNames[0])
         for regionName in self.regionList:
             self.prof1Dict_kin[regionName] = f.Get('h_prof1d_kin_'+regionName)
-            self.prof1Dict_dressUp[regionName] = f.Get('h_prof1d_dressUp_'+regionName)
-            self.prof1Dict_dressNom[regionName] = f.Get('h_prof1d_dressNom_'+regionName)
-            self.prof1Dict_dressDown[regionName] = f.Get('h_prof1d_dressDown_'+regionName)
+
+            self.prof1Dict_cen_kin[regionName] = f.Get('h_prof1d_cen_kin_'+regionName)
+            self.prof1Dict_for_kin[regionName] = f.Get('h_prof1d_for_kin_'+regionName)
+
+            self.prof1Dict_dress[regionName] = f.Get('h_prof1d_dress_'+regionName)
+            self.prof1Dict_cen_dress[regionName] = f.Get('h_prof1d_cen_dress_'+regionName)
+            self.prof1Dict_for_dress[regionName] = f.Get('h_prof1d_for_dress_'+regionName)
+
             self.prof1Dict_kin[regionName].SetDirectory(0)
-            self.prof1Dict_dressUp[regionName].SetDirectory(0)
-            self.prof1Dict_dressNom[regionName].SetDirectory(0)
-            self.prof1Dict_dressDown[regionName].SetDirectory(0)
+            self.prof1Dict_cen_kin[regionName].SetDirectory(0)
+            self.prof1Dict_for_kin[regionName].SetDirectory(0)
+            self.prof1Dict_dress[regionName].SetDirectory(0)
+            self.prof1Dict_cen_dress[regionName].SetDirectory(0)
+            self.prof1Dict_for_dress[regionName].SetDirectory(0)
+
         for i in range(1,len(self.dressedFileNames)):
             fi = ROOT.TFile.Open(self.dressedFileNames[i])
             for regionName in self.regionList:
-                self.prof1Dict_dressUp[regionName].Add(fi.Get('h_prof1d_dressUp_'+regionName))
-                self.prof1Dict_dressNom[regionName].Add(fi.Get('h_prof1d_dressNom_'+regionName))
-                self.prof1Dict_dressDown[regionName].Add(fi.Get('h_prof1d_dressDown_'+regionName))
+                self.prof1Dict_dress[regionName].Add(fi.Get('h_prof1d_dress_'+regionName))
+                self.prof1Dict_cen_dress[regionName].Add(fi.Get('h_prof1d_cen_dress_'+regionName))
+                self.prof1Dict_for_dress[regionName].Add(fi.Get('h_prof1d_for_dress_'+regionName))
         self.outFile.cd()
         for regionName in self.regionList:
             self.prof1Dict_kin[regionName].Write()
-            self.prof1Dict_dressUp[regionName].Write()
-            self.prof1Dict_dressNom[regionName].Write()
-            self.prof1Dict_dressDown[regionName].Write()
+            self.prof1Dict_cen_kin[regionName].Write()
+            self.prof1Dict_for_kin[regionName].Write()
+            self.prof1Dict_dress[regionName].Write()
+            self.prof1Dict_cen_dress[regionName].Write()
+            self.prof1Dict_for_dress[regionName].Write()
+
             
     def loopAndFill(self):
         #loop over pseudoexperiment files and fill prediction histograms
@@ -156,11 +172,16 @@ class bkgPredictor:
                         h_dressUp = h_dressUp.Rebin(self.nMJbins,'',self.MJbinArray)
                         h_dressNom = h_dressNom.Rebin(self.nMJbins,'',self.MJbinArray)
                         h_dressDown = h_dressDown.Rebin(self.nMJbins,'',self.MJbinArray)
+                    else:
+                        h_dressUp.Rebin(10)
+                        h_dressNom.Rebin(10)
+                        h_dressDown.Rebin(10)
                     for bin in range(1,h_dressNom.GetNbinsX()+1):
                         self.listDict_dressUp[regionName][histType][bin-1].append(h_dressUp.GetBinContent(bin))
                         self.listDict_dressNom[regionName][histType][bin-1].append(h_dressNom.GetBinContent(bin))
                         self.listDict_dressDown[regionName][histType][bin-1].append(h_dressDown.GetBinContent(bin))
-
+                    if histType == 'MJ':
+                        self.srYield_listDict[regionName].append(h_dressNom.Integral(h_dressNom.FindBin(self.MJcut),h_dressNom.FindBin(h_dressNom.GetNbinsX())+1))
         for regionName in self.regionList:
             for histType in self.histList:
                 for bin in range(1,self.histDict_dressNom[regionName][histType].GetNbinsX()+1):
@@ -179,6 +200,13 @@ class bkgPredictor:
                     if denom != 0:
                         norm /= denom
                     print 'regionName = %s, norm = %f' % (regionName,norm)
+                    cen = mean(self.srYield_listDict[regionName])
+                    
+                    xMin = norm*self.lumi*(cen-3*err(self.srYield_listDict[regionName]))
+                    xMax = norm*self.lumi*(cen+3*err(self.srYield_listDict[regionName]))
+                    self.srYield_histDict[regionName] = ROOT.TH1F('h_srYield_'+regionName,'signal yield',20,xMin,xMax)
+                    for entry in self.srYield_listDict[regionName]:
+                        self.srYield_histDict[regionName].Fill(entry*norm*self.lumi)
                     self.histDict_dressUp[regionName][histType].Scale(norm*self.lumi)
                     self.histDict_dressNom[regionName][histType].Scale(norm*self.lumi)
                     self.histDict_dressDown[regionName][histType].Scale(norm*self.lumi)
@@ -191,3 +219,4 @@ class bkgPredictor:
                 self.histDict_dressUp[regionName][histType].Write()
                 self.histDict_dressNom[regionName][histType].Write()
                 self.histDict_dressDown[regionName][histType].Write()
+            self.srYield_histDict[regionName].Write()

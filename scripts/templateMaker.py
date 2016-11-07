@@ -80,6 +80,8 @@ class templateMaker:
             #pt/eta/q/g-match binning
             for i in range(len(self.ptBins3)-1):
                 for j in range(len(self.yBins)-1):
+                    histName = 'templ_b1_ptBin'+str(i+1)+'_etaBin'+str(j+1)
+                    self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)
                     histName = 'templ_q1_ptBin'+str(i+1)+'_etaBin'+str(j+1)
                     self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)
                     histName = 'templ_g1_ptBin'+str(i+1)+'_etaBin'+str(j+1)
@@ -237,7 +239,9 @@ class templateMaker:
                     break
             #print 'pt = %f, ptBin = %i, |eta| = %f, etaBin = %i' % (pt,ptBin,abs(eta),etaBin) 
             qgMatch = ''
-            if qMatch == 1:
+            if bMatch == 1:
+                qgMatch = 'b'
+            elif qMatch == 1:
                 qgMatch = 'q'
             elif gMatch == 1:
                 qgMatch = 'g'

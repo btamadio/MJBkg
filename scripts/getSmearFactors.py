@@ -15,7 +15,7 @@ for bin in range(1,hKin.GetNbinsX()+1):
     kinProf.append(hKin.GetBinContent(bin))
     dressProf.append([])
 for inFile in inFileList:
-    hDress = inFile.Get('h_prof1d_dressNom_'+region).ProjectionX()
+    hDress = inFile.Get('h_prof1d_dress_'+region).ProjectionX()
     for bin in range(1,hDress.GetNbinsX()+1):
         dressProf[bin-1].append(hDress.GetBinContent(bin))
 for i in range(len(dressProf)):
