@@ -17,7 +17,6 @@ namespace MJ{
     void setMiniTreeFileName(string s){ m_miniTreeFileName = s; }
     void setTemplateFileName(string s){ m_templateFileName = s; }
     void setOutFileName(string s){ m_outFileName = s; }
-    //void setDelta( float d ){ m_delta = d; }
     void setTemplateType( int t ){ m_templateType = t; }
     void doCorrections(){ m_doCorrections = true; }
     void initialize();
@@ -43,8 +42,6 @@ namespace MJ{
     vector<double> *b_jet_m_dressed_up;
     vector<double> *b_jet_m_dressed_down;
     bool m_doCorrections;
-    vector<float> m_mass_corr_SR;
-    vector<float> m_mass_corr_VR;
     vector<double> m_ptBins3;
     vector<double> m_ptBins4;
     vector<double> m_ptBins5;
@@ -54,7 +51,7 @@ namespace MJ{
     string getRegionName(int,float);
     
     pair<int,int> getTemplateBin(float, float, int);
-    vector<float> getDressedMass(TH1F *, float, float, bool);
+    vector<float> getDressedMass(TH1F *, float, float, float);
 
 
     map<string,TProfile> m_prof1d_kin;

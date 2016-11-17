@@ -22,6 +22,7 @@ class templateMaker:
         if not self.miniTree:
             print 'miniTree not found in file %s. Exiting.' % inFileName
             sys.exit(1)
+        #Calculate which events to run on
         nEntries = self.miniTree.GetEntries()
         k =math.ceil(float(nEntries)/float(nSplit))
         self.eventStart = int(k*int(jobNum))

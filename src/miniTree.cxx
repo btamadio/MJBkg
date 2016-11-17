@@ -8,20 +8,6 @@ MJ::miniTree::miniTree():fChain(0)
 {
 }
 
-// MJ::miniTree::miniTree(TTree *tree) : fChain(0) 
-// {
-// // if parameter tree is not specified (or zero), connect the file
-// // used to generate this class and read the Tree.
-//    if (tree == 0) {
-//       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("data2015/main_data2015.root");
-//       if (!f || !f->IsOpen()) {
-//          f = new TFile("data2015/main_data2015.root");
-//       }
-//       f->GetObject("miniTree",tree);
-//    }
-//    Init(tree);
-// }
-
 MJ::miniTree::~miniTree()
 {
    if (!fChain) return;
@@ -49,15 +35,6 @@ Long64_t MJ::miniTree::LoadTree(Long64_t entry)
 
 void MJ::miniTree::Init(TTree *tree)
 {
-   // The Init() function is called when the selector needs to initialize
-   // a new tree or chain. Typically here the branch addresses and branch
-   // pointers of the tree will be set.
-   // It is normally not necessary to make changes to the generated
-   // code, but the routine can be extended by the user if needed.
-   // Init() will be called many times when running on PROOF
-   // (once per file to be processed).
-
-   // Set object pointer
    jet_pt = 0;
    jet_eta = 0;
    jet_phi = 0;
@@ -78,7 +55,6 @@ void MJ::miniTree::Init(TTree *tree)
    fChain = tree;
    fCurrent = -1;
    fChain->SetMakeClass(1);
-
    fChain->SetBranchAddress("runNumber", &runNumber, &b_runNumber);
    fChain->SetBranchAddress("mcChannelNumber", &mcChannelNumber, &b_mcChannelNumber);
    fChain->SetBranchAddress("eventNumber", &eventNumber, &b_eventNumber);
@@ -152,29 +128,6 @@ Int_t MJ::miniTree::Cut(Long64_t entry)
 
 void MJ::miniTree::Loop()
 {
-//   In a ROOT session, you can do:
-//      root> .L miniTree.C
-//      root> miniTree t
-//      root> t.GetEntry(12); // Fill t data members with entry number 12
-//      root> t.Show();       // Show values of entry 12
-//      root> t.Show(16);     // Read and show values of entry 16
-//      root> t.Loop();       // Loop on all entries
-//
-
-//     This is the loop skeleton where:
-//    jentry is the global entry number in the chain
-//    ientry is the entry number in the current Tree
-//  Note that the argument to GetEntry must be:
-//    jentry for TChain::GetEntry
-//    ientry for TTree::GetEntry and TBranch::GetEntry
-//
-//       To read only selected branches, Insert statements like:
-// METHOD1:
-//    fChain->SetBranchStatus("*",0);  // disable all branches
-//    fChain->SetBranchStatus("branchname",1);  // activate branchname
-// METHOD2: replace line
-//    fChain->GetEntry(jentry);       //read all branches
-//by  b_branchname->GetEntry(ientry); //read only this branch
    if (fChain == 0) return;
 
    Long64_t nentries = fChain->GetEntriesFast();

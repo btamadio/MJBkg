@@ -3,8 +3,6 @@
 #include <iostream>
 using namespace std;
 int main(int argc, char *argv[]){
-  //argc = number of args+1
-  //argv = [argc,arguments]
   if (argc < 6){
     cout<<"Not enough command line arguments."<<endl;
     cout<<"usage: RunDresser <miniTreeFileName> <templateFileName> <jobName> <templateType> <toyNum> [MJcut to blind]"<<endl;
@@ -14,7 +12,6 @@ int main(int argc, char *argv[]){
   string templateFileName = argv[2];
   string jobName = argv[3];
   int templateType = atoi(argv[4]);
-  //  bool blinded = atoi(argv[5]);
   string toyNum = argv[5];
   float MJcut = 0;
   if (argc > 6){
@@ -26,8 +23,6 @@ int main(int argc, char *argv[]){
   d.setTemplateType(templateType);
   string outFileName = "/project/projectdirs/atlas/btamadio/RPV_SUSY/MJBkg/output_dressed/"+jobName+"/"+jobName+"_"+toyNum+".root";
   d.setOutFileName(outFileName);
-  //  d.setDelta(0.05);
-  //  d.doCorrections();
   if (MJcut > 0){ 
     d.blind(MJcut); 
     cout<<"Blinding events with MJ > "<<MJcut<<" TeV"<<endl;

@@ -29,6 +29,7 @@ class plotMaker:
         self.dHistsNom = {}
         self.dHistsUp = {}
         self.dHistsDown = {}
+        self.dHistsNom_MCstat = {}
         self.rHistsPred = {}
         self.rHistsPredUp = {}
         self.rHistsPredDown = {}
@@ -114,7 +115,6 @@ class plotMaker:
         self.cans[canName].Print(outFileName+'.png')
         self.cans[canName].Print(outFileName+'.C')
         os.system('chmod a+r '+self.outDir+'/'+region+'/*')
-
     def makePlot(self,var,region):
         if var is 'jetmass4' and '3j' in region:
             return
@@ -130,7 +130,7 @@ class plotMaker:
                      'prof1d_cen':('jet p_{T} [TeV]','<m_{jet}> [TeV]'),
                      'prof1d_for':('jet p_{T} [TeV]','<m_{jet}> [TeV]')}
         canName = var+'_'+region
-        print canName,var,region
+#        print canName,var,region
         self.cans[canName]=ROOT.TCanvas(canName,canName,800,800)
         self.cans[canName].cd()
         self.pad1s[canName] = ROOT.TPad(canName+'_p1',canName+'_p1',0,0.3,1,1.0)
@@ -140,6 +140,7 @@ class plotMaker:
         if not 'prof1d' in var:
             self.pad1s[canName].SetLogy()
             self.dHistsNom[canName] = self.inFile.Get('h_'+var+'_dressNom_'+region)
+            self.dHistsNom[canName] = self.inFile.Get('h_'+var+'_dressNom_'+region+'_MCstat')
         else:
             self.dHistsNom[canName] = self.inFile.Get('h_'+var+'_dress_'+region)
         self.kHists[canName] = self.inFile.Get('h_'+var+'_kin_'+region)            
@@ -188,9 +189,7 @@ class plotMaker:
                 errUp = abs(dHistUp.GetBinContent(bin) - dHistNom.GetBinContent(bin))
                 errDown = abs(dHistDown.GetBinContent(bin) - dHistNom.GetBinContent(bin))
                 errSyst = max(errUp,errDown)
-#                errSyst = 0.5*(errUp+errDown)
             errStat = eHist.GetBinError(bin)
-#            errStat = 0
             errTot = math.sqrt(errSyst*errSyst+errStat*errStat)
             eHist.SetBinError(bin,errTot)
         eHist.Draw('e2')
@@ -219,7 +218,6 @@ class plotMaker:
             for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
                 kHist.SetBinContent(bin,0)
                 kHist.SetBinError(bin,0)
-#        if var is not 'prof1d':
         if not 'prof1d' in var:
             kHist.SetBinErrorOption(1)
         kHist.Draw('same ep')
@@ -227,7 +225,6 @@ class plotMaker:
         eHist.GetYaxis().SetTitle(labelDict[var][1])
         lat = ROOT.TLatex()
         yLoc = 0.4
-#        if var is 'prof1d':
         if 'prof1d' in var:
             yLoc += 0.2
             if 'cen' in var:
@@ -251,7 +248,6 @@ class plotMaker:
             lat.DrawLatexNDC(0.35,0.78,str(int(self.lumi))+' fb^{-1} Pythia')
         elif 'data' in self.jobName:
             lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, '+str(int(self.lumi))+' fb^{-1}')
-#        if var is 'prof1d':
         if 'prof1d' in var:
             self.legs[canName] = ROOT.TLegend(0.65,0.7,0.85,0.9)
         else:            
@@ -270,8 +266,9 @@ class plotMaker:
         nPred = 0
         if var is 'MJ':
             errNobs = ROOT.Double(0)
+            errMCstat = ROOT.Double(0)
             nObs = kHist.IntegralAndError(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1,errNobs)
-            nPred = dHistNom.Integral(dHistNom.FindBin(self.MJcut),dHistNom.GetNbinsX()+1)
+            nPred = dHistNom.IntegralAndError(dHistNom.FindBin(self.MJcut),dHistNom.GetNbinsX()+1,errMCstat)
             nPredUp = dHistUp.Integral(dHistUp.FindBin(self.MJcut),dHistUp.GetNbinsX()+1)
             nPredDown = dHistDown.Integral(dHistDown.FindBin(self.MJcut),dHistDown.GetNbinsX()+1)
             errUp = abs(nPredUp-nPred)
@@ -280,10 +277,9 @@ class plotMaker:
 
             yieldHist = self.inFile.Get('h_srYield_'+region)
             nPredMean = yieldHist.GetMean()
-            errStat = yieldHist.GetRMS()
-            print region,nPred,nPredMean,errStat,errSyst
-#            errStat = ROOT.Double(0)
-#            nPred = dHistNom.IntegralAndError(dHistNom.FindBin(self.MJcut),dHistNom.GetNbinsX()+1,errStat)
+            #combine std. of yield hist with MC statistical uncertainty to get total stat. uncertainty
+            errStat = math.sqrt(yieldHist.GetRMS()*yieldHist.GetRMS()+errMCstat*errMCstat)
+#            print region,nPred,nPredMean,errStat,errSyst
 
             if 'pythia' in self.jobName:
                 lat.DrawLatexNDC(0.6,0.82,'#splitline{n_{pred} = %.1f #pm %.1f #pm %.1f}{n_{obs} = %.1f #pm %.1f}' % (nPred,errStat,errSyst,nObs,errNobs))
@@ -354,6 +350,7 @@ lumi = 28
 if 'pythia' in args.jobName:
     lumi = 35
 p=plotMaker(args.inFile,args.jobName,args.date,lumi)
+
 for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4','prof1d','prof1d_cen','prof1d_for']:
    for region in ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM','3js0','3js1','3js2',
                   '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM','4js0','4js1',

@@ -8,7 +8,7 @@ regions =   ['3js0','3js1','3js2','3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
 #jobNames = ['pythia_eta_corr','pythia_bdt_corr','pythia_ichep_corr']
 #jobNames = ['data_eta_corr','data_bdt_uncorr','data_ichep_uncorr']
 jobNames = ['pythia_eta','pythia_bdt','pythia_ichep','pythia_qg','pythia_nsubjet']
-date = '11_03'
+date = '11_04'
 output = """<HTML>
 <HEAD> </HEAD>
 <BODY> 

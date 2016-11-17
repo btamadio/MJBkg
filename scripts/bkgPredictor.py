@@ -52,31 +52,44 @@ class bkgPredictor:
         self.histDict_dressUp = {}
         self.histDict_dressNom = {}
         self.histDict_dressDown = {}
+        #this is the same as histDict_dressNom, only the errors reflect MC statistical uncertainty.
+        self.histDict_dressNom_MCstat = {}
+        #These are the lists of bin contents for all toys
         self.listDict_dressNom = {}
         self.listDict_dressUp = {}
         self.listDict_dressDown = {}
+        #List of sumw2 for each bin for all toys
+        self.sumw2Dict = {}
+        
+        
+        #profile histograms for response plots
         self.prof1Dict_kin = {}
         self.prof1Dict_cen_kin = {}
         self.prof1Dict_for_kin = {}
         self.prof1Dict_dress = {}
         self.prof1Dict_cen_dress = {}
         self.prof1Dict_for_dress = {}
+        #list of signal region yields, for calculating stat. uncertainty
         self.srYield_listDict = {}
         self.srYield_histDict = {}
+        
         for regionName in self.regionList:
             self.srYield_listDict[regionName] = []
             self.histDict_kin[regionName] = {}
             self.histDict_dressUp[regionName] = {}
             self.histDict_dressNom[regionName] = {}
             self.histDict_dressDown[regionName] = {}
+            self.histDict_dressNom_MCstat[regionName] = {}
             self.listDict_dressUp[regionName] = {}
             self.listDict_dressNom[regionName] = {}
             self.listDict_dressDown[regionName] = {}
+            self.sumw2Dict[regionName] = {}
 
             for histType in self.histList:
                 self.listDict_dressUp[regionName][histType] = []
                 self.listDict_dressNom[regionName][histType] = []
                 self.listDict_dressDown[regionName][histType] = []
+                self.sumw2Dict[regionName][histType] = []
                 histName_kin = 'h_'+histType+'_kin_'+regionName
                 histName_dressUp = 'h_'+histType+'_dressUp_'+regionName
                 histName_dressNom = 'h_'+histType+'_dressNom_'+regionName
@@ -86,10 +99,12 @@ class bkgPredictor:
                         self.listDict_dressUp[regionName][histType].append([])
                         self.listDict_dressNom[regionName][histType].append([])
                         self.listDict_dressDown[regionName][histType].append([])
+                        self.sumw2Dict[regionName][histType].append([])
 #                        self.histDict_kin[regionName][histType] = f.Get(histName).Clone()
                     self.histDict_dressUp[regionName][histType] = ROOT.TH1F(histName_dressUp,histName_dressUp,self.nMJbins,self.MJbinArray)
                     self.histDict_dressNom[regionName][histType] = ROOT.TH1F(histName_dressNom,histName_dressNom,self.nMJbins,self.MJbinArray)
                     self.histDict_dressDown[regionName][histType] = ROOT.TH1F(histName_dressDown,histName_dressDown,self.nMJbins,self.MJbinArray)
+                    self.histDict_dressNom_MCstat[regionName][histType] = ROOT.TH1F(histName_dressNom+'_MCstat',histName_dressNom+'_MCstat',self.nMJbins,self.MJbinArray)
                 else:
                     #For individual jet mass plots, binning depends on pT order
                     xUp = 1.2
@@ -101,9 +116,11 @@ class bkgPredictor:
                         self.listDict_dressUp[regionName][histType].append([])
                         self.listDict_dressNom[regionName][histType].append([])
                         self.listDict_dressDown[regionName][histType].append([])
+                        self.sumw2Dict[regionName][histType].append([])
                     self.histDict_dressUp[regionName][histType] = ROOT.TH1F(histName_dressUp,histName_dressUp,self.nMassBins,self.massBinLow,xUp)
                     self.histDict_dressNom[regionName][histType] = ROOT.TH1F(histName_dressNom,histName_dressNom,self.nMassBins,self.massBinLow,xUp)
                     self.histDict_dressDown[regionName][histType] = ROOT.TH1F(histName_dressDown,histName_dressDown,self.nMassBins,self.massBinLow,xUp)
+                    self.histDict_dressNom_MCstat[regionName][histType] = ROOT.TH1F(histName_dressNom+'_MCstat',histName_dressNom+'_MCstat',self.nMassBins,self.massBinLow,xUp)
 
     def getResponse(self):
         f=ROOT.TFile.Open(self.dressedFileNames[0])
@@ -155,8 +172,6 @@ class bkgPredictor:
                 self.histDict_kin[regionName][histType].Write()
         i=0
         for fileName in self.dressedFileNames:
-            if i > 100:
-                continue
             if i%100 == 0:
                 print 'processing toy number %i' % i
             f = ROOT.TFile.Open(fileName)
@@ -180,6 +195,7 @@ class bkgPredictor:
                         self.listDict_dressUp[regionName][histType][bin-1].append(h_dressUp.GetBinContent(bin))
                         self.listDict_dressNom[regionName][histType][bin-1].append(h_dressNom.GetBinContent(bin))
                         self.listDict_dressDown[regionName][histType][bin-1].append(h_dressDown.GetBinContent(bin))
+                        self.sumw2Dict[regionName][histType][bin-1].append(h_dressNom.GetBinError(bin))
                     if histType == 'MJ':
                         self.srYield_listDict[regionName].append(h_dressNom.Integral(h_dressNom.FindBin(self.MJcut),h_dressNom.FindBin(h_dressNom.GetNbinsX())+1))
         for regionName in self.regionList:
@@ -188,9 +204,13 @@ class bkgPredictor:
                     self.histDict_dressUp[regionName][histType].SetBinContent(bin,mean(self.listDict_dressUp[regionName][histType][bin-1]))
                     self.histDict_dressNom[regionName][histType].SetBinContent(bin,mean(self.listDict_dressNom[regionName][histType][bin-1]))
                     self.histDict_dressDown[regionName][histType].SetBinContent(bin,mean(self.listDict_dressDown[regionName][histType][bin-1]))
+                    self.histDict_dressNom_MCstat[regionName][histType].SetBinContent(bin,mean(self.listDict_dressNom[regionName][histType][bin-1]))
+
                     self.histDict_dressUp[regionName][histType].SetBinError(bin,err(self.listDict_dressUp[regionName][histType][bin-1]))
                     self.histDict_dressNom[regionName][histType].SetBinError(bin,err(self.listDict_dressNom[regionName][histType][bin-1]))
                     self.histDict_dressDown[regionName][histType].SetBinError(bin,err(self.listDict_dressDown[regionName][histType][bin-1]))
+                    self.histDict_dressNom_MCstat[regionName][histType].SetBinError(bin,mean(self.sumw2Dict[regionName][histType][bin-1]))
+
                 if histType is 'MJ':
                     kHist = self.histDict_kin[regionName][histType]
                     dHist = self.histDict_dressNom[regionName][histType]
@@ -210,13 +230,15 @@ class bkgPredictor:
                     self.histDict_dressUp[regionName][histType].Scale(norm*self.lumi)
                     self.histDict_dressNom[regionName][histType].Scale(norm*self.lumi)
                     self.histDict_dressDown[regionName][histType].Scale(norm*self.lumi)
+                    self.histDict_dressNom_MCstat[regionName][histType].Scale(norm*self.lumi)
                 else:
                     self.histDict_dressUp[regionName][histType].Scale(self.lumi)
                     self.histDict_dressNom[regionName][histType].Scale(self.lumi)
                     self.histDict_dressDown[regionName][histType].Scale(self.lumi)
+                    self.histDict_dressNom_MCstat[regionName][histType].Scale(self.lumi)
                 self.outFile.cd()
-                
                 self.histDict_dressUp[regionName][histType].Write()
                 self.histDict_dressNom[regionName][histType].Write()
                 self.histDict_dressDown[regionName][histType].Write()
+                self.histDict_dressNom_MCstat[regionName][histType].Write()
             self.srYield_histDict[regionName].Write()

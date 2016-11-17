@@ -46,49 +46,33 @@ void MJ::dresser::initialize(){
   //Set pT and eta binning -> at some point change this to use config file instead
   if(m_templateType == 0){
     //pt/eta/b-match binning
-    m_mass_corr_VR = {0.983362145257,0.984200169158,0.977797358721,0.975586979428,0.965202321645,0.971748206872,
-		      0.967629836047,0.979667146605,1.00193059003,1.00949003403,1.00232763577,1.00610321852,
-		      1.02012570449,1.02305972305,1.02047826149};
-    m_mass_corr_SR = {0.93841504343,0.94891312853,0.959466634316,0.954854062213,0.956942093602,0.966843703694,
-		      0.96797316068,1.00082622301,1.00404081975,1.01879979757,1.00896991546,0.999664340742,
-		      1.03408107469,1.03983996364,1.03891668862};
     m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_yBins = {0,0.5,1.0,1.5,2.0};
-    m_deltas = {0.0371466145457,0.0154280783421,0.0160572721911,0.0240760491119,0.0299535602059,0.039231082425,
-		0.00199592278433,-0.026907728043,-0.0320283666982,0.0069393626982,-0.0200608240752,0.011357223687,
-		-0.0184557814035,0.00478771247814,0.0195624416068};
-  }
+    m_deltas = {0.066269792196,0.0355740315935,0.0504805297496,0.0429559527871,0.0371801556538,0.0524039500923,0.00578257562839,
+		-0.0326313375577,0.0434807611253,0.00617306211986,-0.0487340259176,0.035989853855,-0.0336659871568,0.00895879194096,
+		0.0316528994044};
   if(m_templateType == 1){
     //pt/BDT/b-match binning
-    m_mass_corr_VR = {0.959685289567,0.957709608929,0.947837051562,0.940335033262,0.9322820971,0.933017654959,
-		      0.928334743188,0.950262690972,0.996308204029,0.988455862098,0.998695106437,1.02482723224,
-		      1.01294858582,0.987037064786,0.990726877637};
-    m_mass_corr_SR = {0.923421968046,0.923686365314,0.935026497931,0.919090223557,0.929793760039,0.925617188694,
-		      0.952878954078,0.984055586603,1.02224369428,1.04107465795,1.03994203767,1.02630570584,
-		      1.03837595079,1.04730864121,1.02766402224};
     m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_yBins = {-1.0,0.0,0.3,1.0};
-    m_deltas = {0.0585043703441,0.043513427165,0.0491962013015,0.060436197281,0.0706835895406,0.0812131220089,
-		0.0538541298782,-0.00377991353078,-0.0188052356295,0.014580446044,-0.0151503024595,0.0173123959725,
-		-0.0126822261856,0.0234683678931,0.0461984329114};
+    m_deltas = {0.0699279838419,0.0545691877298,0.063264614541,0.0584002449203,0.0565998247732,0.0576510958445,0.0218727026369,
+		-0.0441293835332,0.0227206849119,-0.00532222984923,-0.0657509723159,0.0164151020585,-0.0497571071091,
+		-0.00780457415811,0.0250101779069};
   }
   if(m_templateType == 2){
     //ICHEP binning (soft jets + b-tag)
-    m_mass_corr_VR = {0.980540972943,0.970721504435,0.960668549837,0.972736355391,1.00519312687,0.99959476931,
-		      1.0087786744,1.01870688226};
-
-    m_mass_corr_SR = {0.953294883664,0.950459331057,0.959022698708,0.979696945942,1.00168405958,1.01372029197,
-		      1.004838362,0.995798837315};
     m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins4 = {0.2,0.244,0.293,0.364,0.445,0.52,0.6,0.733,0.896};
     m_ptBins5 = {0.2,0.244,0.293,0.364,0.445,0.52,0.6,0.733};
     m_yBins = {0,0.5,1.0,1.5,2.0};
-    m_deltas = {0.0336980753354,0.0271277693625,0.0364305828916,0.00341274767482,-0.00456456660634,-0.0109712645649,
-		-0.00055156675562,0.0324697574121};
+    m_deltas = {0.0622627757335,0.0637745113851,0.0432578555265,-0.00611173564593,0.0407564978678,-0.0110320500045,-0.00715379326354,
+		0.0384135473926};
+  }
+
   }
   if(m_templateType == 3){
     //pt/eta/qg-match binning
@@ -96,9 +80,9 @@ void MJ::dresser::initialize(){
     m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_yBins = {0,0.5,1.0,1.5,2.0};
-    m_deltas = {0.0471695473558,0.0304516268889,0.0335215541859,0.0329496220836,0.0422938064581,0.0578954494051,
-		0.0243979729581,-0.00405051313814,-0.0101216716535,0.013697267464,-0.0160694137165,0.0200395992595,
-		-0.0142660184474,0.0125795539467,0.0216193438483};
+    m_deltas = {0.0680275905936,0.043266691629,0.0535584366224,0.0486763978375,0.0425672867251,0.0437314622752,0.0151882875236,
+		-0.0217802932426,0.0492523088941,0.0136051064812,-0.0394437027687,0.0460451545688,-0.027608010658,0.0175588296113,
+		0.0391968577077};
   }
   if(m_templateType == 4){
     //pt/eta/n_subjet binning
@@ -106,9 +90,9 @@ void MJ::dresser::initialize(){
     m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_yBins = {0,0.5,1.0,1.5,2.0};
-    m_deltas = {0.0170027553852,0.0100065136381,0.0124197901228,0.0266207036167,0.0199546560232,0.0195558821268,
-		0.024030486192,-0.0269327037104,-0.0132908865516,0.00391776024267,-0.000315987815234,0.0231868794928,
-		-0.00519994041148,0.0058088500764,0.0231153582394};
+    m_deltas = {0.0304310936028,0.00741454404945,0.00353585863551,0.0287319378603,0.00467673132872,0.00950381101963,0.00677848236698,
+		-0.0253874177746,0.0240979413285,-0.00318919778113,-0.0218635660853,0.0318820306552,-0.0292590488062,-0.000296351647128,
+		0.0316337402573};
   }
   //Setup output histograms
   m_regionNames = {"3jVRb0","3jVRb1","3jVRb9","3jVRbM","3jVRbU","3js0","3js1","3js2",
@@ -131,7 +115,6 @@ void MJ::dresser::initialize(){
     m_prof1d_cen_dress[m_regionNames.at(i)] = TProfile(("h_prof1d_cen_dress_"+m_regionNames.at(i)).c_str(),("h_prof1d_cen_dress_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
     m_prof1d_for_dress[m_regionNames.at(i)] = TProfile(("h_prof1d_for_dress_"+m_regionNames.at(i)).c_str(),("h_prof1d_for_dress_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
 
-
     int nBins = 200;
     float xMin = 0;
     float xMax = 1.2;
@@ -139,7 +122,6 @@ void MJ::dresser::initialize(){
     m_hists_m_dressNom[m_regionNames.at(i)] = TH1F(("h_jetmass_dressNom_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressNom_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m_dressUp[m_regionNames.at(i)] = TH1F(("h_jetmass_dressUp_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressUp_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m_dressDown[m_regionNames.at(i)] = TH1F(("h_jetmass_dressDown_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressDown_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-
 
     m_hists_m1_kin[m_regionNames.at(i)] = TH1F(("h_jetmass1_kin_"+m_regionNames.at(i)).c_str(),("h_jetmass1_kin_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m1_dressNom[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressNom_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressNom_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
@@ -168,12 +150,15 @@ void MJ::dresser::initialize(){
     m_hists_MJ_dressNom[m_regionNames.at(i)] = TH1F(("h_MJ_dressNom_"+m_regionNames.at(i)).c_str(),("h_MJ_dressNom_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_MJ_dressUp[m_regionNames.at(i)] = TH1F(("h_MJ_dressUp_"+m_regionNames.at(i)).c_str(),("h_MJ_dressUp_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_MJ_dressDown[m_regionNames.at(i)] = TH1F(("h_MJ_dressDown_"+m_regionNames.at(i)).c_str(),("h_MJ_dressDown_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_kin[m_regionNames.at(i)].Sumw2();
+    m_hists_MJ_dressNom[m_regionNames.at(i)].Sumw2();
+    m_hists_MJ_dressUp[m_regionNames.at(i)].Sumw2();
+    m_hists_MJ_dressDown[m_regionNames.at(i)].Sumw2();
   }
 }
 void MJ::dresser::loop(){
   TTree *t = m_miniTree.fChain;
   int nEntries = t->GetEntries();
-  //  nEntries = 100;
   cout<<"Looping over miniTree with "<<nEntries<<" entries"<<endl;
   for(unsigned int entry = 0; entry < nEntries; entry++){
     b_jet_m_dressed_nom->clear();
@@ -262,7 +247,7 @@ void MJ::dresser::loop(){
 	if(m_miniTree.njet == 3){
 	  correct = false;
 	}
-	vector<float> dressedMass = getDressedMass(templateHist,m_miniTree.jet_pt->at(i),m_miniTree.dEta,correct);
+	vector<float> dressedMass = getDressedMass(templateHist,m_miniTree.jet_pt->at(i),m_miniTree.jet_eta->at(i),m_miniTree.dEta);
 	MJ_dressNom += dressedMass.at(0);
 	MJ_dressUp += dressedMass.at(1);
 	MJ_dressDown += dressedMass.at(2);
@@ -418,6 +403,7 @@ void MJ::dresser::loop(){
       m_hists_MJ_kin.at(regionName).Fill(MJ_kin,m_miniTree.weight*unBlindEvent);
       m_hists_MJ_kin.at(regionNameS).Fill(MJ_kin,m_miniTree.weight*unBlindEvent);
       m_hists_MJ_kin.at(regionNameB).Fill(MJ_kin,m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+
       m_hists_MJ_dressNom.at(regionName).Fill(MJ_dressNom,m_miniTree.weight);
       m_hists_MJ_dressNom.at(regionNameS).Fill(MJ_dressNom,m_miniTree.weight);
       m_hists_MJ_dressNom.at(regionNameB).Fill(MJ_dressNom,m_miniTree.weight*m_miniTree.bSF_70);
@@ -434,20 +420,41 @@ void MJ::dresser::loop(){
   }
   m_outFile->Write();
 }
-vector<float> MJ::dresser::getDressedMass(TH1F *h, float pt, float dEta, bool correct){
+vector<float> MJ::dresser::getDressedMass(TH1F *h, float pt, float eta, float dEta){
   int ptBin = -1;
   //need to know from which pT bin to get delta
   if(m_templateType==2){ ptBin= getTemplateBin(pt,0.0,4).first-1; }
   else{ ptBin = getTemplateBin(pt,0.0,3).first-1; }
   m_delta = m_deltas.at(ptBin);
   gRandom->SetSeed(0);
-  vector<float> answer;
-  float r0 = h->GetRandom();
   TRandom3 tRandom(0);
-  //nominal dressed mass and shifted up and down masses
-  answer.push_back( pt*exp(r0) );
-  answer.push_back( pt*exp(r0)*(1+m_delta) );
-  answer.push_back( pt*exp(r0)*(1-m_delta) );
+  //TH1F* hNew = (TH1F*)h->Clone("hnew");
+  // for( int i = 1; i <= hNew->GetNbinsX(); i++){
+  //   float binErr = hNew->GetBinError(i);
+  //   float binCont = hNew->GetBinContent(i);
+  //   float rand = tRandom.Gaus(0,binErr);
+  //   float newBinCont = binCont+rand;
+  //   if (newBinCont < 0) { newBinCont = 0; }
+  //   hNew->SetBinContent(i,newBinCont);
+  // }
+  vector<float> answer;
+  //float r0 = hNew->GetRandom();
+  //  delete hNew; hNew = 0;
+
+  float r0 = h->GetRandom();
+  if( pt < 0.364 and fabs(eta) < 1.0 ){
+    //Correct low pT, low-eta jets
+    float m0 = pt*exp(r0)*(1-m_delta);
+    answer.push_back( m0 );
+    answer.push_back( 1.05 * m0 );
+    answer.push_back( 0.95 * m0 );
+  }
+  else{
+    float m0 = pt*exp(r0);
+    answer.push_back( m0 );
+    answer.push_back( 1.05 * m0 );
+    answer.push_back( 0.95 * m0 );
+  }
   return answer;
 }
 string MJ::dresser::getRegionName(int njet, float dEta){

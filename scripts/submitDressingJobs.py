@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-nToys = 1000
+nToys = 100
 kinFile = '../../bkgEstimation/samples/pythia_qgMatch/main_pythia_qgMatch.root'
 templateFiles = ['../output_templates/pythia_eta.root',
                  '../output_templates/pythia_bdt.root',
@@ -15,7 +15,6 @@ jobNames = ['pythia_eta',
 templateTypes = ['0','1','2','3','4']
 counter = 0
 for i in range(len(templateFiles)):
-#for i in [3]:
     for j in range(nToys):
         cmd = 'qsub run_dressing_job.sh '+kinFile+' '+templateFiles[i]+' '+jobNames[i]+' '+templateTypes[i]+' '+str(j)
         os.system(cmd)
