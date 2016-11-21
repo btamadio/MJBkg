@@ -104,7 +104,8 @@ class templateMaker:
             if self.miniTree.njet==3:
                 #determine bin and fill appropriate histogram with log(m/pT) for that jet
                 for i in range(3):
-                    histName = self.getHistName(self.miniTree.jet_pt.at(i),self.miniTree.jet_eta.at(i),self.miniTree.jet_bmatched_Fix70.at(i),self.miniTree.jet_qmatched.at(i),self.miniTree.jet_gmatched.at(i),self.miniTree.jet_NTrimSubjets.at(i),self.miniTree.BDTG,self.miniTree.njet_soft,self.miniTree.nbjet_Fix70,self.miniTree.dEta)
+#                    histName = self.getHistName(self.miniTree.jet_pt.at(i),self.miniTree.jet_eta.at(i),self.miniTree.jet_bmatched_Fix70.at(i),self.miniTree.jet_qmatched.at(i),self.miniTree.jet_gmatched.at(i),self.miniTree.jet_NTrimSubjets.at(i),self.miniTree.BDTG,self.miniTree.njet_soft,self.miniTree.nbjet_Fix70,self.miniTree.dEta)
+                    histName = self.getHistName(self.miniTree.jet_pt.at(i),self.miniTree.jet_eta.at(i),self.miniTree.jet_bmatched_Fix70.at(i),self.miniTree.jet_qmatched.at(i),self.miniTree.jet_gmatched.at(i),self.miniTree.jet_NTrimSubjets.at(i),0,self.miniTree.njet_soft,self.miniTree.nbjet_Fix70,self.miniTree.dEta)
                     if self.miniTree.jet_m.at(i) <= 0:
                         print 'Warning: jet mass = %f' % self.miniTree.jet_m.at(i)
                         continue

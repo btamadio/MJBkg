@@ -21,7 +21,7 @@ class bkgPredictor:
         self.nToys = len(self.dressedFileNames)
         self.jobName = jobName
         self.lumi = lumi
-        self.MJcut = 0.8
+        self.MJcut = 0.6
         self.templateType = templateType
         self.MJbins = [0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.40,0.45,0.5,0.6,0.8,1.0,2.0]
         self.nMJbins = len(self.MJbins)-1
@@ -52,15 +52,14 @@ class bkgPredictor:
         self.histDict_dressUp = {}
         self.histDict_dressNom = {}
         self.histDict_dressDown = {}
-        #this is the same as histDict_dressNom, only the errors reflect MC statistical uncertainty.
-        self.histDict_dressNom_MCstat = {}
+        self.histDict_dressSmear = {}
         #These are the lists of bin contents for all toys
         self.listDict_dressNom = {}
         self.listDict_dressUp = {}
         self.listDict_dressDown = {}
+        self.listDict_dressSmear = {}
         #List of sumw2 for each bin for all toys
         self.sumw2Dict = {}
-        
         
         #profile histograms for response plots
         self.prof1Dict_kin = {}
@@ -72,39 +71,46 @@ class bkgPredictor:
         #list of signal region yields, for calculating stat. uncertainty
         self.srYield_listDict = {}
         self.srYield_histDict = {}
+
+        self.srYieldSmear_listDict = {}
+        self.srYieldSmear_histDict = {}
         
         for regionName in self.regionList:
             self.srYield_listDict[regionName] = []
+            self.srYieldSmear_listDict[regionName] = []
             self.histDict_kin[regionName] = {}
             self.histDict_dressUp[regionName] = {}
             self.histDict_dressNom[regionName] = {}
             self.histDict_dressDown[regionName] = {}
-            self.histDict_dressNom_MCstat[regionName] = {}
+            self.histDict_dressSmear[regionName] = {}
             self.listDict_dressUp[regionName] = {}
             self.listDict_dressNom[regionName] = {}
             self.listDict_dressDown[regionName] = {}
+            self.listDict_dressSmear[regionName] = {}
             self.sumw2Dict[regionName] = {}
 
             for histType in self.histList:
                 self.listDict_dressUp[regionName][histType] = []
                 self.listDict_dressNom[regionName][histType] = []
                 self.listDict_dressDown[regionName][histType] = []
+                self.listDict_dressSmear[regionName][histType] = []
                 self.sumw2Dict[regionName][histType] = []
                 histName_kin = 'h_'+histType+'_kin_'+regionName
                 histName_dressUp = 'h_'+histType+'_dressUp_'+regionName
                 histName_dressNom = 'h_'+histType+'_dressNom_'+regionName
                 histName_dressDown = 'h_'+histType+'_dressDown_'+regionName
+                histName_dressSmear = 'h_'+histType+'_dressSmear_'+regionName
                 if histType is 'MJ':
                     for i in range(self.nMJbins):
                         self.listDict_dressUp[regionName][histType].append([])
                         self.listDict_dressNom[regionName][histType].append([])
                         self.listDict_dressDown[regionName][histType].append([])
+                        self.listDict_dressSmear[regionName][histType].append([])
                         self.sumw2Dict[regionName][histType].append([])
-#                        self.histDict_kin[regionName][histType] = f.Get(histName).Clone()
                     self.histDict_dressUp[regionName][histType] = ROOT.TH1F(histName_dressUp,histName_dressUp,self.nMJbins,self.MJbinArray)
                     self.histDict_dressNom[regionName][histType] = ROOT.TH1F(histName_dressNom,histName_dressNom,self.nMJbins,self.MJbinArray)
                     self.histDict_dressDown[regionName][histType] = ROOT.TH1F(histName_dressDown,histName_dressDown,self.nMJbins,self.MJbinArray)
-                    self.histDict_dressNom_MCstat[regionName][histType] = ROOT.TH1F(histName_dressNom+'_MCstat',histName_dressNom+'_MCstat',self.nMJbins,self.MJbinArray)
+                    self.histDict_dressSmear[regionName][histType] = ROOT.TH1F(histName_dressSmear,histName_dressSmear,self.nMJbins,self.MJbinArray)
                 else:
                     #For individual jet mass plots, binning depends on pT order
                     xUp = 1.2
@@ -116,11 +122,12 @@ class bkgPredictor:
                         self.listDict_dressUp[regionName][histType].append([])
                         self.listDict_dressNom[regionName][histType].append([])
                         self.listDict_dressDown[regionName][histType].append([])
+                        self.listDict_dressSmear[regionName][histType].append([])
                         self.sumw2Dict[regionName][histType].append([])
                     self.histDict_dressUp[regionName][histType] = ROOT.TH1F(histName_dressUp,histName_dressUp,self.nMassBins,self.massBinLow,xUp)
                     self.histDict_dressNom[regionName][histType] = ROOT.TH1F(histName_dressNom,histName_dressNom,self.nMassBins,self.massBinLow,xUp)
                     self.histDict_dressDown[regionName][histType] = ROOT.TH1F(histName_dressDown,histName_dressDown,self.nMassBins,self.massBinLow,xUp)
-                    self.histDict_dressNom_MCstat[regionName][histType] = ROOT.TH1F(histName_dressNom+'_MCstat',histName_dressNom+'_MCstat',self.nMassBins,self.massBinLow,xUp)
+                    self.histDict_dressSmear[regionName][histType] = ROOT.TH1F(histName_dressSmear,histName_dressSmear,self.nMassBins,self.massBinLow,xUp)
 
     def getResponse(self):
         f=ROOT.TFile.Open(self.dressedFileNames[0])
@@ -155,8 +162,6 @@ class bkgPredictor:
             self.prof1Dict_dress[regionName].Write()
             self.prof1Dict_cen_dress[regionName].Write()
             self.prof1Dict_for_dress[regionName].Write()
-
-            
     def loopAndFill(self):
         #loop over pseudoexperiment files and fill prediction histograms
         #first we just copy the kinematic histogram over from the input file, rebinning the MJ histogram
@@ -183,34 +188,42 @@ class bkgPredictor:
                     h_dressUp = f.Get('h_'+histType+'_dressUp_'+regionName)
                     h_dressNom = f.Get('h_'+histType+'_dressNom_'+regionName)
                     h_dressDown = f.Get('h_'+histType+'_dressDown_'+regionName)
+                    h_dressSmear = f.Get('h_'+histType+'_dressSmear_'+regionName)
                     if histType == 'MJ':
                         h_dressUp = h_dressUp.Rebin(self.nMJbins,'',self.MJbinArray)
                         h_dressNom = h_dressNom.Rebin(self.nMJbins,'',self.MJbinArray)
                         h_dressDown = h_dressDown.Rebin(self.nMJbins,'',self.MJbinArray)
+                        h_dressSmear = h_dressSmear.Rebin(self.nMJbins,'',self.MJbinArray)
                     else:
                         h_dressUp.Rebin(10)
                         h_dressNom.Rebin(10)
                         h_dressDown.Rebin(10)
+                        h_dressSmear.Rebin(10)
                     for bin in range(1,h_dressNom.GetNbinsX()+1):
                         self.listDict_dressUp[regionName][histType][bin-1].append(h_dressUp.GetBinContent(bin))
                         self.listDict_dressNom[regionName][histType][bin-1].append(h_dressNom.GetBinContent(bin))
                         self.listDict_dressDown[regionName][histType][bin-1].append(h_dressDown.GetBinContent(bin))
+                        self.listDict_dressSmear[regionName][histType][bin-1].append(h_dressSmear.GetBinContent(bin))
                         self.sumw2Dict[regionName][histType][bin-1].append(h_dressNom.GetBinError(bin))
                     if histType == 'MJ':
-                        self.srYield_listDict[regionName].append(h_dressNom.Integral(h_dressNom.FindBin(self.MJcut),h_dressNom.FindBin(h_dressNom.GetNbinsX())+1))
+                        self.srYield_listDict[regionName].append(h_dressNom.Integral(h_dressNom.FindBin(self.MJcut),h_dressNom.GetNbinsX()+1))
+                        self.srYieldSmear_listDict[regionName].append(h_dressSmear.Integral(h_dressSmear.FindBin(self.MJcut),h_dressSmear.GetNbinsX()+1))
         for regionName in self.regionList:
             for histType in self.histList:
                 for bin in range(1,self.histDict_dressNom[regionName][histType].GetNbinsX()+1):
                     self.histDict_dressUp[regionName][histType].SetBinContent(bin,mean(self.listDict_dressUp[regionName][histType][bin-1]))
                     self.histDict_dressNom[regionName][histType].SetBinContent(bin,mean(self.listDict_dressNom[regionName][histType][bin-1]))
                     self.histDict_dressDown[regionName][histType].SetBinContent(bin,mean(self.listDict_dressDown[regionName][histType][bin-1]))
-                    self.histDict_dressNom_MCstat[regionName][histType].SetBinContent(bin,mean(self.listDict_dressNom[regionName][histType][bin-1]))
-
+                    self.histDict_dressSmear[regionName][histType].SetBinContent(bin,mean(self.listDict_dressSmear[regionName][histType][bin-1]))
+                    statErr = err(self.listDict_dressNom[regionName][histType][bin-1])
+                    totErr = err(self.listDict_dressSmear[regionName][histType][bin-1])
+                    systErr = 0
+                    if totErr > statErr:
+                        systErr = math.sqrt(totErr*totErr-statErr*statErr)
                     self.histDict_dressUp[regionName][histType].SetBinError(bin,err(self.listDict_dressUp[regionName][histType][bin-1]))
-                    self.histDict_dressNom[regionName][histType].SetBinError(bin,err(self.listDict_dressNom[regionName][histType][bin-1]))
-                    self.histDict_dressDown[regionName][histType].SetBinError(bin,err(self.listDict_dressDown[regionName][histType][bin-1]))
-                    self.histDict_dressNom_MCstat[regionName][histType].SetBinError(bin,mean(self.sumw2Dict[regionName][histType][bin-1]))
-
+                    self.histDict_dressNom[regionName][histType].SetBinError(bin,statErr)
+                    self.histDict_dressDown[regionName][histType].SetBinError(bin,err(self.listDict_dressDown[regionName][histType][bin-1]))                    
+                    self.histDict_dressSmear[regionName][histType].SetBinError(bin,systErr)
                 if histType is 'MJ':
                     kHist = self.histDict_kin[regionName][histType]
                     dHist = self.histDict_dressNom[regionName][histType]
@@ -222,23 +235,27 @@ class bkgPredictor:
                     print 'regionName = %s, norm = %f' % (regionName,norm)
                     cen = mean(self.srYield_listDict[regionName])
                     
-                    xMin = norm*self.lumi*(cen-3*err(self.srYield_listDict[regionName]))
-                    xMax = norm*self.lumi*(cen+3*err(self.srYield_listDict[regionName]))
+                    xMin = norm*self.lumi*(cen-3*err(self.srYieldSmear_listDict[regionName]))
+                    xMax = norm*self.lumi*(cen+3*err(self.srYieldSmear_listDict[regionName]))
                     self.srYield_histDict[regionName] = ROOT.TH1F('h_srYield_'+regionName,'signal yield',20,xMin,xMax)
+                    self.srYieldSmear_histDict[regionName] = ROOT.TH1F('h_srYieldSmear_'+regionName,'signal yield',20,xMin,xMax)
                     for entry in self.srYield_listDict[regionName]:
                         self.srYield_histDict[regionName].Fill(entry*norm*self.lumi)
+                    for entry in self.srYieldSmear_listDict[regionName]:                    
+                        self.srYieldSmear_histDict[regionName].Fill(entry*norm*self.lumi)
                     self.histDict_dressUp[regionName][histType].Scale(norm*self.lumi)
                     self.histDict_dressNom[regionName][histType].Scale(norm*self.lumi)
                     self.histDict_dressDown[regionName][histType].Scale(norm*self.lumi)
-                    self.histDict_dressNom_MCstat[regionName][histType].Scale(norm*self.lumi)
+                    self.histDict_dressSmear[regionName][histType].Scale(norm*self.lumi)
                 else:
                     self.histDict_dressUp[regionName][histType].Scale(self.lumi)
                     self.histDict_dressNom[regionName][histType].Scale(self.lumi)
                     self.histDict_dressDown[regionName][histType].Scale(self.lumi)
-                    self.histDict_dressNom_MCstat[regionName][histType].Scale(self.lumi)
+                    self.histDict_dressSmear[regionName][histType].Scale(self.lumi)
                 self.outFile.cd()
                 self.histDict_dressUp[regionName][histType].Write()
                 self.histDict_dressNom[regionName][histType].Write()
                 self.histDict_dressDown[regionName][histType].Write()
-                self.histDict_dressNom_MCstat[regionName][histType].Write()
+                self.histDict_dressSmear[regionName][histType].Write()
             self.srYield_histDict[regionName].Write()
+            self.srYieldSmear_histDict[regionName].Write()

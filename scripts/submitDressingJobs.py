@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 import os
 nToys = 100
-kinFile = '../../bkgEstimation/samples/pythia_qgMatch/main_pythia_qgMatch.root'
-templateFiles = ['../output_templates/pythia_eta.root',
-                 '../output_templates/pythia_bdt.root',
-                 '../output_templates/pythia_ichep.root',
-                 '../output_templates/pythia_qg.root',
-                 '../output_templates/pythia_nsubjet.root']
-jobNames = ['pythia_eta',
-            'pythia_bdt',
-            'pythia_ichep',
-            'pythia_qg',
-            'pythia_nsubjet']
-templateTypes = ['0','1','2','3','4']
+kinFile = '../../bkgEstimation/samples/data2016_PostICHEP/main_data2016_PostICHEP.root'
+templateFiles = ['../output_templates/data_PostICHEP.root']
+jobNames = ['data_PostICHEP']
+
+#kinFile = '../../bkgEstimation/samples/data_ICHEP/main_data_ICHEP.root'
+#templateFiles = ['../output_templates/data_ICHEP.root']
+#jobNames = ['data_ICHEP']
+
+templateTypes = ['0']
+
 counter = 0
 for i in range(len(templateFiles)):
     for j in range(nToys):
@@ -20,31 +18,3 @@ for i in range(len(templateFiles)):
         os.system(cmd)
         counter+=1
 print 'Submitted %i jobs.' % counter
-#data
-# kinFile = '../../bkgEstimation/samples/DS4_BDT_PtRatios/main_DS4_BDT_PtRatios.root'
-# templateFiles = ['../output_templates/data_eta.root',
-#                 '../output_templates/data_bdt.root',
-#                 '../output_templates/data_ichep.root']
-# jobNames = ['data_eta_corr','data_bdt_corr','data_ichep_corr']
-# templateTypes = ['0','1','2']
-# counter = 0
-# #for i in range(len(templateFiles)):
-# for i in range(3):
-#     for j in range(nToys):
-#         cmd = 'qsub run_dressing_job.sh '+kinFile+' '+templateFiles[i]+' '+jobNames[i]+' '+templateTypes[i]+' '+str(j)
-# #        os.system(cmd)
-# #        counter+=1
-
-# #pythia
-# kinFile = '../../bkgEstimation/samples/pythia_BDT_PtRatios/main_pythia_BDT_PtRatios.root'
-# templateFiles = ['../output_templates/pythia_eta.root',
-#                 '../output_templates/pythia_bdt.root',
-#                 '../output_templates/pythia_ichep.root']
-# jobNames = ['pythia_eta_corr','pythia_bdt_corr','pythia_ichep_corr']
-# templateTypes = ['0','1','2']
-# for i in range(3):
-#     for j in range(nToys):
-#         cmd = 'qsub run_dressing_job.sh '+kinFile+' '+templateFiles[i]+' '+jobNames[i]+' '+templateTypes[i]+' '+str(j)
-# #        os.system(cmd)
-# #        counter+=1
-
