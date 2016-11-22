@@ -5,9 +5,9 @@ nToys = 100
 #templateFiles = ['../output_templates/data_PostICHEP.root']
 #jobNames = ['data_PostICHEP']
 
-kinFile = '../../bkgEstimation/samples/data_ICHEP/main_data_ICHEP.root'
-templateFiles = ['../output_templates/data_ICHEP.root']
-jobNames = ['data_ICHEP']
+kinFile = '../../bkgEstimation/samples/pythia_qgMatch/main_pythia_qgMatch.root'
+templateFiles = ['../output_templates/pythia_eta.root']
+jobNames = ['pythia_uncorrected']
 
 templateTypes = ['0']
 

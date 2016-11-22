@@ -70,6 +70,13 @@ class bkgPredictor:
         self.prof1Dict_cen_dress = {}
         self.prof1Dict_for_dress = {}
 
+        self.prof1ListDict_kin = {}
+        self.prof1ListDict_cen_kin = {}
+        self.prof1ListDict_for_kin = {}
+        self.prof1ListDict_dress = {}
+        self.prof1ListDict_cen_dress = {}
+        self.prof1ListDict_for_dress = {}
+
         #list of signal region yields, for calculating stat. uncertainty
         self.srYieldNom_listDict = {}
         self.srYieldShift_cenb0_listDict = {}

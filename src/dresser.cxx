@@ -64,6 +64,14 @@ void MJ::dresser::initialize(){
     // m_uncert_for_b0 = 0;
     // m_uncert_for_b1 = 0;
 
+    //Pythia
+    m_corr_cen_b0 = {};
+    m_corr_cen_b1 = {};
+    m_corr_for_b0 = {};
+    m_uncert_cen_b0 = 0;
+    m_uncert_cen_b1 = 0;
+    m_uncert_for_b0 = 0;
+    m_uncert_for_b1 = 0;
 
     //post-ICHEP dataset
     //m_corr_cen_b0 = {-.007,-.023,-.021,-.032,-.021,-.018,-.017,    0,.016, .038, .021,.025,.02, .032, .051};
