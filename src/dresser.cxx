@@ -56,10 +56,21 @@ void MJ::dresser::initialize(){
     m_yBins = {0,0.5,1.0,1.5,2.0};
     
     //ICHEP-dataset-derived correction factors
-    m_corr_cen_b0 = {-.0242,-.0197,-.0311,-.0156,-.0176,-.0196,0,-.023,.0156,.0293,.0288,.0474,0.0,.0399};
-    m_corr_cen_b1 = {0,0,-.0648,0,0,0,-.0528,-0.046,-.07,0,.072,.149,0,0,-.089};
-    m_corr_for_b0 = {-.0322,-.0328,-.0282,-.0286,-.0248,-.054,-.0476,0,-.0152,0,-.0223,.0454,.0179,.0276,0};
-    m_corr_for_b1 = {0,-.0638,-.0484,0,0,0,.0621,-.1052,0,.0416,0,.0779,-.0633,-.0705,0.0913};
+    m_corr_cen_b0 = {-.0242, -.0197, -.0311,-.0156, -.0176,
+		     -.0196,      0, -.0230, .0156,  .0293,
+		          0,  .0288,  .0474,     0,  .0399};
+
+    m_corr_cen_b1 = {     0,      0, -.0648,     0,      0,
+		          0, -.0528, -0.046,  -.07,      0,
+		       .072,   .149,      0,     0,  -.089};
+
+    m_corr_for_b0 = {-.0322,-.0328,-.0282,-.0286,-.0248,
+		     -.054,-.0476,0,-.0152,0,
+		     -.0223,.0454,.0179,.0276,0};
+    m_corr_for_b1 = {     0,-.0638, -.0484, 0, 0,
+		          0, .0621, -.1052, 0, .0416,
+		          0, .0779, -.0633, -.0705,0.0913};
+
     m_uncert_cen_b0 = 0.0146175774296;
     m_uncert_cen_b1 = 0.0223008295849;
     m_uncert_for_b0 = 0.00698939062931;
@@ -126,7 +137,6 @@ void MJ::dresser::initialize(){
     m_hists_m_dressShift_forb0[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_forb0_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_forb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m_dressShift_forb1[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_forb1_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_forb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
 
-
     m_hists_m1_kin[m_regionNames.at(i)] = TH1F(("h_jetmass1_kin_"+m_regionNames.at(i)).c_str(),("h_jetmass1_kin_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m1_dressNom[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressNom_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressNom_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m1_dressShift_cenb0[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
@@ -164,13 +174,13 @@ void MJ::dresser::initialize(){
     m_hists_MJ_dressShift_cenb1[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_MJ_dressShift_forb0[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_forb0_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_forb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_MJ_dressShift_forb1[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_forb1_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_forb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-
     m_hists_MJ_kin[m_regionNames.at(i)].Sumw2();
     m_hists_MJ_dressNom[m_regionNames.at(i)].Sumw2();
     m_hists_MJ_dressShift_cenb0[m_regionNames.at(i)].Sumw2();
     m_hists_MJ_dressShift_cenb1[m_regionNames.at(i)].Sumw2();
     m_hists_MJ_dressShift_forb0[m_regionNames.at(i)].Sumw2();
     m_hists_MJ_dressShift_forb1[m_regionNames.at(i)].Sumw2();
+    //    cout<<"Histograms successfully set up."<<endl;
   }
 }
 void MJ::dresser::loop(){
@@ -500,6 +510,11 @@ vector<float> MJ::dresser::getDressedMass(TH1F *h, float pt, float eta, int bMat
   if(m_templateType==2){ ptBin= getTemplateBin(pt,0.0,4).first-1; }
   else{ ptBin = getTemplateBin(pt,0.0,3).first-1; }
   //bin corrections in pt/eta
+  //  cout<<"m_corr_cen_b0.size = "<<m_corr_cen_b0.size()<<endl;
+  //  cout<<"m_corr_cen_b1.size = "<<m_corr_cen_b1.size()<<endl;
+  //  cout<<"m_corr_for_b0.size = "<<m_corr_cen_b0.size()<<endl;
+  //  cout<<"m_corr_for_b1.size = "<<m_corr_cen_b0.size()<<endl;
+    
   if( fabs(eta) < 1.0 and bMatch == 0) {
     m_delta = m_corr_cen_b0.at(ptBin);
     m_uncert = m_uncert_cen_b0;
