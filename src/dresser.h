@@ -39,19 +39,34 @@ namespace MJ{
     miniTree m_miniTree;
     TTree *m_outTree;
     vector<double> *b_jet_m_dressed_nom;
-    vector<double> *b_jet_m_dressed_up;
-    vector<double> *b_jet_m_dressed_down;
+    vector<double> *b_jet_m_dressed_shift_cenb0;
+    vector<double> *b_jet_m_dressed_shift_cenb1;
+    vector<double> *b_jet_m_dressed_shift_forb0;
+    vector<double> *b_jet_m_dressed_shift_forb1;
+
     bool m_doCorrections;
     vector<double> m_ptBins3;
     vector<double> m_ptBins4;
     vector<double> m_ptBins5;
     vector<double> m_yBins;
-    vector<float> m_deltas;
+
+    vector<float> m_corr_cen_b0;
+    vector<float> m_corr_cen_b1;
+    vector<float> m_corr_for_b0;
+    vector<float> m_corr_for_b1;
+
+    float m_uncert_cen_b0;
+    float m_uncert_cen_b1;
+    float m_uncert_for_b0;
+    float m_uncert_for_b1;
+    float m_uncert;
+    
     string getTemplateName(float,float,int,int,int,int,float,int,int);
     string getRegionName(int,float);
     
     pair<int,int> getTemplateBin(float, float, int);
-    vector<float> getDressedMass(TH1F *, float, float, float);
+    //    vector<float> getDressedMass(TH1F *, float, float, float, int, bool);
+    vector<float> getDressedMass(TH1F *, float, float, int, bool,int);
 
 
     map<string,TProfile> m_prof1d_kin;
@@ -76,19 +91,34 @@ namespace MJ{
     map<string,TH1F> m_hists_m4_dressNom;
     map<string,TH1F> m_hists_MJ_dressNom;
 
-    map<string,TH1F> m_hists_m_dressUp;
-    map<string,TH1F> m_hists_m1_dressUp;
-    map<string,TH1F> m_hists_m2_dressUp;
-    map<string,TH1F> m_hists_m3_dressUp;
-    map<string,TH1F> m_hists_m4_dressUp;
-    map<string,TH1F> m_hists_MJ_dressUp;
+    map<string,TH1F> m_hists_m_dressShift_cenb0;
+    map<string,TH1F> m_hists_m1_dressShift_cenb0;
+    map<string,TH1F> m_hists_m2_dressShift_cenb0;
+    map<string,TH1F> m_hists_m3_dressShift_cenb0;
+    map<string,TH1F> m_hists_m4_dressShift_cenb0;
+    map<string,TH1F> m_hists_MJ_dressShift_cenb0;
 
-    map<string,TH1F> m_hists_m_dressDown;
-    map<string,TH1F> m_hists_m1_dressDown;
-    map<string,TH1F> m_hists_m2_dressDown;
-    map<string,TH1F> m_hists_m3_dressDown;
-    map<string,TH1F> m_hists_m4_dressDown;
-    map<string,TH1F> m_hists_MJ_dressDown;
+    map<string,TH1F> m_hists_m_dressShift_cenb1;
+    map<string,TH1F> m_hists_m1_dressShift_cenb1;
+    map<string,TH1F> m_hists_m2_dressShift_cenb1;
+    map<string,TH1F> m_hists_m3_dressShift_cenb1;
+    map<string,TH1F> m_hists_m4_dressShift_cenb1;
+    map<string,TH1F> m_hists_MJ_dressShift_cenb1;
+
+    map<string,TH1F> m_hists_m_dressShift_forb0;
+    map<string,TH1F> m_hists_m1_dressShift_forb0;
+    map<string,TH1F> m_hists_m2_dressShift_forb0;
+    map<string,TH1F> m_hists_m3_dressShift_forb0;
+    map<string,TH1F> m_hists_m4_dressShift_forb0;
+    map<string,TH1F> m_hists_MJ_dressShift_forb0;
+
+    map<string,TH1F> m_hists_m_dressShift_forb1;
+    map<string,TH1F> m_hists_m1_dressShift_forb1;
+    map<string,TH1F> m_hists_m2_dressShift_forb1;
+    map<string,TH1F> m_hists_m3_dressShift_forb1;
+    map<string,TH1F> m_hists_m4_dressShift_forb1;
+    map<string,TH1F> m_hists_MJ_dressShift_forb1;
+
   };
 }
 #endif
