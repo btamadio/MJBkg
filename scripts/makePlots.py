@@ -27,14 +27,21 @@ class plotMaker:
         self.kHists = {}
         self.eHists = {}
         self.dHistsNom = {}
+        self.dHistsShift_cenb0 = {}
+        self.dHistsShift_cenb1 = {}
+        self.dHistsShift_forb0 = {}
+        self.dHistsShift_forb1 = {}
         self.dHistsUp = {}
         self.dHistsDown = {}
-        self.dHistsSmear = {}
         self.rHistsPred = {}
         self.rHistsPredUp = {}
         self.rHistsPredDown = {}
         self.rHistsKin = {}
-        self.yieldHists = {}
+        self.yieldHistsNom = {}
+        self.yieldHistsShift_cenb0 = {}
+        self.yieldHistsShift_cenb1 = {}
+        self.yieldHistsShift_forb0 = {}
+        self.yieldHistsShift_forb1 = {}
     def regionLabel(self,region):
         regionLabel = '#splitline{N_{jet} '
         if region is '3js0':
@@ -84,9 +91,8 @@ class plotMaker:
         canName = 'srYield_'+region
         self.cans[canName]=ROOT.TCanvas(canName,canName,800,600)
         self.cans[canName].cd()
-#        self.yieldHists[canName] = self.inFile.Get('h_srYieldSmear_'+region)
-        self.yieldHists[canName] = self.inFile.Get('h_srYield_'+region)
-        yHist = self.yieldHists[canName]
+        self.yieldHistsNom[canName] = self.inFile.Get('h_srYieldNom_'+region)
+        yHist = self.yieldHistsNom[canName]
         yHist.SetLineColor(ROOT.kBlue)
         yHist.SetLineWidth(2)
         yHist.Draw('hist')
@@ -111,8 +117,10 @@ class plotMaker:
         elif 'sherpa' in self.jobName:
             lat.DrawLatexNDC(0.225,0.78,str(int(self.lumi))+' fb^{-1} Sherpa')
         elif 'data' in self.jobName:
-#            lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, '+str(int(self.lumi))+' fb^{-1}')
-            lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, 14.8 fb^{-1}')
+            if 'PostICHEP' in self.jobName:
+                lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, 15.5 fb^{-1}')
+            elif 'ICHEP' in self.jobName:
+                lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, 14.8 fb^{-1}')
         lat.DrawLatexNDC(0.7,0.8,'#splitline{mean = %.1f}{std = %.1f}' % (yHist.GetMean(),yHist.GetRMS()))
         outFileName = self.outDir+'/'+region+'/plot_srYield_'+region+'_'+self.jobName
         self.cans[canName].Print(outFileName+'.pdf')
@@ -134,7 +142,6 @@ class plotMaker:
                      'prof1d_cen':('jet p_{T} [TeV]','<m_{jet}> [TeV]'),
                      'prof1d_for':('jet p_{T} [TeV]','<m_{jet}> [TeV]')}
         canName = var+'_'+region
-#        print canName,var,region
         self.cans[canName]=ROOT.TCanvas(canName,canName,800,800)
         self.cans[canName].cd()
         self.pad1s[canName] = ROOT.TPad(canName+'_p1',canName+'_p1',0,0.3,1,1.0)
@@ -144,37 +151,35 @@ class plotMaker:
         if not 'prof1d' in var:
             self.pad1s[canName].SetLogy()
             self.dHistsNom[canName] = self.inFile.Get('h_'+var+'_dressNom_'+region)
-            self.dHistsSmear[canName] = self.inFile.Get('h_'+var+'_dressSmear_'+region)
+            self.dHistsUp[canName] = self.dHistsNom[canName].Clone('h_'+var+'_dressNom_'+region)
+            self.dHistsDown[canName] = self.dHistsNom[canName].Clone('h_'+var+'_dressNom_'+region)
+            self.dHistsUp[canName].SetDirectory(0)
+            self.dHistsDown[canName].SetDirectory(0)
+            self.dHistsShift_cenb0[canName] = self.inFile.Get('h_'+var+'_dressShift_cenb0_'+region)
+            self.dHistsShift_cenb1[canName] = self.inFile.Get('h_'+var+'_dressShift_cenb1_'+region)
+            self.dHistsShift_forb0[canName] = self.inFile.Get('h_'+var+'_dressShift_forb0_'+region)
+            self.dHistsShift_forb1[canName] = self.inFile.Get('h_'+var+'_dressShift_forb1_'+region)
         else:
             self.dHistsNom[canName] = self.inFile.Get('h_'+var+'_dress_'+region)
         self.kHists[canName] = self.inFile.Get('h_'+var+'_kin_'+region)            
-        self.dHistsUp[canName] = self.inFile.Get('h_'+var+'_dressUp_'+region)
-        self.dHistsDown[canName] = self.inFile.Get('h_'+var+'_dressDown_'+region)
         dHistNom = self.dHistsNom[canName]
-        dHistUp = self.dHistsUp[canName]
-        dHistDown = self.dHistsDown[canName]
-        
-
         kHist = self.kHists[canName]
         if 'prof1d' in var:
             dHistNom = self.dHistsNom[canName].ProjectionX()
             kHist = self.kHists[canName].ProjectionX()
         else:
-            dHistUp.SetLineColor(ROOT.kBlue)
-            dHistUp.SetLineWidth(2)
-            dHistDown.SetLineColor(ROOT.kGreen)
-            dHistDown.SetLineWidth(2)            
+            self.dHistsUp[canName].SetLineColor(ROOT.kBlue)
+            self.dHistsUp[canName].SetLineWidth(2)
+            self.dHistsDown[canName].SetLineColor(ROOT.kGreen)
+            self.dHistsDown[canName].SetLineWidth(2)            
         dHistNom.SetLineColor(ROOT.kRed)
         dHistNom.SetLineColor(2)
         dHistNom.SetMarkerColor(2)
         dHistNom.SetLineWidth(2)
-
         kHist.SetMarkerColor(ROOT.kBlack)
         kHist.SetLineColor(ROOT.kBlack)
         kHist.SetLineWidth(2)
         kHist.SetMarkerStyle(20)
-
-
         if (var is not 'MJ') and not ('prof1d' in var):
            kHist.Rebin(10)
         self.eHists[canName] = dHistNom.Clone('eHist')
@@ -182,16 +187,17 @@ class plotMaker:
         eHist.SetMarkerSize(0.001)
         eHist.SetFillColor(ROOT.kRed)
         eHist.SetFillStyle(3010)
-
+        print region
         for bin in range(1,dHistNom.GetNbinsX()+1):
             errSyst = 0
             if not 'prof1d' in var:
-#                errSyst = self.dHistsSmear[canName].GetBinError(bin)
-#                dHistUp.SetBinContent( bin,dHistNom.GetBinContent(bin)+errSyst )
-#                dHistDown.SetBinContent( bin,dHistNom.GetBinContent(bin)-errSyst )
-                errUp = abs(dHistUp.GetBinContent(bin) - dHistNom.GetBinContent(bin))
-                errDown = abs(dHistDown.GetBinContent(bin) - dHistNom.GetBinContent(bin))
-                errSyst = max(errUp,errDown)
+                errSyst  = abs(self.dHistsShift_cenb0[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                errSyst += abs(self.dHistsShift_cenb1[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                errSyst += abs(self.dHistsShift_forb0[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                errSyst += abs(self.dHistsShift_forb1[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                self.dHistsUp[canName].SetBinContent( bin, dHistNom.GetBinContent(bin) + errSyst )
+                self.dHistsDown[canName].SetBinContent( bin, dHistNom.GetBinContent(bin) - errSyst )
+                print ' ',bin,dHistNom.GetBinContent(bin), errSyst
             errStat = eHist.GetBinError(bin)
             errTot = math.sqrt(errSyst*errSyst+errStat*errStat)
             eHist.SetBinError(bin,errTot)
@@ -215,13 +221,13 @@ class plotMaker:
             eHist.SetMaximum(yMax)
         dHistNom.Draw('hist same')
         if not 'prof1d' in var:
-            dHistUp.Draw('hist same')
-            dHistDown.Draw('hist same')
+            self.dHistsUp[canName].Draw('hist same')
+            self.dHistsDown[canName].Draw('hist same')
         #blinding - add this as an option at some point
-        if '5jSRb1' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region:
-            for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
-                kHist.SetBinContent(bin,0)
-                kHist.SetBinError(bin,0)
+#        if '5jSRb1' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region:
+#            for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
+#                kHist.SetBinContent(bin,0)
+#                kHist.SetBinError(bin,0)
         if not 'prof1d' in var:
             kHist.SetBinErrorOption(1)
         kHist.Draw('same ep')
@@ -276,29 +282,23 @@ class plotMaker:
         if var is 'MJ':
             errNobs = ROOT.Double(0)
             nObs = kHist.IntegralAndError(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1,errNobs)
-            nPred = dHistNom.Integral(dHistNom.FindBin(self.MJcut),dHistNom.GetNbinsX()+1)
-            nPredUp = dHistUp.Integral(dHistUp.FindBin(self.MJcut),dHistUp.GetNbinsX()+1)
-            nPredDown = dHistDown.Integral(dHistDown.FindBin(self.MJcut),dHistDown.GetNbinsX()+1)
-            errUp = abs(nPredUp-nPred)
-            errDown = abs(nPredDown-nPred)
-            errSyst = (errUp+errDown)/2.0
-            yieldHist = self.inFile.Get('h_srYield_'+region)
-#            yieldHistSmear = self.inFile.Get('h_srYieldSmear_'+region)
-            nPredMean = yieldHist.GetMean()
-#            nPredSmearMean = yieldHist.GetMean()
-#            errTot = yieldHistSmear.GetRMS()
-            errStat = yieldHist.GetRMS()
-#            errSyst = 0
-#            if errTot > errStat:
-#                errSyst = math.sqrt(errTot*errTot-errStat*errStat)
-#            print region,nPred,nPredMean,nPredSmearMean,errStat,errSyst
+            yieldHistNom = self.inFile.Get('h_srYieldNom_'+region)
+            yieldHistShift_cenb0 = self.inFile.Get('h_srYieldShift_cenb0_'+region)
+            yieldHistShift_cenb1 = self.inFile.Get('h_srYieldShift_cenb1_'+region)
+            yieldHistShift_forb0 = self.inFile.Get('h_srYieldShift_forb0_'+region)
+            yieldHistShift_forb1 = self.inFile.Get('h_srYieldShift_forb1_'+region)
+
+            nPredMean = yieldHistNom.GetMean()
+            print region,yieldHistNom.GetMean()
+            errStat = yieldHistNom.GetRMS()
+            errSyst = (yieldHistShift_cenb0.GetMean() - nPredMean)
+            errSyst+= (yieldHistShift_cenb1.GetMean() - nPredMean)
+            errSyst+= (yieldHistShift_forb0.GetMean() - nPredMean)
+            errSyst+= (yieldHistShift_forb1.GetMean() - nPredMean)
             if 'pythia' in self.jobName or 'sherpa' in self.jobName:
-                lat.DrawLatexNDC(0.6,0.82,'#splitline{n_{pred} = %.1f #pm %.1f #pm %.1f}{n_{obs} = %.1f #pm %.1f}' % (nPred,errStat,errSyst,nObs,errNobs))
+                lat.DrawLatexNDC(0.6,0.82,'#splitline{n_{pred} = %.1f #pm %.1f #pm %.1f}{n_{obs} = %.1f #pm %.1f}' % (nPredMean,errStat,errSyst,nObs,errNobs))
             elif 'data' in self.jobName:
-#                if 'SR' in region:
-#                    lat.DrawLatexNDC(0.6,0.82,'n_{pred} = %.1f #pm %.1f' % (nPred,err))
-#                else:
-                lat.DrawLatexNDC(0.6,0.82,'#splitline{n_{pred} = %.1f #pm %.1f #pm %.1f}{n_{obs} = %i}' % (nPred,errStat,errSyst,nObs))
+                lat.DrawLatexNDC(0.6,0.82,'#splitline{n_{pred} = %.1f #pm %.1f #pm %.1f}{n_{obs} = %i}' % (nPredMean,errStat,errSyst,nObs))
         self.cans[canName].cd()
         self.pad2s[canName] = ROOT.TPad(canName+'_p2',canName+'_p2',0,0.05,1,0.3)
         self.pad2s[canName].SetTopMargin(0)
@@ -307,42 +307,19 @@ class plotMaker:
         self.pad2s[canName].Draw()
         self.pad2s[canName].cd()
         self.rHistsPred[canName] = eHist.Clone()
-
         if not 'prof1d' in var:
-            self.rHistsPredUp[canName] = dHistUp.Clone()
-            self.rHistsPredDown[canName] = dHistDown.Clone()
-            for bin in range(1,self.rHistsPredUp[canName].GetNbinsX()+1):
-                intUp = dHistUp.Integral(bin,dHistUp.GetNbinsX()+1)
-                intDown = dHistDown.Integral(bin,dHistDown.GetNbinsX()+1)
-                intNom = dHistNom.Integral(bin,dHistNom.GetNbinsX()+1)
-                if intNom > 0:
-                    self.rHistsPredUp[canName].SetBinContent(bin, intUp / intNom )
-                    self.rHistsPredDown[canName].SetBinContent(bin, intDown / intNom )
-#            self.rHistsPredUp[canName].Divide(dHistNom)
-#            self.rHistsPredDown[canName].Divide(dHistNom)
-
+            self.rHistsPredUp[canName] = self.dHistsUp[canName].Clone()
+            self.rHistsPredDown[canName] = self.dHistsDown[canName].Clone()
+            self.rHistsPredUp[canName].Divide(dHistNom)
+            self.rHistsPredDown[canName].Divide(dHistNom)
         self.rHistsKin[canName] = kHist.Clone()
-
         rHistPred = self.rHistsPred[canName]
-        if 'MJ' in var:
-            eHistUp = eHist.Clone()
-            for bin in range(1,eHist.GetNbinsX()+1):
-                eHistUp.SetBinContent(bin,eHist.GetBinContent(bin) + eHist.GetBinError(bin))
-            for bin in range(1,rHistPred.GetNbinsX()+1):
-                binIntNom = eHist.Integral(bin,eHist.GetNbinsX()+1)
-                binIntUp =  eHistUp.Integral(bin,eHist.GetNbinsX()+1)
-                if binIntNom > 0:
-                    rHistPred.SetBinError(bin,(binIntUp-binIntNom)/binIntNom)
-#                print region,canName,bin,binIntNom,binIntUp,(binIntUp-binIntNom)/binIntNom
-                rHistPred.SetBinContent(bin,1)
-        else:
-            for bin in range(1,rHistPred.GetNbinsX()+1):
-                if rHistPred.GetBinContent(bin) > 0:
-                    rHistPred.SetBinError( bin, rHistPred.GetBinError(bin) / rHistPred.GetBinContent(bin))
-                else:
-                    rHistPred.SetBinError( bin, 1)
-                rHistPred.SetBinContent(bin, 1)
-
+        for bin in range(1,rHistPred.GetNbinsX()+1):
+            if rHistPred.GetBinContent(bin) > 0:
+                rHistPred.SetBinError( bin, rHistPred.GetBinError(bin) / rHistPred.GetBinContent(bin))
+            else:
+                rHistPred.SetBinError( bin, 1)
+            rHistPred.SetBinContent(bin, 1)
         rHistKin  = self.rHistsKin[canName]
         for bin in range(1,rHistKin.GetNbinsX()+1):
             if eHist.GetBinContent(bin) > 0:
@@ -351,20 +328,14 @@ class plotMaker:
             else:
                 rHistKin.SetBinError(bin,1)
                 rHistKin.SetBinContent(bin,0)
-
-
-#        rHistKin.Divide(eHist)
         rHistPred.Draw('e2')
         rHistKin.Draw('e0 same')
-
         if not 'prof1d' in var:
             self.rHistsPredUp[canName].Draw('hist same')
             self.rHistsPredDown[canName].Draw('hist same')
         rHistPred.GetYaxis().SetTitle('Kin/Pred')
-
         rHistPred.SetMinimum(0.0)
         rHistPred.SetMaximum(1.7)
-#        if var is 'prof1d':
         if 'prof1d' in var:
             rHistPred.SetMinimum(0.8)
             rHistPred.SetMaximum(1.2)

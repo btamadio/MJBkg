@@ -180,7 +180,6 @@ void MJ::dresser::initialize(){
     m_hists_MJ_dressShift_cenb1[m_regionNames.at(i)].Sumw2();
     m_hists_MJ_dressShift_forb0[m_regionNames.at(i)].Sumw2();
     m_hists_MJ_dressShift_forb1[m_regionNames.at(i)].Sumw2();
-    //    cout<<"Histograms successfully set up."<<endl;
   }
 }
 void MJ::dresser::loop(){

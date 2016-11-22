@@ -5,8 +5,8 @@ from bkgPredictor import bkgPredictor
 #jobNameList = ['data_PostICHEP']
 #filesList = [glob.glob('../output_dressed/data_PostICHEP/*.root')]
 
-jobNameList = ['data_ICHEP_uncorrected']
-filesList = [glob.glob('../output_dressed/data_ICHEP_uncorrected/*.root')]
+jobNameList = ['data_ICHEP']
+filesList = [glob.glob('../output_dressed/data_ICHEP/*.root')]
 
 for i in range(len(jobNameList)):
     lumi = 35

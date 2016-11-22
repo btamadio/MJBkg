@@ -92,7 +92,7 @@ void MJ::miniTree::Init(TTree *tree)
    fChain->SetBranchAddress("dEta", &dEta, &b_dEta);
    fChain->SetBranchAddress("HT", &HT, &b_HT);
    fChain->SetBranchAddress("MJ", &MJ, &b_MJ);
-   fChain->SetBranchAddress("BDTG", &BDTG, &b_BDTG);
+   //   fChain->SetBranchAddress("BDTG", &BDTG, &b_BDTG);
    fChain->SetBranchAddress("bSF_60", &bSF_60, &b_bSF_60);
    fChain->SetBranchAddress("bSF_70", &bSF_70, &b_bSF_70);
    fChain->SetBranchAddress("bSF_77", &bSF_77, &b_bSF_77);
