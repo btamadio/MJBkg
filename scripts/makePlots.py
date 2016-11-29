@@ -17,7 +17,7 @@ class plotMaker:
         os.system('mkdir -p '+self.outDir)
         os.system('chmod a+rx '+self.outDir)
         self.inFile = ROOT.TFile.Open(inFile)
-        self.MJcut = 0.6
+        self.MJcut = 0.8
         self.jobName = jobName
         self.lumi=lumi
         self.legs = {}
@@ -138,9 +138,9 @@ class plotMaker:
                      'jetmass3':('3rd leading jet mass [TeV]','Jets'),
                      'jetmass4':('4th leading jet mass [TeV]','Jets'),
                      'MJ':('M_{J}^{#Sigma} [TeV]','Events'),
-                     'prof1d':('jet p_{T} [TeV]','<m_{jet}> [TeV]'),
-                     'prof1d_cen':('jet p_{T} [TeV]','<m_{jet}> [TeV]'),
-                     'prof1d_for':('jet p_{T} [TeV]','<m_{jet}> [TeV]')}
+                     'avgMass':('jet p_{T} [TeV]','<m_{jet}> [TeV]'),
+                     'avgMass_cen':('jet p_{T} [TeV]','<m_{jet}> [TeV]'),
+                     'avgMass_for':('jet p_{T} [TeV]','<m_{jet}> [TeV]')}
         canName = var+'_'+region
         self.cans[canName]=ROOT.TCanvas(canName,canName,800,800)
         self.cans[canName].cd()
@@ -148,7 +148,7 @@ class plotMaker:
         self.pad1s[canName].SetBottomMargin(0.01)
         self.pad1s[canName].Draw()
         self.pad1s[canName].cd()
-        if not 'prof1d' in var:
+        if not 'avgMass' in var:
             self.pad1s[canName].SetLogy()
             self.dHistsNom[canName] = self.inFile.Get('h_'+var+'_dressNom_'+region)
             self.dHistsUp[canName] = self.dHistsNom[canName].Clone('h_'+var+'_dressNom_'+region)
@@ -164,9 +164,10 @@ class plotMaker:
         self.kHists[canName] = self.inFile.Get('h_'+var+'_kin_'+region)            
         dHistNom = self.dHistsNom[canName]
         kHist = self.kHists[canName]
-        if 'prof1d' in var:
-            dHistNom = self.dHistsNom[canName].ProjectionX()
+        if 'avgMass' in var:
+            #dHistNom = self.dHistsNom[canName].ProjectionX()
             kHist = self.kHists[canName].ProjectionX()
+            kHist.SetMarkerSize(0.01)
         else:
             self.dHistsUp[canName].SetLineColor(ROOT.kBlue)
             self.dHistsUp[canName].SetLineWidth(2)
@@ -180,24 +181,25 @@ class plotMaker:
         kHist.SetLineColor(ROOT.kBlack)
         kHist.SetLineWidth(2)
         kHist.SetMarkerStyle(20)
-        if (var is not 'MJ') and not ('prof1d' in var):
+        if (var is not 'MJ') and not ('avgMass' in var):
            kHist.Rebin(10)
         self.eHists[canName] = dHistNom.Clone('eHist')
         eHist = self.eHists[canName]
         eHist.SetMarkerSize(0.001)
         eHist.SetFillColor(ROOT.kRed)
         eHist.SetFillStyle(3010)
-        print region
+#        print region
         for bin in range(1,dHistNom.GetNbinsX()+1):
             errSyst = 0
-            if not 'prof1d' in var:
+            if not 'avgMass' in var:
+#                err1 = 
                 errSyst  = abs(self.dHistsShift_cenb0[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
                 errSyst += abs(self.dHistsShift_cenb1[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
                 errSyst += abs(self.dHistsShift_forb0[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
                 errSyst += abs(self.dHistsShift_forb1[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
                 self.dHistsUp[canName].SetBinContent( bin, dHistNom.GetBinContent(bin) + errSyst )
                 self.dHistsDown[canName].SetBinContent( bin, dHistNom.GetBinContent(bin) - errSyst )
-                print ' ',bin,dHistNom.GetBinContent(bin), errSyst
+#                print ' ',bin,dHistNom.GetBinContent(bin), errSyst
             errStat = eHist.GetBinError(bin)
             errTot = math.sqrt(errSyst*errSyst+errStat*errStat)
             eHist.SetBinError(bin,errTot)
@@ -213,29 +215,31 @@ class plotMaker:
             lastBinCont = kHist.GetBinContent(bin)
             bin -=1
         yMin = pow(10,math.floor(math.log(lastBinCont,10)))/2
-        if 'prof1d' in var:
+        if 'avgMass' in var:
             eHist.SetMinimum(0.0)
             eHist.SetMaximum(0.25)
         else:
             eHist.SetMinimum(yMin)
             eHist.SetMaximum(yMax)
         dHistNom.Draw('hist same')
-        if not 'prof1d' in var:
-            self.dHistsUp[canName].Draw('hist same')
-            self.dHistsDown[canName].Draw('hist same')
+#        if not 'avgMass' in var:
+#            self.dHistsUp[canName].Draw('hist same')
+#            self.dHistsDown[canName].Draw('hist same')
         #blinding - add this as an option at some point
-#        if '5jSRb1' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region:
-#            for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
-#                kHist.SetBinContent(bin,0)
-#                kHist.SetBinError(bin,0)
-        if not 'prof1d' in var:
+        blinded = False
+        if 'SR' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region:
+            blinded=True
+            for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
+                kHist.SetBinContent(bin,0)
+                kHist.SetBinError(bin,0)
+        if not 'avgMass' in var:
             kHist.SetBinErrorOption(1)
         kHist.Draw('same ep')
         eHist.GetXaxis().SetTitle(labelDict[var][0])
         eHist.GetYaxis().SetTitle(labelDict[var][1])
         lat = ROOT.TLatex()
         yLoc = 0.4
-        if 'prof1d' in var:
+        if 'avgMass' in var:
             yLoc += 0.2
             if 'cen' in var:
                 lat.DrawLatexNDC(0.78,0.18,'|#eta| < 1.0')
@@ -263,7 +267,7 @@ class plotMaker:
                 lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, 15.5 fb^{-1}')
             else:
                 lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, 14.8 fb^{-1}')
-        if 'prof1d' in var:
+        if 'avgMass' in var:
             self.legs[canName] = ROOT.TLegend(0.65,0.7,0.85,0.9)
         else:            
             self.legs[canName] = ROOT.TLegend(0.65,0.55,0.85,0.75)
@@ -289,7 +293,7 @@ class plotMaker:
             yieldHistShift_forb1 = self.inFile.Get('h_srYieldShift_forb1_'+region)
 
             nPredMean = yieldHistNom.GetMean()
-            print region,yieldHistNom.GetMean()
+#            print region,yieldHistNom.GetMean()
             errStat = yieldHistNom.GetRMS()
             errSyst = (yieldHistShift_cenb0.GetMean() - nPredMean)
             errSyst+= (yieldHistShift_cenb1.GetMean() - nPredMean)
@@ -298,7 +302,10 @@ class plotMaker:
             if 'pythia' in self.jobName or 'sherpa' in self.jobName:
                 lat.DrawLatexNDC(0.6,0.82,'#splitline{n_{pred} = %.1f #pm %.1f #pm %.1f}{n_{obs} = %.1f #pm %.1f}' % (nPredMean,errStat,errSyst,nObs,errNobs))
             elif 'data' in self.jobName:
-                lat.DrawLatexNDC(0.6,0.82,'#splitline{n_{pred} = %.1f #pm %.1f #pm %.1f}{n_{obs} = %i}' % (nPredMean,errStat,errSyst,nObs))
+                if blinded:
+                    lat.DrawLatexNDC(0.6,0.82,'n_{pred} = %.1f #pm %.1f #pm %.1f' % (nPredMean,errStat,errSyst))
+                else:
+                    lat.DrawLatexNDC(0.6,0.82,'#splitline{n_{pred} = %.1f #pm %.1f #pm %.1f}{n_{obs} = %i}' % (nPredMean,errStat,errSyst,nObs))
         self.cans[canName].cd()
         self.pad2s[canName] = ROOT.TPad(canName+'_p2',canName+'_p2',0,0.05,1,0.3)
         self.pad2s[canName].SetTopMargin(0)
@@ -307,7 +314,7 @@ class plotMaker:
         self.pad2s[canName].Draw()
         self.pad2s[canName].cd()
         self.rHistsPred[canName] = eHist.Clone()
-        if not 'prof1d' in var:
+        if not 'avgMass' in var:
             self.rHistsPredUp[canName] = self.dHistsUp[canName].Clone()
             self.rHistsPredDown[canName] = self.dHistsDown[canName].Clone()
             self.rHistsPredUp[canName].Divide(dHistNom)
@@ -330,13 +337,13 @@ class plotMaker:
                 rHistKin.SetBinContent(bin,0)
         rHistPred.Draw('e2')
         rHistKin.Draw('e0 same')
-        if not 'prof1d' in var:
-            self.rHistsPredUp[canName].Draw('hist same')
-            self.rHistsPredDown[canName].Draw('hist same')
+#        if not 'avgMass' in var:
+#            self.rHistsPredUp[canName].Draw('hist same')
+#            self.rHistsPredDown[canName].Draw('hist same')
         rHistPred.GetYaxis().SetTitle('Kin/Pred')
         rHistPred.SetMinimum(0.0)
         rHistPred.SetMaximum(1.7)
-        if 'prof1d' in var:
+        if 'avgMass' in var:
             rHistPred.SetMinimum(0.8)
             rHistPred.SetMaximum(1.2)
         rHistPred.GetYaxis().SetNdivisions(505)
@@ -360,7 +367,8 @@ if 'pythia' in args.jobName or 'sherpa' in args.jobName:
     lumi = 35
 p=plotMaker(args.inFile,args.jobName,args.date,lumi)
 
-for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4','prof1d','prof1d_cen','prof1d_for']:
+for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4','avgMass','avgMass_cen','avgMass_for']:
+#for var in ['avgMass','avgMass_cen','avgMass_for']:
    for region in ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM','3js0','3js1','3js2',
                   '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM','4js0','4js1',
                   '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
