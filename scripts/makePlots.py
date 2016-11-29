@@ -11,13 +11,13 @@ parser.add_argument('date')
 args = parser.parse_args()
 ROOT.gErrorIgnoreLevel = ROOT.kWarning
 class plotMaker:
-    def __init__(self,inFile,jobName,date,lumi=28):
+    def __init__(self,inFile,jobName,mjcut,date,lumi=28):
         self.outDir = '/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/bkgEstimation/'
         self.outDir+=date+'_'+jobName
         os.system('mkdir -p '+self.outDir)
         os.system('chmod a+rx '+self.outDir)
         self.inFile = ROOT.TFile.Open(inFile)
-        self.MJcut = 0.8
+        self.MJcut = mjcut
         self.jobName = jobName
         self.lumi=lumi
         self.legs = {}
@@ -44,23 +44,54 @@ class plotMaker:
         self.yieldHistsShift_forb1 = {}
     def regionLabel(self,region):
         regionLabel = '#splitline{N_{jet} '
-        if region is '3js0':
-            regionLabel +='= 3}{n_{soft jet} = 0}'
+        if '3js0' in region:
+            if 'bU' in region:
+                regionLabel +='= 3}{#splitline{n_{soft jet} = 0}{non-b-matched}}'
+            elif 'bM' in region:
+                regionLabel +='= 3}{#splitline{n_{soft jet} = 0}{b-matched}}'
+            else:
+                regionLabel +='= 3}{n_{soft jet} = 0}'
             return regionLabel
         elif '3js1' in region:
-            regionLabel +='= 3}{n_{soft jet} = 1}'
+            if 'bU' in region:
+                regionLabel +='= 3}{#splitline{n_{soft jet} = 1}{non-b-matched}}'
+            elif 'bM' in region:
+                regionLabel +='= 3}{#splitline{n_{soft jet} = 1}{b-matched}}'            
+            else:
+                regionLabel +='= 3}{n_{soft jet} = 1}'
             return regionLabel
         elif '3js2' in region:
-            regionLabel +='= 3}{n_{soft jet} #geq 2}'
+            if 'bU' in region:
+                regionLabel +='= 3}{#splitline{n_{soft jet} #geq 2}{non-b-matched}}'
+            elif 'bM' in region:
+                regionLabel +='= 3}{#splitline{n_{soft jet} #geq 2}{b-matched}}'            
+            else:            
+                regionLabel +='= 3}{n_{soft jet} #geq 2}'
             return regionLabel
         elif '4js0' in region:
-            regionLabel +='= 4}{n_{soft jet} = 0}'
+            if 'bU' in region:
+                regionLabel +='= 4}{#splitline{n_{soft jet} = 0}{non-b-matched}}'
+            elif 'bM' in region:
+                regionLabel +='= 4}{#splitline{n_{soft jet} = 0}{b-matched}}'            
+            else:            
+                regionLabel +='= 4}{n_{soft jet} = 0}'
             return regionLabel
         elif '4js1' in region:
-            regionLabel +='= 4}{n_{soft jet} #geq 1}'
+            if 'bU' in region:
+                regionLabel +='= 4}{#splitline{n_{soft jet} #geq 1}{non-b-matched}}'
+            elif 'bM' in region:
+                regionLabel +='= 4}{#splitline{n_{soft jet} #geq 1}{b-matched}}'            
+            else:            
+                regionLabel +='= 4}{n_{soft jet} #geq 1}'
             return regionLabel
         elif region is '5j':
             regionLabel +='#geq 5}{}'
+            return regionLabel
+        elif region is '5jbM':
+            regionLabel +='#geq 5}{b-matched}'                        
+            return regionLabel
+        elif region is '5jbU':
+            regionLabel +='#geq 5}{non-b-matched}'                        
             return regionLabel
         if '3j' in region:
             regionLabel+='= 3}'        
@@ -227,11 +258,11 @@ class plotMaker:
 #            self.dHistsDown[canName].Draw('hist same')
         #blinding - add this as an option at some point
         blinded = False
-        if 'SR' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region:
-            blinded=True
-            for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
-                kHist.SetBinContent(bin,0)
-                kHist.SetBinError(bin,0)
+        # if 'SR' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region:
+        #     blinded=True
+        #     for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
+        #         kHist.SetBinContent(bin,0)
+        #         kHist.SetBinError(bin,0)
         if not 'avgMass' in var:
             kHist.SetBinErrorOption(1)
         kHist.Draw('same ep')
@@ -363,18 +394,22 @@ class plotMaker:
         self.cans[canName].Print(outFileName+'.C')
         os.system('chmod a+r '+self.outDir+'/'+region+'/*')
 lumi = 14.8
+mjcut = 0.6
 if 'pythia' in args.jobName or 'sherpa' in args.jobName:
     lumi = 35
-p=plotMaker(args.inFile,args.jobName,args.date,lumi)
-
+    mjcut = 0.8
+p=plotMaker(args.inFile,args.jobName,mjcut,args.date,lumi)
 for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4','avgMass','avgMass_cen','avgMass_for']:
-#for var in ['avgMass','avgMass_cen','avgMass_for']:
-   for region in ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM','3js0','3js1','3js2',
-                  '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM','4js0','4js1',
+   for region in ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
+                  '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM',
                   '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
                   '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
-                  '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM','5j',
-                  '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']:
+                  '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
+                  '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM',
+                  '3js0','3js1','3js2','3js0bM','3js1bM','3js2bM','3js0bU','3js1bU','3js2bU',
+                  '4js0','4js1','4js0bM','4js1bM','4js0bU','4js1bU',
+                  '5j','5jbM','5jbU']:
+       print var,region
        if var is not 'MJ':
            p.makePlot(var,region)
        else:

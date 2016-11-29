@@ -16,12 +16,12 @@ def err(lst):
     std /= float(len(lst)-1)
     return math.sqrt(std)
 class bkgPredictor:
-    def __init__(self,dressedFileNames,jobName,lumi=35,templateType=0):
+    def __init__(self,dressedFileNames,jobName,mjcut,lumi=35,templateType=0):
         self.dressedFileNames = dressedFileNames
         self.nToys = len(self.dressedFileNames)
         self.jobName = jobName
         self.lumi = lumi
-        self.MJcut = 0.8
+        self.MJcut = mjcut
         self.templateType = templateType
         self.MJbins = [0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.40,0.45,0.5,0.6,0.8,1.0,2.0]
         self.nMJbins = len(self.MJbins)-1
@@ -38,12 +38,15 @@ class bkgPredictor:
             self.outFile = ROOT.TFile.Open(outFileName,'RECREATE')
         else:
             self.outFile = ROOT.TFile.Open(outFileName,'CREATE')
-        self.regionList = ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM','3js0','3js1','3js2',
-                           '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM','4js0','4js1',
+        self.regionList = ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
+                           '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM',
                            '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
                            '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
-                           '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM','5j',
-                           '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM']
+                           '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
+                           '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM',
+                           '3js0','3js1','3js2','3js0bM','3js1bM','3js2bM','3js0bU','3js1bU','3js2bU',
+                           '4js0','4js1','4js0bM','4js1bM','4js0bU','4js1bU',
+                           '5j','5jbM','5jbU']
         self.histList   = ['jetmass','jetmass1','jetmass2','jetmass3','jetmass4','MJ']
         #The histograms are accessed by calling histDict[regionName][histType]
         #For example, to get the kinematic leading jet mass histogram for jets in the region 4jSRb1:
@@ -295,6 +298,8 @@ class bkgPredictor:
                     denom = dHist.Integral(dHist.FindBin(self.normRegion[0]),dHist.FindBin(self.normRegion[1])-1)
                     if denom != 0:
                         norm /= denom
+                    else:
+                        norm = 0
                     print 'regionName = %s, norm = %f' % (regionName,norm)
                     cen = mean(self.srYieldNom_listDict[regionName])
                     xMin = norm*self.lumi*(cen-10*err(self.srYieldNom_listDict[regionName]))

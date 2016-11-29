@@ -1,14 +1,16 @@
 #!/usr/bin/env python
-variables = ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4','srYield']
+variables = ['MJ','avgMass','avgMass_cen','avgMass_for','srYield','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']
 regions =   ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
+             '3js0','3js1','3js2','3js0bU','3js1bU','3js2bU','3js0bM','3js1bM','3js2bM',
              '3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
              '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
              '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
-             '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbU',
-             '5jSRb0','5jSRb1','5jSRb9','5jVRbM','5jSRbM']
-#jobNames = ['pythia_eta','pythia_bdt','pythia_ichep','pythia_qg','pythia_nsubjet']
-jobNames = ['data_ICHEP']
-date = '11_20'
+             '4js0','4js1','4js0bU','4js1bU','4js0bM','4js1bM',
+             '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
+             '5jSRb0','5jSRb1','5jSRb9','5jVRbU','5jSRbM',
+             '5j','5jbU','5jbM']
+jobNames = ['data_ICHEP_uncorrected','data_ICHEP_withUncert']
+dates = ['11_29','11_29']
 output = """<HTML>
 <HEAD> </HEAD>
 <BODY> 
@@ -24,11 +26,12 @@ for var in variables:
         output+='<TR>'
         for i in range(len(jobNames)):
             jobName = jobNames[i]
-            fName = '../'+date+'_'+jobName+'/'+region+'/plot_'+var+'_'+region+'_'+jobName+'.png'
+            fName = '../'+dates[i]+'_'+jobName+'/'+region+'/plot_'+var+'_'+region+'_'+jobName+'.png'
             height = '800'
             if var is 'srYield':
                 height = '600'
-            output+='<TD><CENTER><img src="'+fName+'" height="'+height+'" width="800"><BR>(<a href="'+fName+'">link</a>)</CENTER></TD>'
+            label = var+'_'+region
+            output+='<TD><CENTER><img src="'+fName+'" height="'+height+'" width="800"><BR>(<a href="'+fName+'">'+label+'</a>)</CENTER></TD>'
         output+='</TR>'
 output+="""
 </TABLE></CENTER> 

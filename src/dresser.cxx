@@ -55,24 +55,24 @@ void MJ::dresser::initialize(){
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_yBins = {0,0.5,1.0,1.5,2.0};
     //Turn corrections off
-    // m_corr_cen_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    // m_corr_cen_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    // m_corr_for_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    // m_corr_for_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    // m_uncert_cen_b0 = 0;
-    // m_uncert_cen_b1 = 0;
-    // m_uncert_for_b0 = 0;
-    // m_uncert_for_b1 = 0;
-
-    //Pythia
-    m_corr_cen_b0 = {-.063,-.029,-.059,-.034,-.034,-.039,0,0,0,0,0,0,0,0,0};
+    m_corr_cen_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     m_corr_cen_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     m_corr_for_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     m_corr_for_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_uncert_cen_b0 = 0.063;
-    m_uncert_cen_b1 = 0.19;
-    m_uncert_for_b0 = 0.042;
-    m_uncert_for_b1 = 0.14;
+    m_uncert_cen_b0 = 0;
+    m_uncert_cen_b1 = 0;
+    m_uncert_for_b0 = 0;
+    m_uncert_for_b1 = 0;
+
+    //Pythia
+    // m_corr_cen_b0 = {-.063,-.029,-.059,-.034,-.034,-.039,0,0,0,0,0,0,0,0,0};
+    // m_corr_cen_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    // m_corr_for_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    // m_corr_for_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    // m_uncert_cen_b0 = 0.063;
+    // m_uncert_cen_b1 = 0.19;
+    // m_uncert_for_b0 = 0.042;
+    // m_uncert_for_b1 = 0.14;
 
     //post-ICHEP dataset
     // m_corr_cen_b0 = {-.007,-.023,-.021,-.032,-.021,-.018,-.017,0,.016,.038,.021,.024,.020,.031,.052};
@@ -93,6 +93,20 @@ void MJ::dresser::initialize(){
     // m_uncert_cen_b1 = 0.11;
     // m_uncert_for_b0 = 0.068;
     // m_uncert_for_b1 = 0.082;
+
+    //ICHEP dataset, derived from region 4js1
+    // m_corr_cen_b0 = {-0.0232,-0.0295,-0.0219,-0.0232,-0.0077,-0.0245,-0.0079,0.0087,0.0451,0.0703,
+    // 		     0.0273,0.0738,0.0613,0.0629,0.0812};
+    // m_corr_cen_b1 = {-0.0232,-0.0295,-0.0219,-0.0232,-0.0077,-0.0245,-0.0079,0.0087,0.0451,0.0703,
+    // 		     0.0273,0.0738,0.0613,0.0629,0.0812};
+    // m_corr_for_b0 = {-0.0232,-0.0295,-0.0219,-0.0232,-0.0077,-0.0245,-0.0079,0.0087,0.0451,0.0703,
+    // 		     0.0273,0.0738,0.0613,0.0629,0.0812};
+    // m_corr_for_b1 = {-0.0232,-0.0295,-0.0219,-0.0232,-0.0077,-0.0245,-0.0079,0.0087,0.0451,0.0703,
+    // 		     0.0273,0.0738,0.0613,0.0629,0.0812};
+    // m_uncert_cen_b0 = 0.0245;
+    // m_uncert_cen_b1 = 0.137;
+    // m_uncert_for_b0 = 0.043;
+    // m_uncert_for_b1 = 0.123;
 
   if(m_templateType == 1){
     //pt/BDT/b-match binning
@@ -125,12 +139,15 @@ void MJ::dresser::initialize(){
     m_yBins = {0,0.5,1.0,1.5,2.0};
   }
   //Setup output histograms
-  m_regionNames = {"3jVRb0","3jVRb1","3jVRb9","3jVRbM","3jVRbU","3js0","3js1","3js2",
-				"3jSRb0","3jSRb1","3jSRb9","3jSRbM","3jSRbU","4js0","4js1",
-				"4jVRb0","4jVRb1","4jVRb9","4jVRbM","4jVRbU",
-				"4jSRb0","4jSRb1","4jSRb9","4jSRbM","4jSRbU",
-				"5jVRb0","5jVRb1","5jVRb9","5jVRbM","5jVRbU",
-				"5jSRb0","5jSRb1","5jSRb9","5jSRbM","5jSRbU","5j"};
+  m_regionNames = {"3jVRb0","3jVRb1","3jVRb9","3jVRbM","3jVRbU",
+		   "3jSRb0","3jSRb1","3jSRb9","3jSRbM","3jSRbU",
+		   "4jVRb0","4jVRb1","4jVRb9","4jVRbM","4jVRbU",
+		   "4jSRb0","4jSRb1","4jSRb9","4jSRbM","4jSRbU",
+		   "5jVRb0","5jVRb1","5jVRb9","5jVRbM","5jVRbU",
+		   "5jSRb0","5jSRb1","5jSRb9","5jSRbM","5jSRbU",
+		   "3js0","3js1","3js2","3js0bM","3js1bM","3js2bM","3js0bU","3js1bU","3js2bU",
+		   "4js0","4js1","4js0bM","4js1bM","4js0bU","4js1bU",
+		   "5j","5jbM","5jbU"};
   for (unsigned int i = 0; i < m_regionNames.size(); i++){
     vector<double> ptBins;
     if (m_regionNames.at(i).find("3j") != string::npos){ ptBins = m_ptBins3; }
@@ -233,7 +250,7 @@ void MJ::dresser::loop(){
       float MJ_dressShift_forb0 = 0;
       float MJ_dressShift_forb1 = 0;
 
-      //regionName 0 based only on njet and dEta
+      //Region name based on number of soft jets
       string regionNameS = "";
       if (m_miniTree.njet==3){
 	if( m_miniTree.njet_soft == 0 ) regionNameS = "3js0";
@@ -247,6 +264,9 @@ void MJ::dresser::loop(){
       else if (m_miniTree.njet >= 5){
 	regionNameS = "5j";
       }
+      //Region name based on number of soft jets and b-match status
+      
+      //regionName 0 based only on njet and dEta
       string regionName0 = getRegionName(m_miniTree.njet,m_miniTree.dEta);
       //b-inclusive region name
       string regionName=regionName0+"b9";
@@ -265,8 +285,17 @@ void MJ::dresser::loop(){
       for(unsigned int i = 0; i < min(4,m_miniTree.njet); i++){
 	MJ_kin += m_miniTree.jet_m->at(i);
 	string regionNameM = regionName0;
-	if( m_miniTree.jet_bmatched_Fix70->at(i) == 1)regionNameM += "bM";
-	else regionNameM += "bU";
+	string regionNameSM = regionNameS;
+      
+	if( m_miniTree.jet_bmatched_Fix70->at(i) == 1){
+	  regionNameM += "bM";
+	  regionNameSM += "bM";
+	}
+	else {
+	  regionNameM += "bU";
+	  regionNameSM += "bU";
+	}
+
 	string templateHistName = "";
 	//each event will have a b-inclusive region name and a b-tag/b-veto region name
 	try{
@@ -313,12 +342,13 @@ void MJ::dresser::loop(){
 	m_hists_m_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 	m_hists_m_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 	m_hists_m_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
+	m_hists_m_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 
 	m_hists_m_dressNom.at(regionName).Fill(dressedMass.at(0),m_miniTree.weight);
 	m_hists_m_dressNom.at(regionNameB).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	m_hists_m_dressNom.at(regionNameM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	m_hists_m_dressNom.at(regionNameS).Fill(dressedMass.at(0),m_miniTree.weight);
-
+	m_hists_m_dressNom.at(regionNameSM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	//x and y values for profile histograms
 	float xi = m_miniTree.jet_pt->at(i);
 	//If overflow in pT, put this jet into the last bin
@@ -333,11 +363,13 @@ void MJ::dresser::loop(){
 	m_prof1d_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight);
 	m_prof1d_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
 	m_prof1d_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	m_prof1d_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
 
 	m_prof1d_dress.at(regionName).Fill(xi,dressedMass.at(0),m_miniTree.weight);
 	m_prof1d_dress.at(regionNameS).Fill(xi,dressedMass.at(0),m_miniTree.weight);
 	m_prof1d_dress.at(regionNameB).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	m_prof1d_dress.at(regionNameM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	m_prof1d_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 
 	if( fabs(m_miniTree.jet_eta->at(i)) < 1){
 	  //Fill profile hists for central jets
@@ -346,11 +378,13 @@ void MJ::dresser::loop(){
 	  m_prof1d_cen_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight);
 	  m_prof1d_cen_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_prof1d_cen_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
-	  
+	  m_prof1d_cen_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_prof1d_cen_dress.at(regionName).Fill(xi,dressedMass.at(0),m_miniTree.weight);
 	  m_prof1d_cen_dress.at(regionNameS).Fill(xi,dressedMass.at(0),m_miniTree.weight);
 	  m_prof1d_cen_dress.at(regionNameB).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_prof1d_cen_dress.at(regionNameM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof1d_cen_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	}
 	else{
 	  //Fill profile hists for forward jets
@@ -359,31 +393,37 @@ void MJ::dresser::loop(){
 	  m_prof1d_for_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight);
 	  m_prof1d_for_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_prof1d_for_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof1d_for_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
 	  
 	  m_prof1d_for_dress.at(regionName).Fill(xi,dressedMass.at(0),m_miniTree.weight);
 	  m_prof1d_for_dress.at(regionNameS).Fill(xi,dressedMass.at(0),m_miniTree.weight);
 	  m_prof1d_for_dress.at(regionNameB).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_prof1d_for_dress.at(regionNameM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof1d_for_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	}
 	m_hists_m_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),m_miniTree.weight);
 	m_hists_m_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),m_miniTree.weight);
 	m_hists_m_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
 	m_hists_m_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+	m_hists_m_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
 
 	m_hists_m_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),m_miniTree.weight);
 	m_hists_m_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),m_miniTree.weight);
 	m_hists_m_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
 	m_hists_m_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+	m_hists_m_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
 
 	m_hists_m_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),m_miniTree.weight);
 	m_hists_m_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),m_miniTree.weight);
 	m_hists_m_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
 	m_hists_m_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+	m_hists_m_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
 
 	m_hists_m_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),m_miniTree.weight);
 	m_hists_m_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),m_miniTree.weight);
 	m_hists_m_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
 	m_hists_m_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
+	m_hists_m_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
 
 	//Fill exclusive hists based on jet pT order
 	if (i==0){ 
@@ -391,31 +431,37 @@ void MJ::dresser::loop(){
 	  m_hists_m1_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
 	  m_hists_m1_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 	  m_hists_m1_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m1_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 
 	  m_hists_m1_dressNom.at(regionName).Fill(dressedMass.at(0),m_miniTree.weight);
 	  m_hists_m1_dressNom.at(regionNameS).Fill(dressedMass.at(0),m_miniTree.weight);
 	  m_hists_m1_dressNom.at(regionNameB).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m1_dressNom.at(regionNameM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_dressNom.at(regionNameSM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 
 	  m_hists_m1_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),m_miniTree.weight);
 	  m_hists_m1_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),m_miniTree.weight);
 	  m_hists_m1_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m1_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
 
 	  m_hists_m1_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),m_miniTree.weight);
 	  m_hists_m1_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),m_miniTree.weight);
 	  m_hists_m1_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m1_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
 
 	  m_hists_m1_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),m_miniTree.weight);
 	  m_hists_m1_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),m_miniTree.weight);
 	  m_hists_m1_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m1_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
 
 	  m_hists_m1_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),m_miniTree.weight);
 	  m_hists_m1_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),m_miniTree.weight);
 	  m_hists_m1_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m1_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
 
 	}
 	if (i==1){ 
@@ -423,79 +469,111 @@ void MJ::dresser::loop(){
 	  m_hists_m2_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
 	  m_hists_m2_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 	  m_hists_m2_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m2_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+
 	  m_hists_m2_dressNom.at(regionName).Fill(dressedMass.at(0),m_miniTree.weight);
 	  m_hists_m2_dressNom.at(regionNameS).Fill(dressedMass.at(0),m_miniTree.weight);
 	  m_hists_m2_dressNom.at(regionNameB).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m2_dressNom.at(regionNameM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_dressNom.at(regionNameSM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_hists_m2_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),m_miniTree.weight);
 	  m_hists_m2_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),m_miniTree.weight);
 	  m_hists_m2_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m2_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_hists_m2_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),m_miniTree.weight);
 	  m_hists_m2_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),m_miniTree.weight);
 	  m_hists_m2_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m2_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_hists_m2_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),m_miniTree.weight);
 	  m_hists_m2_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),m_miniTree.weight);
 	  m_hists_m2_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m2_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_hists_m2_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),m_miniTree.weight);
 	  m_hists_m2_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),m_miniTree.weight);
 	  m_hists_m2_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m2_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
 	}
 	if (i==2){ 
 	  m_hists_m3_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
 	  m_hists_m3_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
 	  m_hists_m3_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 	  m_hists_m3_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m3_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+
 	  m_hists_m3_dressNom.at(regionName).Fill(dressedMass.at(0),m_miniTree.weight);
 	  m_hists_m3_dressNom.at(regionNameS).Fill(dressedMass.at(0),m_miniTree.weight);
 	  m_hists_m3_dressNom.at(regionNameB).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m3_dressNom.at(regionNameM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_dressNom.at(regionNameSM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 
 	  m_hists_m3_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),m_miniTree.weight);
 	  m_hists_m3_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),m_miniTree.weight);
 	  m_hists_m3_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m3_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_hists_m3_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),m_miniTree.weight);
 	  m_hists_m3_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),m_miniTree.weight);
 	  m_hists_m3_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m3_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_hists_m3_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),m_miniTree.weight);
 	  m_hists_m3_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),m_miniTree.weight);
 	  m_hists_m3_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m3_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_hists_m3_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),m_miniTree.weight);
 	  m_hists_m3_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),m_miniTree.weight);
 	  m_hists_m3_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m3_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
 	}
 	if (i==3){ 
 	  m_hists_m4_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
 	  m_hists_m4_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
 	  m_hists_m4_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
 	  m_hists_m4_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m4_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+
 	  m_hists_m4_dressNom.at(regionName).Fill(dressedMass.at(0),m_miniTree.weight);
 	  m_hists_m4_dressNom.at(regionNameS).Fill(dressedMass.at(0),m_miniTree.weight);
 	  m_hists_m4_dressNom.at(regionNameB).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m4_dressNom.at(regionNameM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_dressNom.at(regionNameSM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_hists_m4_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),m_miniTree.weight);
 	  m_hists_m4_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),m_miniTree.weight);
 	  m_hists_m4_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m4_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_hists_m4_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),m_miniTree.weight);
 	  m_hists_m4_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),m_miniTree.weight);
 	  m_hists_m4_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m4_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_hists_m4_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),m_miniTree.weight);
 	  m_hists_m4_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),m_miniTree.weight);
 	  m_hists_m4_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m4_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+
 	  m_hists_m4_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),m_miniTree.weight);
 	  m_hists_m4_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),m_miniTree.weight);
 	  m_hists_m4_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
 	  m_hists_m4_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
 	}
       }
       m_hists_MJ_kin.at(regionName).Fill(MJ_kin,m_miniTree.weight*unBlindEvent);
