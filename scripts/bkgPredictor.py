@@ -182,7 +182,6 @@ class bkgPredictor:
 #            self.prof1Dict_dress[regionName] = f.Get('h_prof1d_dress_'+regionName)
 #            self.prof1Dict_cen_dress[regionName] = f.Get('h_prof1d_cen_dress_'+regionName)
 #            self.prof1Dict_for_dress[regionName] = f.Get('h_prof1d_for_dress_'+regionName)
-
             self.prof1Dict_kin[regionName].SetDirectory(0)
             self.prof1Dict_cen_kin[regionName].SetDirectory(0)
             self.prof1Dict_for_kin[regionName].SetDirectory(0)

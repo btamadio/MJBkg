@@ -7,10 +7,16 @@ regions =   ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
              '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
              '4js0','4js1','4js0bU','4js1bU','4js0bM','4js1bM',
              '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
-             '5jSRb0','5jSRb1','5jSRb9','5jVRbU','5jSRbM',
+             '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM',
              '5j','5jbU','5jbM']
-jobNames = ['data_ICHEP_uncorrected','data_ICHEP_withUncert']
-dates = ['11_29','11_29']
+#jobNames = ['data_ICHEP_uncorrected','data_ICHEP_withUncert','data_ICHEP_for_bM_uncorr']
+#dates = ['11_29','11_29','11_29']
+#jobNames=['data_ICHEP_uncorrected','data_PostICHEP_uncorrected']
+#dates = ['11_29','11_29']
+#jobNames=  ['data_ICHEP_uncorrected','data_ICHEP_withUncert']
+#dates=['11_29','11_29']
+jobNames = ['data_ICHEP_uncorrected','SignalInjection_dataICHEP_403566']
+dates=['11_29','11_30']
 output = """<HTML>
 <HEAD> </HEAD>
 <BODY> 
@@ -23,6 +29,9 @@ for var in variables:
             continue
         if var is 'jetmass4' and '3j' in region:
             continue
+#        if 'avgMass' in var:
+#            if region in ['5j','5jbU','5jbM','5jSRb0','5jSRb1','5jSRb9']:
+#                continue
         output+='<TR>'
         for i in range(len(jobNames)):
             jobName = jobNames[i]

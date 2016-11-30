@@ -19,6 +19,7 @@ namespace MJ{
     void setOutFileName(string s){ m_outFileName = s; }
     void setTemplateType( int t ){ m_templateType = t; }
     void doCorrections(){ m_doCorrections = true; }
+    void injectSignal(int signalNum, float signalLumi);
     void initialize();
     void loop();
     void blind(float);
@@ -36,6 +37,9 @@ namespace MJ{
     float m_delta;
     float m_MJcut;
     bool m_blinded;
+    int m_signalNum;
+    float m_signalLumi;
+    bool m_signalInjected;
     miniTree m_miniTree;
     TTree *m_outTree;
     vector<double> *b_jet_m_dressed_nom;

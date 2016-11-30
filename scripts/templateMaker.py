@@ -2,10 +2,12 @@
 import ROOT,sys,math,os,pprint
 from controlDict import controlDict
 class templateMaker:
-    def __init__(self,inFileName,jobName,templateType,jobNum,nSplit=1000):
+    def __init__(self,inFileName,jobName,templateType,jobNum,signalLumi,signalNum,nSplit=1000):
         self.nBins = 50
         self.xMin = -7
         self.xMax = 0
+        self.signalLumi = signalLumi
+        self.signalNum = signalNum
         self.jobName = jobName
         self.jobNum = jobNum
         self.templateType = templateType
@@ -101,22 +103,30 @@ class templateMaker:
     def loopAndFill(self):
         for entry in range(self.eventStart,self.eventEnd):
             self.miniTree.GetEntry(entry)
+            wt = self.miniTree.weight
+            #select out chosen signal points and adjust weight accordingly
+            #only when signal injection test is turned on
+            if self.signalLumi > 0 and self.miniTree.mcChannelNumber > 0:
+                if self.miniTree.mcChannelNumber == self.signalNum:
+                    wt*=self.signalLumi
+                    print 'Signal event with DSID %i found: Scaling weight by %f' % (self.signalNum,self.signalLumi)
+                else:
+                    wt=0
+                    continue
             if self.miniTree.njet==3:
                 #determine bin and fill appropriate histogram with log(m/pT) for that jet
                 for i in range(3):
-#                    histName = self.getHistName(self.miniTree.jet_pt.at(i),self.miniTree.jet_eta.at(i),self.miniTree.jet_bmatched_Fix70.at(i),self.miniTree.jet_qmatched.at(i),self.miniTree.jet_gmatched.at(i),self.miniTree.jet_NTrimSubjets.at(i),self.miniTree.BDTG,self.miniTree.njet_soft,self.miniTree.nbjet_Fix70,self.miniTree.dEta)
                     histName = self.getHistName(self.miniTree.jet_pt.at(i),self.miniTree.jet_eta.at(i),self.miniTree.jet_bmatched_Fix70.at(i),self.miniTree.jet_qmatched.at(i),self.miniTree.jet_gmatched.at(i),self.miniTree.jet_NTrimSubjets.at(i),0,self.miniTree.njet_soft,self.miniTree.nbjet_Fix70,self.miniTree.dEta)
                     if self.miniTree.jet_m.at(i) <= 0:
                         print 'Warning: jet mass = %f' % self.miniTree.jet_m.at(i)
                         continue
                     if histName in self.histDict:
                         if '_b9_' in histName:
-                            self.histDict[histName].Fill(math.log(self.miniTree.jet_m.at(i)/self.miniTree.jet_pt.at(i)),self.miniTree.weight)
+                            self.histDict[histName].Fill(math.log(self.miniTree.jet_m.at(i)/self.miniTree.jet_pt.at(i)),wt)
                         else:
-                            self.histDict[histName].Fill(math.log(self.miniTree.jet_m.at(i)/self.miniTree.jet_pt.at(i)),self.miniTree.weight*self.miniTree.bSF_70)
+                            self.histDict[histName].Fill(math.log(self.miniTree.jet_m.at(i)/self.miniTree.jet_pt.at(i)),wt*self.miniTree.bSF_70)
                     elif histName is not '':
                         print 'Error: histogram %s not found.' % histName
-#                        pprint.pprint(self.histDict)
                         sys.exit(1)
         self.outFile.Write()
     def getHistName(self,pt,eta,bMatch,qMatch,gMatch,nSubjets,BDT,njet_soft,nbjet,dEta):

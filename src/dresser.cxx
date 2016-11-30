@@ -9,12 +9,18 @@ MJ::dresser::dresser(){
   m_MJcut = 600;
   m_blinded = false;
   m_doCorrections = false;
+  m_signalInjected = false;
 }
 MJ::dresser::~dresser(){
 }
 void MJ::dresser::blind(float mjCut){
   m_MJcut = mjCut;
   m_blinded = true;
+}
+void MJ::dresser::injectSignal(int signalNum, float signalLumi){
+  m_signalInjected = true;
+  m_signalNum = signalNum;
+  m_signalLumi = signalLumi;
 }
 void MJ::dresser::initialize(){
   //Open minitree file and load miniTree
@@ -101,8 +107,9 @@ void MJ::dresser::initialize(){
     // 		     0.0273,0.0738,0.0613,0.0629,0.0812};
     // m_corr_for_b0 = {-0.0232,-0.0295,-0.0219,-0.0232,-0.0077,-0.0245,-0.0079,0.0087,0.0451,0.0703,
     // 		     0.0273,0.0738,0.0613,0.0629,0.0812};
-    // m_corr_for_b1 = {-0.0232,-0.0295,-0.0219,-0.0232,-0.0077,-0.0245,-0.0079,0.0087,0.0451,0.0703,
-    // 		     0.0273,0.0738,0.0613,0.0629,0.0812};
+    // m_corr_for_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    // //    m_corr_for_b1 = {-0.0232,-0.0295,-0.0219,-0.0232,-0.0077,-0.0245,-0.0079,0.0087,0.0451,0.0703,
+    // //    		     0.0273,0.0738,0.0613,0.0629,0.0812};
     // m_uncert_cen_b0 = 0.0245;
     // m_uncert_cen_b1 = 0.137;
     // m_uncert_for_b0 = 0.043;
@@ -232,6 +239,20 @@ void MJ::dresser::loop(){
       cout<<"Processing entry "<<entry<<endl;
     }
     m_miniTree.GetEntry(entry);
+    float wt = m_miniTree.weight;
+    if(m_signalInjected and m_miniTree.mcChannelNumber > 0){
+      //This is a signal event so scale up by luminosity if it's the right DSID
+      if ( m_miniTree.mcChannelNumber == m_signalNum ){
+	wt *= m_signalLumi;
+      }
+      //If it's a signal event but not from the right signal point, ignore it
+      else{
+	wt = 0;
+	continue;
+      }
+    }
+
+
     if(m_miniTree.njet >=3){
       float MJ_kin = 0;
       int unBlindEvent = 1;
@@ -338,17 +359,17 @@ void MJ::dresser::loop(){
 	b_jet_m_dressed_shift_forb1->push_back(dressedMass.at(4));
 
 	//Fill inclusive hists for every jet
-	m_hists_m_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
-	m_hists_m_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
-	m_hists_m_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
-	m_hists_m_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
-	m_hists_m_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	m_hists_m_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
+	m_hists_m_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
+	m_hists_m_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
+	m_hists_m_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
+	m_hists_m_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
 
-	m_hists_m_dressNom.at(regionName).Fill(dressedMass.at(0),m_miniTree.weight);
-	m_hists_m_dressNom.at(regionNameB).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	m_hists_m_dressNom.at(regionNameM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	m_hists_m_dressNom.at(regionNameS).Fill(dressedMass.at(0),m_miniTree.weight);
-	m_hists_m_dressNom.at(regionNameSM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	m_hists_m_dressNom.at(regionName).Fill(dressedMass.at(0),wt);
+	m_hists_m_dressNom.at(regionNameB).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
+	m_hists_m_dressNom.at(regionNameM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
+	m_hists_m_dressNom.at(regionNameS).Fill(dressedMass.at(0),wt);
+	m_hists_m_dressNom.at(regionNameSM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 	//x and y values for profile histograms
 	float xi = m_miniTree.jet_pt->at(i);
 	//If overflow in pT, put this jet into the last bin
@@ -359,241 +380,241 @@ void MJ::dresser::loop(){
 	if( m_templateType == 1 ){ yi = m_miniTree.BDTG; }
 	//Fill profile hists
 
-	m_prof1d_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight);
-	m_prof1d_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight);
-	m_prof1d_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
-	m_prof1d_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
-	m_prof1d_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	m_prof1d_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	m_prof1d_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	m_prof1d_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	m_prof1d_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	m_prof1d_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
 
-	m_prof1d_dress.at(regionName).Fill(xi,dressedMass.at(0),m_miniTree.weight);
-	m_prof1d_dress.at(regionNameS).Fill(xi,dressedMass.at(0),m_miniTree.weight);
-	m_prof1d_dress.at(regionNameB).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	m_prof1d_dress.at(regionNameM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	m_prof1d_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	m_prof1d_dress.at(regionName).Fill(xi,dressedMass.at(0),wt);
+	m_prof1d_dress.at(regionNameS).Fill(xi,dressedMass.at(0),wt);
+	m_prof1d_dress.at(regionNameB).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	m_prof1d_dress.at(regionNameM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	m_prof1d_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
 
 	if( fabs(m_miniTree.jet_eta->at(i)) < 1){
 	  //Fill profile hists for central jets
 	  
-	  m_prof1d_cen_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight);
-	  m_prof1d_cen_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight);
-	  m_prof1d_cen_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_prof1d_cen_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_prof1d_cen_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof1d_cen_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_cen_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_cen_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_cen_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_cen_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
 
-	  m_prof1d_cen_dress.at(regionName).Fill(xi,dressedMass.at(0),m_miniTree.weight);
-	  m_prof1d_cen_dress.at(regionNameS).Fill(xi,dressedMass.at(0),m_miniTree.weight);
-	  m_prof1d_cen_dress.at(regionNameB).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_prof1d_cen_dress.at(regionNameM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_prof1d_cen_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof1d_cen_dress.at(regionName).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_cen_dress.at(regionNameS).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_cen_dress.at(regionNameB).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_cen_dress.at(regionNameM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_cen_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
 	}
 	else{
 	  //Fill profile hists for forward jets
 
-	  m_prof1d_for_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight);
-	  m_prof1d_for_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight);
-	  m_prof1d_for_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_prof1d_for_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_prof1d_for_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof1d_for_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_for_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_for_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_for_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_for_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
 	  
-	  m_prof1d_for_dress.at(regionName).Fill(xi,dressedMass.at(0),m_miniTree.weight);
-	  m_prof1d_for_dress.at(regionNameS).Fill(xi,dressedMass.at(0),m_miniTree.weight);
-	  m_prof1d_for_dress.at(regionNameB).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_prof1d_for_dress.at(regionNameM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_prof1d_for_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_prof1d_for_dress.at(regionName).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_for_dress.at(regionNameS).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_for_dress.at(regionNameB).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_for_dress.at(regionNameM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_for_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
 	}
-	m_hists_m_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),m_miniTree.weight);
-	m_hists_m_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),m_miniTree.weight);
-	m_hists_m_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
-	m_hists_m_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
-	m_hists_m_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+	m_hists_m_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),wt);
+	m_hists_m_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),wt);
+	m_hists_m_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
 
-	m_hists_m_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),m_miniTree.weight);
-	m_hists_m_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),m_miniTree.weight);
-	m_hists_m_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
-	m_hists_m_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
-	m_hists_m_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+	m_hists_m_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),wt);
+	m_hists_m_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),wt);
+	m_hists_m_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
 
-	m_hists_m_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),m_miniTree.weight);
-	m_hists_m_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),m_miniTree.weight);
-	m_hists_m_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
-	m_hists_m_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
-	m_hists_m_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+	m_hists_m_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),wt);
+	m_hists_m_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),wt);
+	m_hists_m_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
 
-	m_hists_m_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),m_miniTree.weight);
-	m_hists_m_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),m_miniTree.weight);
-	m_hists_m_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
-	m_hists_m_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
-	m_hists_m_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
+	m_hists_m_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),wt);
+	m_hists_m_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),wt);
+	m_hists_m_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
 
 	//Fill exclusive hists based on jet pT order
 	if (i==0){ 
-	  m_hists_m1_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
-	  m_hists_m1_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
-	  m_hists_m1_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
-	  m_hists_m1_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
-	  m_hists_m1_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m1_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
+	  m_hists_m1_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
+	  m_hists_m1_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m1_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m1_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
 
-	  m_hists_m1_dressNom.at(regionName).Fill(dressedMass.at(0),m_miniTree.weight);
-	  m_hists_m1_dressNom.at(regionNameS).Fill(dressedMass.at(0),m_miniTree.weight);
-	  m_hists_m1_dressNom.at(regionNameB).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m1_dressNom.at(regionNameM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m1_dressNom.at(regionNameSM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_dressNom.at(regionName).Fill(dressedMass.at(0),wt);
+	  m_hists_m1_dressNom.at(regionNameS).Fill(dressedMass.at(0),wt);
+	  m_hists_m1_dressNom.at(regionNameB).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_hists_m1_dressNom.at(regionNameM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_hists_m1_dressNom.at(regionNameSM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 
-	  m_hists_m1_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),m_miniTree.weight);
-	  m_hists_m1_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),m_miniTree.weight);
-	  m_hists_m1_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),wt);
+	  m_hists_m1_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),wt);
+	  m_hists_m1_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
 
-	  m_hists_m1_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),m_miniTree.weight);
-	  m_hists_m1_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),m_miniTree.weight);
-	  m_hists_m1_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),wt);
+	  m_hists_m1_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),wt);
+	  m_hists_m1_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
 
-	  m_hists_m1_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),m_miniTree.weight);
-	  m_hists_m1_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),m_miniTree.weight);
-	  m_hists_m1_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),wt);
+	  m_hists_m1_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),wt);
+	  m_hists_m1_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
 
-	  m_hists_m1_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),m_miniTree.weight);
-	  m_hists_m1_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),m_miniTree.weight);
-	  m_hists_m1_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),wt);
+	  m_hists_m1_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),wt);
+	  m_hists_m1_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	  m_hists_m1_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
 
 	}
 	if (i==1){ 
-	  m_hists_m2_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
-	  m_hists_m2_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
-	  m_hists_m2_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
-	  m_hists_m2_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
-	  m_hists_m2_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m2_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
+	  m_hists_m2_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
+	  m_hists_m2_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m2_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m2_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
 
-	  m_hists_m2_dressNom.at(regionName).Fill(dressedMass.at(0),m_miniTree.weight);
-	  m_hists_m2_dressNom.at(regionNameS).Fill(dressedMass.at(0),m_miniTree.weight);
-	  m_hists_m2_dressNom.at(regionNameB).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m2_dressNom.at(regionNameM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m2_dressNom.at(regionNameSM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_dressNom.at(regionName).Fill(dressedMass.at(0),wt);
+	  m_hists_m2_dressNom.at(regionNameS).Fill(dressedMass.at(0),wt);
+	  m_hists_m2_dressNom.at(regionNameB).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_hists_m2_dressNom.at(regionNameM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_hists_m2_dressNom.at(regionNameSM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 
-	  m_hists_m2_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),m_miniTree.weight);
-	  m_hists_m2_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),m_miniTree.weight);
-	  m_hists_m2_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),wt);
+	  m_hists_m2_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),wt);
+	  m_hists_m2_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
 
-	  m_hists_m2_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),m_miniTree.weight);
-	  m_hists_m2_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),m_miniTree.weight);
-	  m_hists_m2_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),wt);
+	  m_hists_m2_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),wt);
+	  m_hists_m2_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
 
-	  m_hists_m2_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),m_miniTree.weight);
-	  m_hists_m2_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),m_miniTree.weight);
-	  m_hists_m2_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),wt);
+	  m_hists_m2_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),wt);
+	  m_hists_m2_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
 
-	  m_hists_m2_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),m_miniTree.weight);
-	  m_hists_m2_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),m_miniTree.weight);
-	  m_hists_m2_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),wt);
+	  m_hists_m2_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),wt);
+	  m_hists_m2_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	  m_hists_m2_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
 	}
 	if (i==2){ 
-	  m_hists_m3_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
-	  m_hists_m3_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
-	  m_hists_m3_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
-	  m_hists_m3_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
-	  m_hists_m3_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m3_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
+	  m_hists_m3_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
+	  m_hists_m3_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m3_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m3_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
 
-	  m_hists_m3_dressNom.at(regionName).Fill(dressedMass.at(0),m_miniTree.weight);
-	  m_hists_m3_dressNom.at(regionNameS).Fill(dressedMass.at(0),m_miniTree.weight);
-	  m_hists_m3_dressNom.at(regionNameB).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m3_dressNom.at(regionNameM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m3_dressNom.at(regionNameSM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_dressNom.at(regionName).Fill(dressedMass.at(0),wt);
+	  m_hists_m3_dressNom.at(regionNameS).Fill(dressedMass.at(0),wt);
+	  m_hists_m3_dressNom.at(regionNameB).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_hists_m3_dressNom.at(regionNameM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_hists_m3_dressNom.at(regionNameSM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 
-	  m_hists_m3_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),m_miniTree.weight);
-	  m_hists_m3_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),m_miniTree.weight);
-	  m_hists_m3_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),wt);
+	  m_hists_m3_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),wt);
+	  m_hists_m3_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
 
-	  m_hists_m3_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),m_miniTree.weight);
-	  m_hists_m3_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),m_miniTree.weight);
-	  m_hists_m3_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),wt);
+	  m_hists_m3_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),wt);
+	  m_hists_m3_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
 
-	  m_hists_m3_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),m_miniTree.weight);
-	  m_hists_m3_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),m_miniTree.weight);
-	  m_hists_m3_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),wt);
+	  m_hists_m3_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),wt);
+	  m_hists_m3_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
 
-	  m_hists_m3_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),m_miniTree.weight);
-	  m_hists_m3_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),m_miniTree.weight);
-	  m_hists_m3_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),wt);
+	  m_hists_m3_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),wt);
+	  m_hists_m3_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	  m_hists_m3_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
 	}
 	if (i==3){ 
-	  m_hists_m4_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
-	  m_hists_m4_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*unBlindEvent);
-	  m_hists_m4_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
-	  m_hists_m4_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
-	  m_hists_m4_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m4_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
+	  m_hists_m4_kin.at(regionNameS).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
+	  m_hists_m4_kin.at(regionNameB).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m4_kin.at(regionNameM).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
+	  m_hists_m4_kin.at(regionNameSM).Fill(m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70*unBlindEvent);
 
-	  m_hists_m4_dressNom.at(regionName).Fill(dressedMass.at(0),m_miniTree.weight);
-	  m_hists_m4_dressNom.at(regionNameS).Fill(dressedMass.at(0),m_miniTree.weight);
-	  m_hists_m4_dressNom.at(regionNameB).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m4_dressNom.at(regionNameM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m4_dressNom.at(regionNameSM).Fill(dressedMass.at(0),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_dressNom.at(regionName).Fill(dressedMass.at(0),wt);
+	  m_hists_m4_dressNom.at(regionNameS).Fill(dressedMass.at(0),wt);
+	  m_hists_m4_dressNom.at(regionNameB).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressNom.at(regionNameM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressNom.at(regionNameSM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 
-	  m_hists_m4_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),m_miniTree.weight);
-	  m_hists_m4_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),m_miniTree.weight);
-	  m_hists_m4_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),wt);
+	  m_hists_m4_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),wt);
+	  m_hists_m4_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
 
-	  m_hists_m4_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),m_miniTree.weight);
-	  m_hists_m4_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),m_miniTree.weight);
-	  m_hists_m4_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),wt);
+	  m_hists_m4_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),wt);
+	  m_hists_m4_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
 
-	  m_hists_m4_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),m_miniTree.weight);
-	  m_hists_m4_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),m_miniTree.weight);
-	  m_hists_m4_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),wt);
+	  m_hists_m4_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),wt);
+	  m_hists_m4_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
 
-	  m_hists_m4_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),m_miniTree.weight);
-	  m_hists_m4_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),m_miniTree.weight);
-	  m_hists_m4_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),m_miniTree.weight*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),wt);
+	  m_hists_m4_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),wt);
+	  m_hists_m4_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
 	}
       }
-      m_hists_MJ_kin.at(regionName).Fill(MJ_kin,m_miniTree.weight*unBlindEvent);
-      m_hists_MJ_kin.at(regionNameS).Fill(MJ_kin,m_miniTree.weight*unBlindEvent);
-      m_hists_MJ_kin.at(regionNameB).Fill(MJ_kin,m_miniTree.weight*m_miniTree.bSF_70*unBlindEvent);
-      m_hists_MJ_dressNom.at(regionName).Fill(MJ_dressNom,m_miniTree.weight);
-      m_hists_MJ_dressNom.at(regionNameS).Fill(MJ_dressNom,m_miniTree.weight);
-      m_hists_MJ_dressNom.at(regionNameB).Fill(MJ_dressNom,m_miniTree.weight*m_miniTree.bSF_70);
-      m_hists_MJ_dressShift_cenb0.at(regionName).Fill(MJ_dressShift_cenb0,m_miniTree.weight);
-      m_hists_MJ_dressShift_cenb0.at(regionNameS).Fill(MJ_dressShift_cenb0,m_miniTree.weight);
-      m_hists_MJ_dressShift_cenb0.at(regionNameB).Fill(MJ_dressShift_cenb0,m_miniTree.weight*m_miniTree.bSF_70);
-      m_hists_MJ_dressShift_cenb1.at(regionName).Fill(MJ_dressShift_cenb1,m_miniTree.weight);
-      m_hists_MJ_dressShift_cenb1.at(regionNameS).Fill(MJ_dressShift_cenb1,m_miniTree.weight);
-      m_hists_MJ_dressShift_cenb1.at(regionNameB).Fill(MJ_dressShift_cenb1,m_miniTree.weight*m_miniTree.bSF_70);
-      m_hists_MJ_dressShift_forb0.at(regionName).Fill(MJ_dressShift_forb0,m_miniTree.weight);
-      m_hists_MJ_dressShift_forb0.at(regionNameS).Fill(MJ_dressShift_forb0,m_miniTree.weight);
-      m_hists_MJ_dressShift_forb0.at(regionNameB).Fill(MJ_dressShift_forb0,m_miniTree.weight*m_miniTree.bSF_70);
-      m_hists_MJ_dressShift_forb1.at(regionName).Fill(MJ_dressShift_forb1,m_miniTree.weight);
-      m_hists_MJ_dressShift_forb1.at(regionNameS).Fill(MJ_dressShift_forb1,m_miniTree.weight);
-      m_hists_MJ_dressShift_forb1.at(regionNameB).Fill(MJ_dressShift_forb1,m_miniTree.weight*m_miniTree.bSF_70);
+      m_hists_MJ_kin.at(regionName).Fill(MJ_kin,wt*unBlindEvent);
+      m_hists_MJ_kin.at(regionNameS).Fill(MJ_kin,wt*unBlindEvent);
+      m_hists_MJ_kin.at(regionNameB).Fill(MJ_kin,wt*m_miniTree.bSF_70*unBlindEvent);
+      m_hists_MJ_dressNom.at(regionName).Fill(MJ_dressNom,wt);
+      m_hists_MJ_dressNom.at(regionNameS).Fill(MJ_dressNom,wt);
+      m_hists_MJ_dressNom.at(regionNameB).Fill(MJ_dressNom,wt*m_miniTree.bSF_70);
+      m_hists_MJ_dressShift_cenb0.at(regionName).Fill(MJ_dressShift_cenb0,wt);
+      m_hists_MJ_dressShift_cenb0.at(regionNameS).Fill(MJ_dressShift_cenb0,wt);
+      m_hists_MJ_dressShift_cenb0.at(regionNameB).Fill(MJ_dressShift_cenb0,wt*m_miniTree.bSF_70);
+      m_hists_MJ_dressShift_cenb1.at(regionName).Fill(MJ_dressShift_cenb1,wt);
+      m_hists_MJ_dressShift_cenb1.at(regionNameS).Fill(MJ_dressShift_cenb1,wt);
+      m_hists_MJ_dressShift_cenb1.at(regionNameB).Fill(MJ_dressShift_cenb1,wt*m_miniTree.bSF_70);
+      m_hists_MJ_dressShift_forb0.at(regionName).Fill(MJ_dressShift_forb0,wt);
+      m_hists_MJ_dressShift_forb0.at(regionNameS).Fill(MJ_dressShift_forb0,wt);
+      m_hists_MJ_dressShift_forb0.at(regionNameB).Fill(MJ_dressShift_forb0,wt*m_miniTree.bSF_70);
+      m_hists_MJ_dressShift_forb1.at(regionName).Fill(MJ_dressShift_forb1,wt);
+      m_hists_MJ_dressShift_forb1.at(regionNameS).Fill(MJ_dressShift_forb1,wt);
+      m_hists_MJ_dressShift_forb1.at(regionNameB).Fill(MJ_dressShift_forb1,wt*m_miniTree.bSF_70);
     }
     m_outTree->Fill();
   }
