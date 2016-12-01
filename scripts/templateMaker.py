@@ -132,6 +132,8 @@ class templateMaker:
     def getHistName(self,pt,eta,bMatch,qMatch,gMatch,nSubjets,BDT,njet_soft,nbjet,dEta):
         if self.templateType == 0:
             #pT/eta/b-match binning
+            if int(bMatch) == 1 and dEta < 1.4:
+                return ''
             ptBin = -1
             etaBin = -1
             if pt >= self.ptBins3[-1]:

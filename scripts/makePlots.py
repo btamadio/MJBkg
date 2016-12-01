@@ -27,10 +27,14 @@ class plotMaker:
         self.kHists = {}
         self.eHists = {}
         self.dHistsNom = {}
-        self.dHistsShift_cenb0 = {}
-        self.dHistsShift_cenb1 = {}
-        self.dHistsShift_forb0 = {}
-        self.dHistsShift_forb1 = {}
+        self.dHistsShift_eta1_b0 = {}
+        self.dHistsShift_eta2_b0 = {}
+        self.dHistsShift_eta3_b0 = {}
+        self.dHistsShift_eta4_b0 = {}
+        self.dHistsShift_eta1_b1 = {}
+        self.dHistsShift_eta2_b1 = {}
+        self.dHistsShift_eta3_b1 = {}
+        self.dHistsShift_eta4_b1 = {}
         self.dHistsUp = {}
         self.dHistsDown = {}
         self.rHistsPred = {}
@@ -38,10 +42,14 @@ class plotMaker:
         self.rHistsPredDown = {}
         self.rHistsKin = {}
         self.yieldHistsNom = {}
-        self.yieldHistsShift_cenb0 = {}
-        self.yieldHistsShift_cenb1 = {}
-        self.yieldHistsShift_forb0 = {}
-        self.yieldHistsShift_forb1 = {}
+        self.yieldHistsShift_eta1_b0 = {}
+        self.yieldHistsShift_eta2_b0 = {}
+        self.yieldHistsShift_eta3_b0 = {}
+        self.yieldHistsShift_eta4_b0 = {}
+        self.yieldHistsShift_eta1_b1 = {}
+        self.yieldHistsShift_eta2_b1 = {}
+        self.yieldHistsShift_eta3_b1 = {}
+        self.yieldHistsShift_eta4_b1 = {}
     def regionLabel(self,region):
         regionLabel = '#splitline{N_{jet} '
         if '3js0' in region:
@@ -170,8 +178,10 @@ class plotMaker:
                      'jetmass4':('4th leading jet mass [TeV]','Jets'),
                      'MJ':('M_{J}^{#Sigma} [TeV]','Events'),
                      'avgMass':('jet p_{T} [TeV]','<m_{jet}> [TeV]'),
-                     'avgMass_cen':('jet p_{T} [TeV]','<m_{jet}> [TeV]'),
-                     'avgMass_for':('jet p_{T} [TeV]','<m_{jet}> [TeV]')}
+                     'avgMass_eta1':('jet p_{T} [TeV]','<m_{jet}> [TeV]'),
+                     'avgMass_eta2':('jet p_{T} [TeV]','<m_{jet}> [TeV]'),
+                     'avgMass_eta3':('jet p_{T} [TeV]','<m_{jet}> [TeV]'),
+                     'avgMass_eta4':('jet p_{T} [TeV]','<m_{jet}> [TeV]')}
         canName = var+'_'+region
         self.cans[canName]=ROOT.TCanvas(canName,canName,800,800)
         self.cans[canName].cd()
@@ -186,10 +196,14 @@ class plotMaker:
             self.dHistsDown[canName] = self.dHistsNom[canName].Clone('h_'+var+'_dressNom_'+region)
             self.dHistsUp[canName].SetDirectory(0)
             self.dHistsDown[canName].SetDirectory(0)
-            self.dHistsShift_cenb0[canName] = self.inFile.Get('h_'+var+'_dressShift_cenb0_'+region)
-            self.dHistsShift_cenb1[canName] = self.inFile.Get('h_'+var+'_dressShift_cenb1_'+region)
-            self.dHistsShift_forb0[canName] = self.inFile.Get('h_'+var+'_dressShift_forb0_'+region)
-            self.dHistsShift_forb1[canName] = self.inFile.Get('h_'+var+'_dressShift_forb1_'+region)
+            self.dHistsShift_eta1_b0[canName] = self.inFile.Get('h_'+var+'_dressShift_eta1_b0_'+region)
+            self.dHistsShift_eta2_b0[canName] = self.inFile.Get('h_'+var+'_dressShift_eta2_b0_'+region)
+            self.dHistsShift_eta3_b0[canName] = self.inFile.Get('h_'+var+'_dressShift_eta3_b0_'+region)
+            self.dHistsShift_eta4_b0[canName] = self.inFile.Get('h_'+var+'_dressShift_eta4_b0_'+region)
+            self.dHistsShift_eta1_b1[canName] = self.inFile.Get('h_'+var+'_dressShift_eta1_b1_'+region)
+            self.dHistsShift_eta2_b1[canName] = self.inFile.Get('h_'+var+'_dressShift_eta2_b1_'+region)
+            self.dHistsShift_eta3_b1[canName] = self.inFile.Get('h_'+var+'_dressShift_eta3_b1_'+region)
+            self.dHistsShift_eta4_b1[canName] = self.inFile.Get('h_'+var+'_dressShift_eta4_b1_'+region)
         else:
             self.dHistsNom[canName] = self.inFile.Get('h_'+var+'_dress_'+region)
         self.kHists[canName] = self.inFile.Get('h_'+var+'_kin_'+region)            
@@ -219,18 +233,19 @@ class plotMaker:
         eHist.SetMarkerSize(0.001)
         eHist.SetFillColor(ROOT.kRed)
         eHist.SetFillStyle(3010)
-#        print region
         for bin in range(1,dHistNom.GetNbinsX()+1):
             errSyst = 0
             if not 'avgMass' in var:
-#                err1 = 
-                errSyst  = abs(self.dHistsShift_cenb0[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
-                errSyst += abs(self.dHistsShift_cenb1[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
-                errSyst += abs(self.dHistsShift_forb0[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
-                errSyst += abs(self.dHistsShift_forb1[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                errSyst  = abs(self.dHistsShift_eta1_b0[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                errSyst += abs(self.dHistsShift_eta2_b0[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                errSyst += abs(self.dHistsShift_eta3_b0[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                errSyst += abs(self.dHistsShift_eta4_b0[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                errSyst += abs(self.dHistsShift_eta1_b1[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                errSyst += abs(self.dHistsShift_eta2_b1[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                errSyst += abs(self.dHistsShift_eta3_b1[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
+                errSyst += abs(self.dHistsShift_eta4_b1[canName].GetBinContent(bin) - dHistNom.GetBinContent(bin))
                 self.dHistsUp[canName].SetBinContent( bin, dHistNom.GetBinContent(bin) + errSyst )
                 self.dHistsDown[canName].SetBinContent( bin, dHistNom.GetBinContent(bin) - errSyst )
-#                print ' ',bin,dHistNom.GetBinContent(bin), errSyst
             errStat = eHist.GetBinError(bin)
             errTot = math.sqrt(errSyst*errSyst+errStat*errStat)
             eHist.SetBinError(bin,errTot)
@@ -253,6 +268,7 @@ class plotMaker:
             eHist.SetMinimum(yMin)
             eHist.SetMaximum(yMax)
         dHistNom.Draw('hist same')
+        #draw systematic bands
 #        if not 'avgMass' in var:
 #            self.dHistsUp[canName].Draw('hist same')
 #            self.dHistsDown[canName].Draw('hist same')
@@ -275,10 +291,14 @@ class plotMaker:
         yLoc = 0.4
         if 'avgMass' in var:
             yLoc += 0.2
-            if 'cen' in var:
-                lat.DrawLatexNDC(0.78,0.18,'|#eta| < 1.0')
-            elif 'for' in var:
-                lat.DrawLatexNDC(0.78,0.18,'|#eta| > 1.0')
+            if 'eta1' in var:
+                lat.DrawLatexNDC(0.78,0.18,'|#eta| < 0.5')
+            elif 'eta2' in var:
+                lat.DrawLatexNDC(0.78,0.18,'0.5 < |#eta| < 1.0')
+            elif 'eta3' in var:
+                lat.DrawLatexNDC(0.78,0.18,'1.0 < |#eta| < 1.5')
+            elif 'eta4' in var:
+                lat.DrawLatexNDC(0.78,0.18,'1.5 < |#eta| < 2.0')
         if 'bdt' in self.jobName:
             lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/BDT/b-match}{binning}')
         if 'eta' in self.jobName:
@@ -321,18 +341,26 @@ class plotMaker:
             errNobs = ROOT.Double(0)
             nObs = kHist.IntegralAndError(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1,errNobs)
             yieldHistNom = self.inFile.Get('h_srYieldNom_'+region)
-            yieldHistShift_cenb0 = self.inFile.Get('h_srYieldShift_cenb0_'+region)
-            yieldHistShift_cenb1 = self.inFile.Get('h_srYieldShift_cenb1_'+region)
-            yieldHistShift_forb0 = self.inFile.Get('h_srYieldShift_forb0_'+region)
-            yieldHistShift_forb1 = self.inFile.Get('h_srYieldShift_forb1_'+region)
-
+            yieldHistShift_eta1_b0 = self.inFile.Get('h_srYieldShift_eta1_b0_'+region)
+            yieldHistShift_eta2_b0 = self.inFile.Get('h_srYieldShift_eta2_b0_'+region)
+            yieldHistShift_eta3_b0 = self.inFile.Get('h_srYieldShift_eta3_b0_'+region)
+            yieldHistShift_eta4_b0 = self.inFile.Get('h_srYieldShift_eta4_b0_'+region)
+            yieldHistShift_eta1_b1 = self.inFile.Get('h_srYieldShift_eta1_b1_'+region)
+            yieldHistShift_eta2_b1 = self.inFile.Get('h_srYieldShift_eta2_b1_'+region)
+            yieldHistShift_eta3_b1 = self.inFile.Get('h_srYieldShift_eta3_b1_'+region)
+            yieldHistShift_eta4_b1 = self.inFile.Get('h_srYieldShift_eta4_b1_'+region)
             nPredMean = yieldHistNom.GetMean()
-#            print region,yieldHistNom.GetMean()
+
             errStat = yieldHistNom.GetRMS()
-            errSyst = (yieldHistShift_cenb0.GetMean() - nPredMean)
-            errSyst+= (yieldHistShift_cenb1.GetMean() - nPredMean)
-            errSyst+= (yieldHistShift_forb0.GetMean() - nPredMean)
-            errSyst+= (yieldHistShift_forb1.GetMean() - nPredMean)
+            errSyst = (yieldHistShift_eta1_b0.GetMean() - nPredMean)
+            errSyst+= (yieldHistShift_eta2_b0.GetMean() - nPredMean)
+            errSyst+= (yieldHistShift_eta3_b0.GetMean() - nPredMean)
+            errSyst+= (yieldHistShift_eta4_b0.GetMean() - nPredMean)
+            errSyst+= (yieldHistShift_eta1_b1.GetMean() - nPredMean)
+            errSyst+= (yieldHistShift_eta2_b1.GetMean() - nPredMean)
+            errSyst+= (yieldHistShift_eta3_b1.GetMean() - nPredMean)
+            errSyst+= (yieldHistShift_eta4_b1.GetMean() - nPredMean)
+
             if 'pythia' in self.jobName or 'sherpa' in self.jobName:
                 lat.DrawLatexNDC(0.6,0.82,'#splitline{n_{pred} = %.1f #pm %.1f #pm %.1f}{n_{obs} = %.1f #pm %.1f}' % (nPredMean,errStat,errSyst,nObs,errNobs))
             elif 'data' in self.jobName:
@@ -402,7 +430,7 @@ if 'pythia' in args.jobName or 'sherpa' in args.jobName:
     lumi = 35
     mjcut = 0.8
 p=plotMaker(args.inFile,args.jobName,mjcut,args.date,lumi)
-for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4','avgMass','avgMass_cen','avgMass_for']:
+for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4','avgMass','avgMass_eta1','avgMass_eta2','avgMass_eta3','avgMass_eta4']:
    for region in ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
                   '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM',
                   '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',

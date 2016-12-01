@@ -42,16 +42,25 @@ void MJ::dresser::initialize(){
   m_outTree=m_miniTree.fChain->CloneTree(0);
 
   b_jet_m_dressed_nom = new vector<double>;
-  b_jet_m_dressed_shift_cenb0 = new vector<double>;
-  b_jet_m_dressed_shift_cenb1 = new vector<double>;
-  b_jet_m_dressed_shift_forb0 = new vector<double>;
-  b_jet_m_dressed_shift_forb1 = new vector<double>;
+  b_jet_m_dressed_shift_eta1_b0 = new vector<double>;
+  b_jet_m_dressed_shift_eta2_b0 = new vector<double>;
+  b_jet_m_dressed_shift_eta3_b0 = new vector<double>;
+  b_jet_m_dressed_shift_eta4_b0 = new vector<double>;
+
+  b_jet_m_dressed_shift_eta1_b1 = new vector<double>;
+  b_jet_m_dressed_shift_eta2_b1 = new vector<double>;
+  b_jet_m_dressed_shift_eta3_b1 = new vector<double>;
+  b_jet_m_dressed_shift_eta4_b1 = new vector<double>;
 
   m_outTree->Branch("jet_m_dressed_nom",&b_jet_m_dressed_nom);
-  m_outTree->Branch("jet_m_dressed_shift_cenb0",&b_jet_m_dressed_shift_cenb0);
-  m_outTree->Branch("jet_m_dressed_shift_cenb1",&b_jet_m_dressed_shift_cenb1);
-  m_outTree->Branch("jet_m_dressed_shift_forb0",&b_jet_m_dressed_shift_forb0);
-  m_outTree->Branch("jet_m_dressed_shift_forb1",&b_jet_m_dressed_shift_forb1);
+  m_outTree->Branch("jet_m_dressed_shift_eta1_b0",&b_jet_m_dressed_shift_eta1_b0);
+  m_outTree->Branch("jet_m_dressed_shift_eta2_b0",&b_jet_m_dressed_shift_eta2_b0);
+  m_outTree->Branch("jet_m_dressed_shift_eta3_b0",&b_jet_m_dressed_shift_eta3_b0);
+  m_outTree->Branch("jet_m_dressed_shift_eta4_b0",&b_jet_m_dressed_shift_eta4_b0);
+  m_outTree->Branch("jet_m_dressed_shift_eta1_b1",&b_jet_m_dressed_shift_eta1_b1);
+  m_outTree->Branch("jet_m_dressed_shift_eta2_b1",&b_jet_m_dressed_shift_eta2_b1);
+  m_outTree->Branch("jet_m_dressed_shift_eta3_b1",&b_jet_m_dressed_shift_eta3_b1);
+  m_outTree->Branch("jet_m_dressed_shift_eta4_b1",&b_jet_m_dressed_shift_eta4_b1);
 
   //Set pT and eta binning -> at some point change this to use config file instead
   if(m_templateType == 0){
@@ -61,14 +70,22 @@ void MJ::dresser::initialize(){
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_yBins = {0,0.5,1.0,1.5,2.0};
     //Turn corrections off
-    m_corr_cen_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_corr_cen_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_corr_for_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_corr_for_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_uncert_cen_b0 = 0;
-    m_uncert_cen_b1 = 0;
-    m_uncert_for_b0 = 0;
-    m_uncert_for_b1 = 0;
+    m_corr_eta1_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    m_corr_eta2_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    m_corr_eta3_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    m_corr_eta4_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    m_corr_eta1_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    m_corr_eta2_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    m_corr_eta3_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    m_corr_eta4_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    m_uncert_eta1_b0 = 0;
+    m_uncert_eta2_b0 = 0;
+    m_uncert_eta3_b0 = 0;
+    m_uncert_eta4_b0 = 0;
+    m_uncert_eta1_b1 = 0;
+    m_uncert_eta2_b1 = 0;
+    m_uncert_eta3_b1 = 0;
+    m_uncert_eta4_b1 = 0;
 
     //Pythia
     // m_corr_cen_b0 = {-.063,-.029,-.059,-.034,-.034,-.039,0,0,0,0,0,0,0,0,0};
@@ -162,66 +179,88 @@ void MJ::dresser::initialize(){
     else if (m_regionNames.at(i).find("5j") != string::npos) { ptBins = m_ptBins5; }
     //Declare 1D profile hists with pt bins same as templates
     m_prof1d_kin[m_regionNames.at(i)] = TProfile(("h_prof1d_kin_"+m_regionNames.at(i)).c_str(),("h_prof1d_kin_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
-    m_prof1d_cen_kin[m_regionNames.at(i)] = TProfile(("h_prof1d_cen_kin_"+m_regionNames.at(i)).c_str(),("h_prof1d_cen_kin_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
-    m_prof1d_for_kin[m_regionNames.at(i)] = TProfile(("h_prof1d_for_kin_"+m_regionNames.at(i)).c_str(),("h_prof1d_for_kin_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+    m_prof1d_eta1_kin[m_regionNames.at(i)] = TProfile(("h_prof1d_eta1_kin_"+m_regionNames.at(i)).c_str(),("h_prof1d_eta1_kin_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+    m_prof1d_eta2_kin[m_regionNames.at(i)] = TProfile(("h_prof1d_eta2_kin_"+m_regionNames.at(i)).c_str(),("h_prof1d_eta2_kin_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+    m_prof1d_eta3_kin[m_regionNames.at(i)] = TProfile(("h_prof1d_eta3_kin_"+m_regionNames.at(i)).c_str(),("h_prof1d_eta3_kin_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+    m_prof1d_eta4_kin[m_regionNames.at(i)] = TProfile(("h_prof1d_eta4_kin_"+m_regionNames.at(i)).c_str(),("h_prof1d_eta4_kin_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
 
     m_prof1d_dress[m_regionNames.at(i)] = TProfile(("h_prof1d_dress_"+m_regionNames.at(i)).c_str(),("h_prof1d_dress_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
-    m_prof1d_cen_dress[m_regionNames.at(i)] = TProfile(("h_prof1d_cen_dress_"+m_regionNames.at(i)).c_str(),("h_prof1d_cen_dress_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
-    m_prof1d_for_dress[m_regionNames.at(i)] = TProfile(("h_prof1d_for_dress_"+m_regionNames.at(i)).c_str(),("h_prof1d_for_dress_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+    m_prof1d_eta1_dress[m_regionNames.at(i)] = TProfile(("h_prof1d_eta1_dress_"+m_regionNames.at(i)).c_str(),("h_prof1d_eta1_dress_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+    m_prof1d_eta2_dress[m_regionNames.at(i)] = TProfile(("h_prof1d_eta2_dress_"+m_regionNames.at(i)).c_str(),("h_prof1d_eta2_dress_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+    m_prof1d_eta3_dress[m_regionNames.at(i)] = TProfile(("h_prof1d_eta3_dress_"+m_regionNames.at(i)).c_str(),("h_prof1d_eta3_dress_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
+    m_prof1d_eta4_dress[m_regionNames.at(i)] = TProfile(("h_prof1d_eta4_dress_"+m_regionNames.at(i)).c_str(),("h_prof1d_eta4_dress_"+m_regionNames.at(i)).c_str(),ptBins.size()-1,ptBins.data());
 
     int nBins = 200;
     float xMin = 0;
     float xMax = 1.2;
     m_hists_m_kin[m_regionNames.at(i)] = TH1F(("h_jetmass_kin_"+m_regionNames.at(i)).c_str(),("h_jetmass_kin_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m_dressNom[m_regionNames.at(i)] = TH1F(("h_jetmass_dressNom_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressNom_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m_dressShift_cenb0[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m_dressShift_cenb1[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m_dressShift_forb0[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_forb0_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_forb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m_dressShift_forb1[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_forb1_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_forb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m_dressShift_eta1_b0[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m_dressShift_eta2_b0[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m_dressShift_eta3_b0[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m_dressShift_eta4_b0[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m_dressShift_eta1_b1[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m_dressShift_eta2_b1[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m_dressShift_eta3_b1[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m_dressShift_eta4_b1[m_regionNames.at(i)] = TH1F(("h_jetmass_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
 
     m_hists_m1_kin[m_regionNames.at(i)] = TH1F(("h_jetmass1_kin_"+m_regionNames.at(i)).c_str(),("h_jetmass1_kin_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m1_dressNom[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressNom_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressNom_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m1_dressShift_cenb0[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m1_dressShift_cenb1[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m1_dressShift_forb0[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_forb0_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_forb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m1_dressShift_forb1[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_forb1_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_forb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_dressShift_eta1_b0[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_dressShift_eta2_b0[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_dressShift_eta3_b0[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);   
+    m_hists_m1_dressShift_eta4_b0[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_dressShift_eta1_b1[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_dressShift_eta2_b1[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m1_dressShift_eta3_b1[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);   
+    m_hists_m1_dressShift_eta4_b1[m_regionNames.at(i)] = TH1F(("h_jetmass1_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass1_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
 
     m_hists_m2_kin[m_regionNames.at(i)] = TH1F(("h_jetmass2_kin_"+m_regionNames.at(i)).c_str(),("h_jetmass2_kin_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m2_dressNom[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressNom_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressNom_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m2_dressShift_cenb0[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m2_dressShift_cenb1[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m2_dressShift_forb0[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_forb0_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_forb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m2_dressShift_forb1[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_forb1_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_forb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressShift_eta1_b0[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressShift_eta2_b0[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressShift_eta3_b0[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressShift_eta4_b0[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressShift_eta1_b1[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressShift_eta2_b1[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressShift_eta3_b1[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m2_dressShift_eta4_b1[m_regionNames.at(i)] = TH1F(("h_jetmass2_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass2_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
 
     xMax = 0.6;
     m_hists_m3_kin[m_regionNames.at(i)] = TH1F(("h_jetmass3_kin_"+m_regionNames.at(i)).c_str(),("h_jetmass3_kin_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m3_dressNom[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressNom_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressNom_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m3_dressShift_cenb0[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m3_dressShift_cenb1[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m3_dressShift_forb0[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_forb0_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_forb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m3_dressShift_forb1[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_forb1_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_forb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressShift_eta1_b0[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressShift_eta2_b0[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressShift_eta3_b0[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressShift_eta4_b0[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressShift_eta1_b1[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressShift_eta2_b1[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressShift_eta3_b1[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m3_dressShift_eta4_b1[m_regionNames.at(i)] = TH1F(("h_jetmass3_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass3_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
 
     xMax = 0.4;
     m_hists_m4_kin[m_regionNames.at(i)] = TH1F(("h_jetmass4_kin_"+m_regionNames.at(i)).c_str(),("h_jetmass4_kin_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_m4_dressNom[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressNom_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressNom_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m4_dressShift_cenb0[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m4_dressShift_cenb1[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m4_dressShift_forb0[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_forb0_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_forb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_m4_dressShift_forb1[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_forb1_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_forb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressShift_eta1_b0[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressShift_eta2_b0[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressShift_eta3_b0[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressShift_eta4_b0[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressShift_eta1_b1[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressShift_eta2_b1[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressShift_eta3_b1[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_m4_dressShift_eta4_b1[m_regionNames.at(i)] = TH1F(("h_jetmass4_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),("h_jetmass4_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     
     xMax = 2.0;
     m_hists_MJ_kin[m_regionNames.at(i)] = TH1F(("h_MJ_kin_"+m_regionNames.at(i)).c_str(),("h_MJ_kin_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
     m_hists_MJ_dressNom[m_regionNames.at(i)] = TH1F(("h_MJ_dressNom_"+m_regionNames.at(i)).c_str(),("h_MJ_dressNom_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_MJ_dressShift_cenb0[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_cenb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_MJ_dressShift_cenb1[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_cenb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_MJ_dressShift_forb0[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_forb0_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_forb0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_MJ_dressShift_forb1[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_forb1_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_forb1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
-    m_hists_MJ_kin[m_regionNames.at(i)].Sumw2();
-    m_hists_MJ_dressNom[m_regionNames.at(i)].Sumw2();
-    m_hists_MJ_dressShift_cenb0[m_regionNames.at(i)].Sumw2();
-    m_hists_MJ_dressShift_cenb1[m_regionNames.at(i)].Sumw2();
-    m_hists_MJ_dressShift_forb0[m_regionNames.at(i)].Sumw2();
-    m_hists_MJ_dressShift_forb1[m_regionNames.at(i)].Sumw2();
+    m_hists_MJ_dressShift_eta1_b0[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_eta1_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressShift_eta2_b0[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_eta2_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressShift_eta3_b0[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_eta3_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressShift_eta4_b0[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_eta4_b0_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressShift_eta1_b1[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_eta1_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressShift_eta2_b1[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_eta2_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressShift_eta3_b1[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_eta3_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
+    m_hists_MJ_dressShift_eta4_b1[m_regionNames.at(i)] = TH1F(("h_MJ_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),("h_MJ_dressShift_eta4_b1_"+m_regionNames.at(i)).c_str(),nBins,xMin,xMax);
   }
 }
 void MJ::dresser::loop(){
@@ -230,11 +269,14 @@ void MJ::dresser::loop(){
   cout<<"Looping over miniTree with "<<nEntries<<" entries"<<endl;
   for(unsigned int entry = 0; entry < nEntries; entry++){
     b_jet_m_dressed_nom->clear();
-    b_jet_m_dressed_shift_cenb0->clear();
-    b_jet_m_dressed_shift_cenb1->clear();
-    b_jet_m_dressed_shift_forb0->clear();
-    b_jet_m_dressed_shift_forb1->clear();
-
+    b_jet_m_dressed_shift_eta1_b0->clear();
+    b_jet_m_dressed_shift_eta2_b0->clear();
+    b_jet_m_dressed_shift_eta3_b0->clear();
+    b_jet_m_dressed_shift_eta4_b0->clear();
+    b_jet_m_dressed_shift_eta1_b1->clear();
+    b_jet_m_dressed_shift_eta2_b1->clear();
+    b_jet_m_dressed_shift_eta3_b1->clear();
+    b_jet_m_dressed_shift_eta4_b1->clear();
     if( entry % 100000 == 0 ){
       cout<<"Processing entry "<<entry<<endl;
     }
@@ -251,8 +293,6 @@ void MJ::dresser::loop(){
 	continue;
       }
     }
-
-
     if(m_miniTree.njet >=3){
       float MJ_kin = 0;
       int unBlindEvent = 1;
@@ -266,10 +306,14 @@ void MJ::dresser::loop(){
       }
       MJ_kin = 0;
       float MJ_dressNom = 0;
-      float MJ_dressShift_cenb0 = 0;
-      float MJ_dressShift_cenb1 = 0;
-      float MJ_dressShift_forb0 = 0;
-      float MJ_dressShift_forb1 = 0;
+      float MJ_dressShift_eta1_b0 = 0;
+      float MJ_dressShift_eta2_b0 = 0;
+      float MJ_dressShift_eta3_b0 = 0;
+      float MJ_dressShift_eta4_b0 = 0;
+      float MJ_dressShift_eta1_b1 = 0;
+      float MJ_dressShift_eta2_b1 = 0;
+      float MJ_dressShift_eta3_b1 = 0;
+      float MJ_dressShift_eta4_b1 = 0;
 
       //Region name based on number of soft jets
       string regionNameS = "";
@@ -329,7 +373,6 @@ void MJ::dresser::loop(){
 					     m_miniTree.jet_qmatched->at(i),
 					     m_miniTree.jet_gmatched->at(i),
 					     m_miniTree.jet_NTrimSubjets->at(i),
-					     //					     m_miniTree.BDTG,
 					     0.0,
 					     m_miniTree.nbjet_Fix70,
 					     m_miniTree.njet+nsoft);
@@ -343,20 +386,27 @@ void MJ::dresser::loop(){
 	  cout<<"Did you give the correct template type?"<<endl;
 	  throw "Template hist could not be found in template file";
 	}
-	//	vector<float> dressedMass = getDressedMass(templateHist,m_miniTree.jet_pt->at(i),m_miniTree.jet_eta->at(i),m_miniTree.dEta,m_miniTree.njet,m_miniTree.isMC);
 	vector<float> dressedMass = getDressedMass(templateHist,m_miniTree.jet_pt->at(i),m_miniTree.jet_eta->at(i),m_miniTree.jet_bmatched_Fix70->at(i),m_miniTree.isMC,m_miniTree.njet);
 
 	MJ_dressNom += dressedMass.at(0);
-	MJ_dressShift_cenb0 += dressedMass.at(1);
-	MJ_dressShift_cenb1 += dressedMass.at(2);
-	MJ_dressShift_forb0 += dressedMass.at(3);
-	MJ_dressShift_forb1 += dressedMass.at(4);
+	MJ_dressShift_eta1_b0 += dressedMass.at(1);
+	MJ_dressShift_eta2_b0 += dressedMass.at(2);
+	MJ_dressShift_eta3_b0 += dressedMass.at(3);
+	MJ_dressShift_eta4_b0 += dressedMass.at(4);
+	MJ_dressShift_eta1_b1 += dressedMass.at(5);
+	MJ_dressShift_eta2_b1 += dressedMass.at(6);
+	MJ_dressShift_eta3_b1 += dressedMass.at(7);
+	MJ_dressShift_eta4_b1 += dressedMass.at(8);
 
 	b_jet_m_dressed_nom->push_back(dressedMass.at(0));
-	b_jet_m_dressed_shift_cenb0->push_back(dressedMass.at(1));
-	b_jet_m_dressed_shift_cenb1->push_back(dressedMass.at(2));
-	b_jet_m_dressed_shift_forb0->push_back(dressedMass.at(3));
-	b_jet_m_dressed_shift_forb1->push_back(dressedMass.at(4));
+	b_jet_m_dressed_shift_eta1_b0->push_back(dressedMass.at(1));
+	b_jet_m_dressed_shift_eta2_b0->push_back(dressedMass.at(2));
+	b_jet_m_dressed_shift_eta3_b0->push_back(dressedMass.at(3));
+	b_jet_m_dressed_shift_eta4_b0->push_back(dressedMass.at(4));
+	b_jet_m_dressed_shift_eta1_b1->push_back(dressedMass.at(5));
+	b_jet_m_dressed_shift_eta2_b1->push_back(dressedMass.at(6));
+	b_jet_m_dressed_shift_eta3_b1->push_back(dressedMass.at(7));
+	b_jet_m_dressed_shift_eta4_b1->push_back(dressedMass.at(8));
 
 	//Fill inclusive hists for every jet
 	m_hists_m_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
@@ -392,59 +442,106 @@ void MJ::dresser::loop(){
 	m_prof1d_dress.at(regionNameM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
 	m_prof1d_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
 
-	if( fabs(m_miniTree.jet_eta->at(i)) < 1){
-	  //Fill profile hists for central jets
-	  
-	  m_prof1d_cen_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),wt);
-	  m_prof1d_cen_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),wt);
-	  m_prof1d_cen_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
-	  m_prof1d_cen_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
-	  m_prof1d_cen_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	if( fabs(m_miniTree.jet_eta->at(i)) < 0.5){
+	  m_prof1d_eta1_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_eta1_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_eta1_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta1_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta1_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
 
-	  m_prof1d_cen_dress.at(regionName).Fill(xi,dressedMass.at(0),wt);
-	  m_prof1d_cen_dress.at(regionNameS).Fill(xi,dressedMass.at(0),wt);
-	  m_prof1d_cen_dress.at(regionNameB).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
-	  m_prof1d_cen_dress.at(regionNameM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
-	  m_prof1d_cen_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta1_dress.at(regionName).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_eta1_dress.at(regionNameS).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_eta1_dress.at(regionNameB).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta1_dress.at(regionNameM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta1_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
 	}
-	else{
-	  //Fill profile hists for forward jets
+	else if( fabs(m_miniTree.jet_eta->at(i)) < 1.0){
+	  m_prof1d_eta2_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_eta2_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_eta2_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta2_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta2_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
 
-	  m_prof1d_for_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),wt);
-	  m_prof1d_for_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),wt);
-	  m_prof1d_for_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
-	  m_prof1d_for_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
-	  m_prof1d_for_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
-	  
-	  m_prof1d_for_dress.at(regionName).Fill(xi,dressedMass.at(0),wt);
-	  m_prof1d_for_dress.at(regionNameS).Fill(xi,dressedMass.at(0),wt);
-	  m_prof1d_for_dress.at(regionNameB).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
-	  m_prof1d_for_dress.at(regionNameM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
-	  m_prof1d_for_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta2_dress.at(regionName).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_eta2_dress.at(regionNameS).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_eta2_dress.at(regionNameB).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta2_dress.at(regionNameM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta2_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
 	}
-	m_hists_m_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),wt);
-	m_hists_m_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),wt);
-	m_hists_m_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
-	m_hists_m_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
-	m_hists_m_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	else if( fabs(m_miniTree.jet_eta->at(i)) < 1.5){
+	  m_prof1d_eta3_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_eta3_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_eta3_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta3_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta3_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
 
-	m_hists_m_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),wt);
-	m_hists_m_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),wt);
-	m_hists_m_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
-	m_hists_m_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
-	m_hists_m_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta3_dress.at(regionName).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_eta3_dress.at(regionNameS).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_eta3_dress.at(regionNameB).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta3_dress.at(regionNameM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta3_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	}
+	else if( fabs(m_miniTree.jet_eta->at(i)) < 2.0){
+	  m_prof1d_eta4_kin.at(regionName).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_eta4_kin.at(regionNameS).Fill(xi,m_miniTree.jet_m->at(i),wt);
+	  m_prof1d_eta4_kin.at(regionNameB).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta4_kin.at(regionNameM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta4_kin.at(regionNameSM).Fill(xi,m_miniTree.jet_m->at(i),wt*m_miniTree.bSF_70);
 
-	m_hists_m_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),wt);
-	m_hists_m_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),wt);
-	m_hists_m_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
-	m_hists_m_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
-	m_hists_m_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta4_dress.at(regionName).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_eta4_dress.at(regionNameS).Fill(xi,dressedMass.at(0),wt);
+	  m_prof1d_eta4_dress.at(regionNameB).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta4_dress.at(regionNameM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	  m_prof1d_eta4_dress.at(regionNameSM).Fill(xi,dressedMass.at(0),wt*m_miniTree.bSF_70);
+	}
 
-	m_hists_m_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),wt);
-	m_hists_m_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),wt);
-	m_hists_m_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
-	m_hists_m_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
-	m_hists_m_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta1_b0.at(regionName).Fill(dressedMass.at(1),wt);
+	m_hists_m_dressShift_eta1_b0.at(regionNameS).Fill(dressedMass.at(1),wt);
+	m_hists_m_dressShift_eta1_b0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta1_b0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta1_b0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+
+	m_hists_m_dressShift_eta2_b0.at(regionName).Fill(dressedMass.at(2),wt);
+	m_hists_m_dressShift_eta2_b0.at(regionNameS).Fill(dressedMass.at(2),wt);
+	m_hists_m_dressShift_eta2_b0.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta2_b0.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta2_b0.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+
+	m_hists_m_dressShift_eta3_b0.at(regionName).Fill(dressedMass.at(3),wt);
+	m_hists_m_dressShift_eta3_b0.at(regionNameS).Fill(dressedMass.at(3),wt);
+	m_hists_m_dressShift_eta3_b0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta3_b0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta3_b0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+
+	m_hists_m_dressShift_eta4_b0.at(regionName).Fill(dressedMass.at(4),wt);
+	m_hists_m_dressShift_eta4_b0.at(regionNameS).Fill(dressedMass.at(4),wt);
+	m_hists_m_dressShift_eta4_b0.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta4_b0.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta4_b0.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+
+	m_hists_m_dressShift_eta1_b1.at(regionName).Fill(dressedMass.at(5),wt);
+	m_hists_m_dressShift_eta1_b1.at(regionNameS).Fill(dressedMass.at(5),wt);
+	m_hists_m_dressShift_eta1_b1.at(regionNameB).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta1_b1.at(regionNameM).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta1_b1.at(regionNameSM).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+
+	m_hists_m_dressShift_eta2_b1.at(regionName).Fill(dressedMass.at(6),wt);
+	m_hists_m_dressShift_eta2_b1.at(regionNameS).Fill(dressedMass.at(6),wt);
+	m_hists_m_dressShift_eta2_b1.at(regionNameB).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta2_b1.at(regionNameM).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta2_b1.at(regionNameSM).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+
+	m_hists_m_dressShift_eta3_b1.at(regionName).Fill(dressedMass.at(7),wt);
+	m_hists_m_dressShift_eta3_b1.at(regionNameS).Fill(dressedMass.at(7),wt);
+	m_hists_m_dressShift_eta3_b1.at(regionNameB).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta3_b1.at(regionNameM).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta3_b1.at(regionNameSM).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+
+	m_hists_m_dressShift_eta4_b1.at(regionName).Fill(dressedMass.at(8),wt);
+	m_hists_m_dressShift_eta4_b1.at(regionNameS).Fill(dressedMass.at(8),wt);
+	m_hists_m_dressShift_eta4_b1.at(regionNameB).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta4_b1.at(regionNameM).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+	m_hists_m_dressShift_eta4_b1.at(regionNameSM).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
 
 	//Fill exclusive hists based on jet pT order
 	if (i==0){ 
@@ -460,29 +557,54 @@ void MJ::dresser::loop(){
 	  m_hists_m1_dressNom.at(regionNameM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 	  m_hists_m1_dressNom.at(regionNameSM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 
-	  m_hists_m1_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),wt);
-	  m_hists_m1_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),wt);
-	  m_hists_m1_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta1_b0.at(regionName).Fill(dressedMass.at(1),wt);
+	m_hists_m1_dressShift_eta1_b0.at(regionNameS).Fill(dressedMass.at(1),wt);
+	m_hists_m1_dressShift_eta1_b0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta1_b0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta1_b0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
 
-	  m_hists_m1_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),wt);
-	  m_hists_m1_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),wt);
-	  m_hists_m1_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta2_b0.at(regionName).Fill(dressedMass.at(2),wt);
+	m_hists_m1_dressShift_eta2_b0.at(regionNameS).Fill(dressedMass.at(2),wt);
+	m_hists_m1_dressShift_eta2_b0.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta2_b0.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta2_b0.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
 
-	  m_hists_m1_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),wt);
-	  m_hists_m1_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),wt);
-	  m_hists_m1_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta3_b0.at(regionName).Fill(dressedMass.at(3),wt);
+	m_hists_m1_dressShift_eta3_b0.at(regionNameS).Fill(dressedMass.at(3),wt);
+	m_hists_m1_dressShift_eta3_b0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta3_b0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta3_b0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
 
-	  m_hists_m1_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),wt);
-	  m_hists_m1_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),wt);
-	  m_hists_m1_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
-	  m_hists_m1_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta4_b0.at(regionName).Fill(dressedMass.at(4),wt);
+	m_hists_m1_dressShift_eta4_b0.at(regionNameS).Fill(dressedMass.at(4),wt);
+	m_hists_m1_dressShift_eta4_b0.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta4_b0.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta4_b0.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+
+	m_hists_m1_dressShift_eta1_b1.at(regionName).Fill(dressedMass.at(5),wt);
+	m_hists_m1_dressShift_eta1_b1.at(regionNameS).Fill(dressedMass.at(5),wt);
+	m_hists_m1_dressShift_eta1_b1.at(regionNameB).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta1_b1.at(regionNameM).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta1_b1.at(regionNameSM).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+
+	m_hists_m1_dressShift_eta2_b1.at(regionName).Fill(dressedMass.at(6),wt);
+	m_hists_m1_dressShift_eta2_b1.at(regionNameS).Fill(dressedMass.at(6),wt);
+	m_hists_m1_dressShift_eta2_b1.at(regionNameB).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta2_b1.at(regionNameM).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta2_b1.at(regionNameSM).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+
+	m_hists_m1_dressShift_eta3_b1.at(regionName).Fill(dressedMass.at(7),wt);
+	m_hists_m1_dressShift_eta3_b1.at(regionNameS).Fill(dressedMass.at(7),wt);
+	m_hists_m1_dressShift_eta3_b1.at(regionNameB).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta3_b1.at(regionNameM).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta3_b1.at(regionNameSM).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+
+	m_hists_m1_dressShift_eta4_b1.at(regionName).Fill(dressedMass.at(8),wt);
+	m_hists_m1_dressShift_eta4_b1.at(regionNameS).Fill(dressedMass.at(8),wt);
+	m_hists_m1_dressShift_eta4_b1.at(regionNameB).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta4_b1.at(regionNameM).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+	m_hists_m1_dressShift_eta4_b1.at(regionNameSM).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+
 
 	}
 	if (i==1){ 
@@ -498,29 +620,54 @@ void MJ::dresser::loop(){
 	  m_hists_m2_dressNom.at(regionNameM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 	  m_hists_m2_dressNom.at(regionNameSM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 
-	  m_hists_m2_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),wt);
-	  m_hists_m2_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),wt);
-	  m_hists_m2_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
 
-	  m_hists_m2_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),wt);
-	  m_hists_m2_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),wt);
-	  m_hists_m2_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta1_b0.at(regionName).Fill(dressedMass.at(1),wt);
+	m_hists_m2_dressShift_eta1_b0.at(regionNameS).Fill(dressedMass.at(1),wt);
+	m_hists_m2_dressShift_eta1_b0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta1_b0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta1_b0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
 
-	  m_hists_m2_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),wt);
-	  m_hists_m2_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),wt);
-	  m_hists_m2_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta2_b0.at(regionName).Fill(dressedMass.at(2),wt);
+	m_hists_m2_dressShift_eta2_b0.at(regionNameS).Fill(dressedMass.at(2),wt);
+	m_hists_m2_dressShift_eta2_b0.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta2_b0.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta2_b0.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
 
-	  m_hists_m2_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),wt);
-	  m_hists_m2_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),wt);
-	  m_hists_m2_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
-	  m_hists_m2_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta3_b0.at(regionName).Fill(dressedMass.at(3),wt);
+	m_hists_m2_dressShift_eta3_b0.at(regionNameS).Fill(dressedMass.at(3),wt);
+	m_hists_m2_dressShift_eta3_b0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta3_b0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta3_b0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+
+	m_hists_m2_dressShift_eta4_b0.at(regionName).Fill(dressedMass.at(4),wt);
+	m_hists_m2_dressShift_eta4_b0.at(regionNameS).Fill(dressedMass.at(4),wt);
+	m_hists_m2_dressShift_eta4_b0.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta4_b0.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta4_b0.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+
+	m_hists_m2_dressShift_eta1_b1.at(regionName).Fill(dressedMass.at(5),wt);
+	m_hists_m2_dressShift_eta1_b1.at(regionNameS).Fill(dressedMass.at(5),wt);
+	m_hists_m2_dressShift_eta1_b1.at(regionNameB).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta1_b1.at(regionNameM).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta1_b1.at(regionNameSM).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+
+	m_hists_m2_dressShift_eta2_b1.at(regionName).Fill(dressedMass.at(6),wt);
+	m_hists_m2_dressShift_eta2_b1.at(regionNameS).Fill(dressedMass.at(6),wt);
+	m_hists_m2_dressShift_eta2_b1.at(regionNameB).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta2_b1.at(regionNameM).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta2_b1.at(regionNameSM).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+
+	m_hists_m2_dressShift_eta3_b1.at(regionName).Fill(dressedMass.at(7),wt);
+	m_hists_m2_dressShift_eta3_b1.at(regionNameS).Fill(dressedMass.at(7),wt);
+	m_hists_m2_dressShift_eta3_b1.at(regionNameB).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta3_b1.at(regionNameM).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta3_b1.at(regionNameSM).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+
+	m_hists_m2_dressShift_eta4_b1.at(regionName).Fill(dressedMass.at(8),wt);
+	m_hists_m2_dressShift_eta4_b1.at(regionNameS).Fill(dressedMass.at(8),wt);
+	m_hists_m2_dressShift_eta4_b1.at(regionNameB).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta4_b1.at(regionNameM).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+	m_hists_m2_dressShift_eta4_b1.at(regionNameSM).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
 	}
 	if (i==2){ 
 	  m_hists_m3_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
@@ -535,29 +682,54 @@ void MJ::dresser::loop(){
 	  m_hists_m3_dressNom.at(regionNameM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 	  m_hists_m3_dressNom.at(regionNameSM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 
-	  m_hists_m3_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),wt);
-	  m_hists_m3_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),wt);
-	  m_hists_m3_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta1_b0.at(regionName).Fill(dressedMass.at(1),wt);
+	m_hists_m3_dressShift_eta1_b0.at(regionNameS).Fill(dressedMass.at(1),wt);
+	m_hists_m3_dressShift_eta1_b0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta1_b0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta1_b0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
 
-	  m_hists_m3_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),wt);
-	  m_hists_m3_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),wt);
-	  m_hists_m3_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta2_b0.at(regionName).Fill(dressedMass.at(2),wt);
+	m_hists_m3_dressShift_eta2_b0.at(regionNameS).Fill(dressedMass.at(2),wt);
+	m_hists_m3_dressShift_eta2_b0.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta2_b0.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta2_b0.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
 
-	  m_hists_m3_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),wt);
-	  m_hists_m3_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),wt);
-	  m_hists_m3_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta3_b0.at(regionName).Fill(dressedMass.at(3),wt);
+	m_hists_m3_dressShift_eta3_b0.at(regionNameS).Fill(dressedMass.at(3),wt);
+	m_hists_m3_dressShift_eta3_b0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta3_b0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta3_b0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
 
-	  m_hists_m3_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),wt);
-	  m_hists_m3_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),wt);
-	  m_hists_m3_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
-	  m_hists_m3_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta4_b0.at(regionName).Fill(dressedMass.at(4),wt);
+	m_hists_m3_dressShift_eta4_b0.at(regionNameS).Fill(dressedMass.at(4),wt);
+	m_hists_m3_dressShift_eta4_b0.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta4_b0.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta4_b0.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+
+	m_hists_m3_dressShift_eta1_b1.at(regionName).Fill(dressedMass.at(5),wt);
+	m_hists_m3_dressShift_eta1_b1.at(regionNameS).Fill(dressedMass.at(5),wt);
+	m_hists_m3_dressShift_eta1_b1.at(regionNameB).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta1_b1.at(regionNameM).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta1_b1.at(regionNameSM).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+
+	m_hists_m3_dressShift_eta2_b1.at(regionName).Fill(dressedMass.at(6),wt);
+	m_hists_m3_dressShift_eta2_b1.at(regionNameS).Fill(dressedMass.at(6),wt);
+	m_hists_m3_dressShift_eta2_b1.at(regionNameB).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta2_b1.at(regionNameM).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta2_b1.at(regionNameSM).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+
+	m_hists_m3_dressShift_eta3_b1.at(regionName).Fill(dressedMass.at(7),wt);
+	m_hists_m3_dressShift_eta3_b1.at(regionNameS).Fill(dressedMass.at(7),wt);
+	m_hists_m3_dressShift_eta3_b1.at(regionNameB).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta3_b1.at(regionNameM).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta3_b1.at(regionNameSM).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+
+	m_hists_m3_dressShift_eta4_b1.at(regionName).Fill(dressedMass.at(8),wt);
+	m_hists_m3_dressShift_eta4_b1.at(regionNameS).Fill(dressedMass.at(8),wt);
+	m_hists_m3_dressShift_eta4_b1.at(regionNameB).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta4_b1.at(regionNameM).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+	m_hists_m3_dressShift_eta4_b1.at(regionNameSM).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+
 	}
 	if (i==3){ 
 	  m_hists_m4_kin.at(regionName).Fill(m_miniTree.jet_m->at(i),wt*unBlindEvent);
@@ -572,29 +744,53 @@ void MJ::dresser::loop(){
 	  m_hists_m4_dressNom.at(regionNameM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 	  m_hists_m4_dressNom.at(regionNameSM).Fill(dressedMass.at(0),wt*m_miniTree.bSF_70);
 
-	  m_hists_m4_dressShift_cenb0.at(regionName).Fill(dressedMass.at(1),wt);
-	  m_hists_m4_dressShift_cenb0.at(regionNameS).Fill(dressedMass.at(1),wt);
-	  m_hists_m4_dressShift_cenb0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_cenb0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_cenb0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta1_b0.at(regionName).Fill(dressedMass.at(1),wt);
+	  m_hists_m4_dressShift_eta1_b0.at(regionNameS).Fill(dressedMass.at(1),wt);
+	  m_hists_m4_dressShift_eta1_b0.at(regionNameB).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta1_b0.at(regionNameM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta1_b0.at(regionNameSM).Fill(dressedMass.at(1),wt*m_miniTree.bSF_70);
 
-	  m_hists_m4_dressShift_cenb1.at(regionName).Fill(dressedMass.at(2),wt);
-	  m_hists_m4_dressShift_cenb1.at(regionNameS).Fill(dressedMass.at(2),wt);
-	  m_hists_m4_dressShift_cenb1.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_cenb1.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_cenb1.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta2_b0.at(regionName).Fill(dressedMass.at(2),wt);
+	  m_hists_m4_dressShift_eta2_b0.at(regionNameS).Fill(dressedMass.at(2),wt);
+	  m_hists_m4_dressShift_eta2_b0.at(regionNameB).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta2_b0.at(regionNameM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta2_b0.at(regionNameSM).Fill(dressedMass.at(2),wt*m_miniTree.bSF_70);
 
-	  m_hists_m4_dressShift_forb0.at(regionName).Fill(dressedMass.at(3),wt);
-	  m_hists_m4_dressShift_forb0.at(regionNameS).Fill(dressedMass.at(3),wt);
-	  m_hists_m4_dressShift_forb0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_forb0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_forb0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta3_b0.at(regionName).Fill(dressedMass.at(3),wt);
+	  m_hists_m4_dressShift_eta3_b0.at(regionNameS).Fill(dressedMass.at(3),wt);
+	  m_hists_m4_dressShift_eta3_b0.at(regionNameB).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta3_b0.at(regionNameM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta3_b0.at(regionNameSM).Fill(dressedMass.at(3),wt*m_miniTree.bSF_70);
 
-	  m_hists_m4_dressShift_forb1.at(regionName).Fill(dressedMass.at(4),wt);
-	  m_hists_m4_dressShift_forb1.at(regionNameS).Fill(dressedMass.at(4),wt);
-	  m_hists_m4_dressShift_forb1.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_forb1.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
-	  m_hists_m4_dressShift_forb1.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta4_b0.at(regionName).Fill(dressedMass.at(4),wt);
+	  m_hists_m4_dressShift_eta4_b0.at(regionNameS).Fill(dressedMass.at(4),wt);
+	  m_hists_m4_dressShift_eta4_b0.at(regionNameB).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta4_b0.at(regionNameM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta4_b0.at(regionNameSM).Fill(dressedMass.at(4),wt*m_miniTree.bSF_70);
+
+	  m_hists_m4_dressShift_eta1_b1.at(regionName).Fill(dressedMass.at(5),wt);
+	  m_hists_m4_dressShift_eta1_b1.at(regionNameS).Fill(dressedMass.at(5),wt);
+	  m_hists_m4_dressShift_eta1_b1.at(regionNameB).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta1_b1.at(regionNameM).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta1_b1.at(regionNameSM).Fill(dressedMass.at(5),wt*m_miniTree.bSF_70);
+
+	  m_hists_m4_dressShift_eta2_b1.at(regionName).Fill(dressedMass.at(6),wt);
+	  m_hists_m4_dressShift_eta2_b1.at(regionNameS).Fill(dressedMass.at(6),wt);
+	  m_hists_m4_dressShift_eta2_b1.at(regionNameB).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta2_b1.at(regionNameM).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta2_b1.at(regionNameSM).Fill(dressedMass.at(6),wt*m_miniTree.bSF_70);
+
+	  m_hists_m4_dressShift_eta3_b1.at(regionName).Fill(dressedMass.at(7),wt);
+	  m_hists_m4_dressShift_eta3_b1.at(regionNameS).Fill(dressedMass.at(7),wt);
+	  m_hists_m4_dressShift_eta3_b1.at(regionNameB).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta3_b1.at(regionNameM).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta3_b1.at(regionNameSM).Fill(dressedMass.at(7),wt*m_miniTree.bSF_70);
+
+	  m_hists_m4_dressShift_eta4_b1.at(regionName).Fill(dressedMass.at(8),wt);
+	  m_hists_m4_dressShift_eta4_b1.at(regionNameS).Fill(dressedMass.at(8),wt);
+	  m_hists_m4_dressShift_eta4_b1.at(regionNameB).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta4_b1.at(regionNameM).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
+	  m_hists_m4_dressShift_eta4_b1.at(regionNameSM).Fill(dressedMass.at(8),wt*m_miniTree.bSF_70);
 	}
       }
       m_hists_MJ_kin.at(regionName).Fill(MJ_kin,wt*unBlindEvent);
@@ -603,18 +799,38 @@ void MJ::dresser::loop(){
       m_hists_MJ_dressNom.at(regionName).Fill(MJ_dressNom,wt);
       m_hists_MJ_dressNom.at(regionNameS).Fill(MJ_dressNom,wt);
       m_hists_MJ_dressNom.at(regionNameB).Fill(MJ_dressNom,wt*m_miniTree.bSF_70);
-      m_hists_MJ_dressShift_cenb0.at(regionName).Fill(MJ_dressShift_cenb0,wt);
-      m_hists_MJ_dressShift_cenb0.at(regionNameS).Fill(MJ_dressShift_cenb0,wt);
-      m_hists_MJ_dressShift_cenb0.at(regionNameB).Fill(MJ_dressShift_cenb0,wt*m_miniTree.bSF_70);
-      m_hists_MJ_dressShift_cenb1.at(regionName).Fill(MJ_dressShift_cenb1,wt);
-      m_hists_MJ_dressShift_cenb1.at(regionNameS).Fill(MJ_dressShift_cenb1,wt);
-      m_hists_MJ_dressShift_cenb1.at(regionNameB).Fill(MJ_dressShift_cenb1,wt*m_miniTree.bSF_70);
-      m_hists_MJ_dressShift_forb0.at(regionName).Fill(MJ_dressShift_forb0,wt);
-      m_hists_MJ_dressShift_forb0.at(regionNameS).Fill(MJ_dressShift_forb0,wt);
-      m_hists_MJ_dressShift_forb0.at(regionNameB).Fill(MJ_dressShift_forb0,wt*m_miniTree.bSF_70);
-      m_hists_MJ_dressShift_forb1.at(regionName).Fill(MJ_dressShift_forb1,wt);
-      m_hists_MJ_dressShift_forb1.at(regionNameS).Fill(MJ_dressShift_forb1,wt);
-      m_hists_MJ_dressShift_forb1.at(regionNameB).Fill(MJ_dressShift_forb1,wt*m_miniTree.bSF_70);
+
+      m_hists_MJ_dressShift_eta1_b0.at(regionName).Fill(MJ_dressShift_eta1_b0,wt);
+      m_hists_MJ_dressShift_eta1_b0.at(regionNameS).Fill(MJ_dressShift_eta1_b0,wt);
+      m_hists_MJ_dressShift_eta1_b0.at(regionNameB).Fill(MJ_dressShift_eta1_b0,wt*m_miniTree.bSF_70);
+
+      m_hists_MJ_dressShift_eta2_b0.at(regionName).Fill(MJ_dressShift_eta2_b0,wt);
+      m_hists_MJ_dressShift_eta2_b0.at(regionNameS).Fill(MJ_dressShift_eta2_b0,wt);
+      m_hists_MJ_dressShift_eta2_b0.at(regionNameB).Fill(MJ_dressShift_eta2_b0,wt*m_miniTree.bSF_70);
+
+      m_hists_MJ_dressShift_eta3_b0.at(regionName).Fill(MJ_dressShift_eta3_b0,wt);
+      m_hists_MJ_dressShift_eta3_b0.at(regionNameS).Fill(MJ_dressShift_eta3_b0,wt);
+      m_hists_MJ_dressShift_eta3_b0.at(regionNameB).Fill(MJ_dressShift_eta3_b0,wt*m_miniTree.bSF_70);
+
+      m_hists_MJ_dressShift_eta4_b0.at(regionName).Fill(MJ_dressShift_eta4_b0,wt);
+      m_hists_MJ_dressShift_eta4_b0.at(regionNameS).Fill(MJ_dressShift_eta4_b0,wt);
+      m_hists_MJ_dressShift_eta4_b0.at(regionNameB).Fill(MJ_dressShift_eta4_b0,wt*m_miniTree.bSF_70);
+
+      m_hists_MJ_dressShift_eta1_b1.at(regionName).Fill(MJ_dressShift_eta1_b1,wt);
+      m_hists_MJ_dressShift_eta1_b1.at(regionNameS).Fill(MJ_dressShift_eta1_b1,wt);
+      m_hists_MJ_dressShift_eta1_b1.at(regionNameB).Fill(MJ_dressShift_eta1_b1,wt*m_miniTree.bSF_70);
+
+      m_hists_MJ_dressShift_eta2_b1.at(regionName).Fill(MJ_dressShift_eta2_b1,wt);
+      m_hists_MJ_dressShift_eta2_b1.at(regionNameS).Fill(MJ_dressShift_eta2_b1,wt);
+      m_hists_MJ_dressShift_eta2_b1.at(regionNameB).Fill(MJ_dressShift_eta2_b1,wt*m_miniTree.bSF_70);
+
+      m_hists_MJ_dressShift_eta3_b1.at(regionName).Fill(MJ_dressShift_eta3_b1,wt);
+      m_hists_MJ_dressShift_eta3_b1.at(regionNameS).Fill(MJ_dressShift_eta3_b1,wt);
+      m_hists_MJ_dressShift_eta3_b1.at(regionNameB).Fill(MJ_dressShift_eta3_b1,wt*m_miniTree.bSF_70);
+
+      m_hists_MJ_dressShift_eta4_b1.at(regionName).Fill(MJ_dressShift_eta4_b1,wt);
+      m_hists_MJ_dressShift_eta4_b1.at(regionNameS).Fill(MJ_dressShift_eta4_b1,wt);
+      m_hists_MJ_dressShift_eta4_b1.at(regionNameB).Fill(MJ_dressShift_eta4_b1,wt*m_miniTree.bSF_70);
     }
     m_outTree->Fill();
   }
@@ -631,21 +847,37 @@ vector<float> MJ::dresser::getDressedMass(TH1F *h, float pt, float eta, int bMat
   //  cout<<"m_corr_for_b0.size = "<<m_corr_cen_b0.size()<<endl;
   //  cout<<"m_corr_for_b1.size = "<<m_corr_cen_b0.size()<<endl;
     
-  if( fabs(eta) < 1.0 and bMatch == 0) {
-    m_delta = m_corr_cen_b0.at(ptBin);
-    m_uncert = m_uncert_cen_b0;
+  if( fabs(eta) < 0.5 and bMatch == 0) {
+    m_delta = m_corr_eta1_b0.at(ptBin);
+    m_uncert = m_uncert_eta1_b0;
   }
-  else if( fabs(eta) < 1.0 and bMatch == 1){
-    m_delta = m_corr_cen_b1.at(ptBin);
-    m_uncert = m_uncert_cen_b1;
+  else if( fabs(eta) < 1.0 and bMatch == 0) {
+    m_delta = m_corr_eta2_b0.at(ptBin);
+    m_uncert = m_uncert_eta2_b0;
   }
-  else if( fabs(eta) > 1.0 and bMatch == 0){
-    m_delta = m_corr_for_b0.at(ptBin);
-    m_uncert = m_uncert_for_b0;
+  else if( fabs(eta) < 1.5 and bMatch == 0) {
+    m_delta = m_corr_eta3_b0.at(ptBin);
+    m_uncert = m_uncert_eta3_b0;
   }
-  else if( fabs(eta) > 1.0 and bMatch == 1){
-    m_delta = m_corr_for_b1.at(ptBin);
-    m_uncert = m_uncert_for_b1;
+  else if( fabs(eta) < 2.0 and bMatch == 0) {
+    m_delta = m_corr_eta4_b0.at(ptBin);
+    m_uncert = m_uncert_eta4_b0;
+  }
+  if( fabs(eta) < 0.5 and bMatch == 1) {
+    m_delta = m_corr_eta1_b1.at(ptBin);
+    m_uncert = m_uncert_eta1_b1;
+  }
+  else if( fabs(eta) < 1.0 and bMatch == 1) {
+    m_delta = m_corr_eta2_b1.at(ptBin);
+    m_uncert = m_uncert_eta2_b1;
+  }
+  else if( fabs(eta) < 1.5 and bMatch == 1) {
+    m_delta = m_corr_eta3_b1.at(ptBin);
+    m_uncert = m_uncert_eta3_b1;
+  }
+  else if( fabs(eta) < 2.0 and bMatch == 1) {
+    m_delta = m_corr_eta4_b1.at(ptBin);
+    m_uncert = m_uncert_eta4_b1;
   }
   gRandom->SetSeed(0);
   TRandom3 tRandom(0);
@@ -672,18 +904,30 @@ vector<float> MJ::dresser::getDressedMass(TH1F *h, float pt, float eta, int bMat
   if (njet >= 4){
     m0 *= (1+m_delta);
   }
-  answer = {m0,m0,m0,m0,m0};
-  if( fabs(eta) < 1.0 and bMatch == 0) {
+  answer = {m0,m0,m0,m0,m0,m0,m0,m0,m0};
+  if( fabs(eta) < 0.5 and bMatch == 0) {
     answer.at(1) = answer.at(1)*(1+m_uncert);
   }
-  else if( fabs(eta) < 1.0 and bMatch == 1){
+  else if( fabs(eta) < 1.0 and bMatch == 0){
     answer.at(2) = answer.at(2)*(1+m_uncert);
   }
-  else if( fabs(eta) > 1.0 and bMatch == 0){
+  else if( fabs(eta) < 1.5 and bMatch == 0){
     answer.at(3) = answer.at(3)*(1+m_uncert);
   }
-  else if( fabs(eta) > 1.0 and bMatch == 1){
+  else if( fabs(eta) < 2.0 and bMatch == 0){
     answer.at(4) = answer.at(4)*(1+m_uncert);
+  }
+  if( fabs(eta) < 0.5 and bMatch == 1) {
+    answer.at(5) = answer.at(5)*(1+m_uncert);
+  }
+  else if( fabs(eta) < 1.0 and bMatch == 1){
+    answer.at(6) = answer.at(6)*(1+m_uncert);
+  }
+  else if( fabs(eta) < 1.5 and bMatch == 1){
+    answer.at(7) = answer.at(7)*(1+m_uncert);
+  }
+  else if( fabs(eta) < 2.0 and bMatch == 1){
+    answer.at(8) = answer.at(8)*(1+m_uncert);
   }
   return answer;
 }

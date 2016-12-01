@@ -43,10 +43,15 @@ namespace MJ{
     miniTree m_miniTree;
     TTree *m_outTree;
     vector<double> *b_jet_m_dressed_nom;
-    vector<double> *b_jet_m_dressed_shift_cenb0;
-    vector<double> *b_jet_m_dressed_shift_cenb1;
-    vector<double> *b_jet_m_dressed_shift_forb0;
-    vector<double> *b_jet_m_dressed_shift_forb1;
+    vector<double> *b_jet_m_dressed_shift_eta1_b0;
+    vector<double> *b_jet_m_dressed_shift_eta2_b0;
+    vector<double> *b_jet_m_dressed_shift_eta3_b0;
+    vector<double> *b_jet_m_dressed_shift_eta4_b0;
+
+    vector<double> *b_jet_m_dressed_shift_eta1_b1;
+    vector<double> *b_jet_m_dressed_shift_eta2_b1;
+    vector<double> *b_jet_m_dressed_shift_eta3_b1;
+    vector<double> *b_jet_m_dressed_shift_eta4_b1;
 
     bool m_doCorrections;
     vector<double> m_ptBins3;
@@ -54,15 +59,25 @@ namespace MJ{
     vector<double> m_ptBins5;
     vector<double> m_yBins;
 
-    vector<float> m_corr_cen_b0;
-    vector<float> m_corr_cen_b1;
-    vector<float> m_corr_for_b0;
-    vector<float> m_corr_for_b1;
+    vector<float> m_corr_eta1_b0;
+    vector<float> m_corr_eta2_b0;
+    vector<float> m_corr_eta3_b0;
+    vector<float> m_corr_eta4_b0;
+    vector<float> m_corr_eta1_b1;
+    vector<float> m_corr_eta2_b1;
+    vector<float> m_corr_eta3_b1;
+    vector<float> m_corr_eta4_b1;
 
-    float m_uncert_cen_b0;
-    float m_uncert_cen_b1;
-    float m_uncert_for_b0;
-    float m_uncert_for_b1;
+    float m_uncert_eta1_b0;
+    float m_uncert_eta2_b0;
+    float m_uncert_eta3_b0;
+    float m_uncert_eta4_b0;
+
+    float m_uncert_eta1_b1;
+    float m_uncert_eta2_b1;
+    float m_uncert_eta3_b1;
+    float m_uncert_eta4_b1;
+
     float m_uncert;
     
     string getTemplateName(float,float,int,int,int,int,float,int,int);
@@ -74,12 +89,16 @@ namespace MJ{
 
 
     map<string,TProfile> m_prof1d_kin;
-    map<string,TProfile> m_prof1d_cen_kin;
-    map<string,TProfile> m_prof1d_for_kin;
+    map<string,TProfile> m_prof1d_eta1_kin;
+    map<string,TProfile> m_prof1d_eta2_kin;
+    map<string,TProfile> m_prof1d_eta3_kin;
+    map<string,TProfile> m_prof1d_eta4_kin;
 
     map<string,TProfile> m_prof1d_dress;
-    map<string,TProfile> m_prof1d_cen_dress;
-    map<string,TProfile> m_prof1d_for_dress;
+    map<string,TProfile> m_prof1d_eta1_dress;
+    map<string,TProfile> m_prof1d_eta2_dress;
+    map<string,TProfile> m_prof1d_eta3_dress;
+    map<string,TProfile> m_prof1d_eta4_dress;
 
     map<string,TH1F> m_hists_m_kin;
     map<string,TH1F> m_hists_m1_kin;
@@ -95,34 +114,61 @@ namespace MJ{
     map<string,TH1F> m_hists_m4_dressNom;
     map<string,TH1F> m_hists_MJ_dressNom;
 
-    map<string,TH1F> m_hists_m_dressShift_cenb0;
-    map<string,TH1F> m_hists_m1_dressShift_cenb0;
-    map<string,TH1F> m_hists_m2_dressShift_cenb0;
-    map<string,TH1F> m_hists_m3_dressShift_cenb0;
-    map<string,TH1F> m_hists_m4_dressShift_cenb0;
-    map<string,TH1F> m_hists_MJ_dressShift_cenb0;
+    map<string,TH1F> m_hists_m_dressShift_eta1_b0;
+    map<string,TH1F> m_hists_m1_dressShift_eta1_b0;
+    map<string,TH1F> m_hists_m2_dressShift_eta1_b0;
+    map<string,TH1F> m_hists_m3_dressShift_eta1_b0;
+    map<string,TH1F> m_hists_m4_dressShift_eta1_b0;
+    map<string,TH1F> m_hists_MJ_dressShift_eta1_b0;
 
-    map<string,TH1F> m_hists_m_dressShift_cenb1;
-    map<string,TH1F> m_hists_m1_dressShift_cenb1;
-    map<string,TH1F> m_hists_m2_dressShift_cenb1;
-    map<string,TH1F> m_hists_m3_dressShift_cenb1;
-    map<string,TH1F> m_hists_m4_dressShift_cenb1;
-    map<string,TH1F> m_hists_MJ_dressShift_cenb1;
+    map<string,TH1F> m_hists_m_dressShift_eta1_b1;
+    map<string,TH1F> m_hists_m1_dressShift_eta1_b1;
+    map<string,TH1F> m_hists_m2_dressShift_eta1_b1;
+    map<string,TH1F> m_hists_m3_dressShift_eta1_b1;
+    map<string,TH1F> m_hists_m4_dressShift_eta1_b1;
+    map<string,TH1F> m_hists_MJ_dressShift_eta1_b1;
 
-    map<string,TH1F> m_hists_m_dressShift_forb0;
-    map<string,TH1F> m_hists_m1_dressShift_forb0;
-    map<string,TH1F> m_hists_m2_dressShift_forb0;
-    map<string,TH1F> m_hists_m3_dressShift_forb0;
-    map<string,TH1F> m_hists_m4_dressShift_forb0;
-    map<string,TH1F> m_hists_MJ_dressShift_forb0;
+    map<string,TH1F> m_hists_m_dressShift_eta2_b0;
+    map<string,TH1F> m_hists_m1_dressShift_eta2_b0;
+    map<string,TH1F> m_hists_m2_dressShift_eta2_b0;
+    map<string,TH1F> m_hists_m3_dressShift_eta2_b0;
+    map<string,TH1F> m_hists_m4_dressShift_eta2_b0;
+    map<string,TH1F> m_hists_MJ_dressShift_eta2_b0;
 
-    map<string,TH1F> m_hists_m_dressShift_forb1;
-    map<string,TH1F> m_hists_m1_dressShift_forb1;
-    map<string,TH1F> m_hists_m2_dressShift_forb1;
-    map<string,TH1F> m_hists_m3_dressShift_forb1;
-    map<string,TH1F> m_hists_m4_dressShift_forb1;
-    map<string,TH1F> m_hists_MJ_dressShift_forb1;
+    map<string,TH1F> m_hists_m_dressShift_eta2_b1;
+    map<string,TH1F> m_hists_m1_dressShift_eta2_b1;
+    map<string,TH1F> m_hists_m2_dressShift_eta2_b1;
+    map<string,TH1F> m_hists_m3_dressShift_eta2_b1;
+    map<string,TH1F> m_hists_m4_dressShift_eta2_b1;
+    map<string,TH1F> m_hists_MJ_dressShift_eta2_b1;
 
+    map<string,TH1F> m_hists_m_dressShift_eta3_b0;
+    map<string,TH1F> m_hists_m1_dressShift_eta3_b0;
+    map<string,TH1F> m_hists_m2_dressShift_eta3_b0;
+    map<string,TH1F> m_hists_m3_dressShift_eta3_b0;
+    map<string,TH1F> m_hists_m4_dressShift_eta3_b0;
+    map<string,TH1F> m_hists_MJ_dressShift_eta3_b0;
+
+    map<string,TH1F> m_hists_m_dressShift_eta3_b1;
+    map<string,TH1F> m_hists_m1_dressShift_eta3_b1;
+    map<string,TH1F> m_hists_m2_dressShift_eta3_b1;
+    map<string,TH1F> m_hists_m3_dressShift_eta3_b1;
+    map<string,TH1F> m_hists_m4_dressShift_eta3_b1;
+    map<string,TH1F> m_hists_MJ_dressShift_eta3_b1;
+
+    map<string,TH1F> m_hists_m_dressShift_eta4_b0;
+    map<string,TH1F> m_hists_m1_dressShift_eta4_b0;
+    map<string,TH1F> m_hists_m2_dressShift_eta4_b0;
+    map<string,TH1F> m_hists_m3_dressShift_eta4_b0;
+    map<string,TH1F> m_hists_m4_dressShift_eta4_b0;
+    map<string,TH1F> m_hists_MJ_dressShift_eta4_b0;
+
+    map<string,TH1F> m_hists_m_dressShift_eta4_b1;
+    map<string,TH1F> m_hists_m1_dressShift_eta4_b1;
+    map<string,TH1F> m_hists_m2_dressShift_eta4_b1;
+    map<string,TH1F> m_hists_m3_dressShift_eta4_b1;
+    map<string,TH1F> m_hists_m4_dressShift_eta4_b1;
+    map<string,TH1F> m_hists_MJ_dressShift_eta4_b1;
   };
 }
 #endif
