@@ -7,15 +7,15 @@ signalLumi =0
 #templateFiles = ['../output_templates/data_PostICHEP.root']
 #jobNames = ['data_PostICHEP']
 
-#kinFile = '../../bkgEstimation/samples/SignalInjection_RPV10/main_SignalInjection_RPV10.root'
-#templateFiles = ['../output_templates/SignalInjection_403566.root']
-#jobNames = ['SignalInjection_ICHEP_403566']
-#signalNum = 403566
-#signalLumi = 14.8
+kinFile = '../../bkgEstimation/samples/SignalInjection_RPV10/main_SignalInjection_RPV10.root'
+templateFiles = ['../output_templates/SignalInjection_dataICHEP_403566.root']
+ljobNames = ['SignalInjection_dataICHEP_403566_corrected']
+signalNum = 403566
+signalLumi = 14.8
 
-kinFile = '../../bkgEstimation/samples/data_ICHEP/main_data_ICHEP.root'
-templateFiles = ['../output_templates/data_ICHEP.root']
-jobNames = ['data_ICHEP']
+#kinFile = '../../bkgEstimation/samples/data_ICHEP/main_data_ICHEP.root'
+#templateFiles = ['../output_templates/data_ICHEP.root']
+#jobNames = ['data_ICHEP']
 
 templateTypes = ['0']
 

@@ -18,8 +18,10 @@ regions =   ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
 #dates=['11_29','11_29']
 #jobNames = ['data_ICHEP_uncorrected','SignalInjection_dataICHEP_403566']
 #ates=['11_29','11_30']
-jobNames = ['data_ICHEP_uncorrected']
-dates=['11_30']
+#jobNames = ['data_ICHEP_uncorrected','data_ICHEP_correct_nonmatched','data_ICHEP_correct_all']
+#dates=['11_30','12_01','12_01']
+jobNames = ['data_ICHEP_correct_all','SignalInjection_dataICHEP_403566_uncorrected','SignalInjection_dataICHEP_403566_corrected']
+dates = ['12_01','12_01','12_02']
 output = """<HTML>
 <HEAD> </HEAD>
 <BODY> 

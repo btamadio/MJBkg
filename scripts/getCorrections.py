@@ -6,7 +6,7 @@ args = parser.parse_args()
 inFile = ROOT.TFile.Open(args.inFileName)
 
 etaList = ['eta1','eta2','eta3','eta4']
-regionList = ['4js1bU']
+regionList = ['4js1bU','4js1bM']
 
 hKin = {}
 hDress = {}
@@ -41,7 +41,6 @@ for eta in etaList:
             finalCorrections[key].append(0)
 
 for key in corrections:
-    print key
     for i in range(len(corrections[key])):
         doCorrection = False
         if abs(corrections[key][i]) > (kinErr[key][i] / dressProf[key][i]):
@@ -63,7 +62,13 @@ for key in corrections:
                     finalCorrections[key][i-1] = corrections[key][i-1]
                 if i < len(corrections[key])-1:
                     finalCorrections[key][i+1] = corrections[key][i+1]
-for key in corrections:
+for key in sorted(corrections):
+    maxErr = 0
     print key
+    print finalCorrections[key]
     for i in range(len(corrections[key])):
-        print finalCorrections[key][i]
+        if finalCorrections[key][i] == 0:
+            thisErr = abs(corrections[key][i])
+            if thisErr > maxErr:
+                maxErr = thisErr
+    print 'uncertainty = ',maxErr
