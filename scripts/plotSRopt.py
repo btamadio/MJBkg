@@ -1,12 +1,16 @@
 #!/usr/bin/env python
-import ROOT,argparse
+import ROOT,argparse,os
 from pointDict import pointDict
 ROOT.gROOT.LoadMacro('/global/homes/b/btamadio/atlasstyle/AtlasStyle.C')
 ROOT.gROOT.LoadMacro('/global/homes/b/btamadio/atlasstyle/AtlasLabels.C')
 ROOT.SetAtlasStyle()
 parser = argparse.ArgumentParser(add_help=False, description='plot SR optimization')
 parser.add_argument('inFile')
+parser.add_argument('jobName')
+parser.add_argument('date')
 args = parser.parse_args()
+jobName=args.jobName
+date = args.date
 inFile = ROOT.TFile.Open(args.inFile)
 h_mj = inFile.Get('h_mj')
 h_dEta = inFile.Get('h_dEta')
@@ -28,12 +32,20 @@ for i in range(len(hists)):
     lat = ROOT.TLatex()
     lat.DrawLatexNDC(0.18,0.75,'Pythia #int L dt = 36.5 fb^{-1}')
     lat.DrawLatexNDC(0.18,0.65,labels[i])
-    
-mjcuts = [600,750]
-dEtaCuts = [1.4,1.7]
+os.system('mkdir -p /global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName)
+os.system('chmod a+rx /global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName)
+cans[0].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_optimal_MJ.png')
+cans[0].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_optimal_MJ.pdf')
+cans[0].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_optimal_MJ.C')
+cans[1].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_optimal_dEta.png')
+cans[1].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_optimal_dEta.pdf')
+cans[1].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_optimal_dEta.C')
+
 oldSig = ROOT.TH2F('h_oldSig','h_oldSig',13,650,1950,9,-50,1750)
+midSig = ROOT.TH2F('h_oldSig','h_midSig',13,650,1950,9,-50,1750)
 newSig = ROOT.TH2F('h_newSig','h_newSig',13,650,1950,9,-50,1750)
-sigs = [oldSig,newSig]
+
+sigs = [oldSig,midSig,newSig]
 for dsid in pointDict:
     mG = pointDict[dsid][0]
     mX = pointDict[dsid][1]
@@ -41,13 +53,19 @@ for dsid in pointDict:
         continue
     h = inFile.Get('h_sig_'+str(dsid))
     s_old = h.GetBinContent(h.FindBin(.6,1.4))
+    s_mid = h.GetBinContent(h.FindBin(.75,1.4))
     s_new = h.GetBinContent(h.FindBin(.75,1.7))
     xBin = oldSig.GetXaxis().FindBin(mG)
     yBin = oldSig.GetYaxis().FindBin(mX)
     oldSig.SetBinContent(xBin,yBin,s_old)
+    midSig.SetBinContent(xBin,yBin,s_mid)
     newSig.SetBinContent(xBin,yBin,s_new)
-sigLabels = ['#splitline{M_{J}^{#Sigma} > 600 GeV, |#Delta #eta| < 1.4}{S/#sqrt{B}}',
-             '#splitline{M_{J}^{#Sigma} > 750 GeV, |#Delta #eta| < 1.7}{S/#sqrt{B}}']
+
+sigLabels = ['#splitline{M_{J}^{#Sigma} > 600 GeV, |#Delta #eta| < 1.4}{Significance}',
+             '#splitline{M_{J}^{#Sigma} > 750 GeV, |#Delta #eta| < 1.4}{Significance}',
+             '#splitline{M_{J}^{#Sigma} > 750 GeV, |#Delta #eta| < 1.7}{Significance}']
+#sigLabels = ['#splitline{M_{J}^{#Sigma} > 600 GeV, |#Delta #eta| < 1.4}{S/#sqrt{B}}',
+#             '#splitline{M_{J}^{#Sigma} > 750 GeV, |#Delta #eta| < 1.7}{S/#sqrt{B}}']
 for i in range(len(sigs)):
     cans.append(ROOT.TCanvas('c'+str(i+2),'c'+str(i+2),800,600))
     cans[-1].cd()
@@ -61,3 +79,17 @@ for i in range(len(sigs)):
     lat = ROOT.TLatex()
     lat.DrawLatexNDC(0.18,0.775,'Pythia #int L dt = 36.5 fb^{-1}')
     lat.DrawLatexNDC(0.18,0.65,sigLabels[i])
+
+cans[2].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_significance_MJ_600_dEta_1p4.png')
+cans[2].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_significance_MJ_600_dEta_1p4.pdf')
+cans[2].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_significance_MJ_600_dEta_1p4.C')
+
+cans[3].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_significance_MJ_750_dEta_1p7.png')
+cans[3].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_significance_MJ_750_dEta_1p7.pdf')
+cans[3].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_significance_MJ_750_dEta_1p7.C')
+
+cans[4].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_significance_MJ_750_dEta_1p4.png')
+cans[4].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_significance_MJ_750_dEta_1p4.pdf')
+cans[4].Print('/global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/plot_significance_MJ_750_dEta_1p4.C')
+
+os.system('chmod a+r /global/project/projectdirs/atlas/www/multijet/RPV/btamadio/SROptimization/'+date+'_'+jobName+'/*')

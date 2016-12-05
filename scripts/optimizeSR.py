@@ -55,10 +55,7 @@ class optimizer:
                 yBin2 = self.h_bkg.GetYaxis().FindBin(dEta)-1
                 n_sig = self.h_sig[dsid].Integral(xBin1,xBin2,yBin1,yBin2)
                 n_bkg = self.h_bkg.Integral(xBin1,xBin2,yBin1,yBin2)
-                if n_bkg > 2:
-                    signi = n_sig / math.sqrt(n_bkg)
-                else:
-                    signi = 0
+                signi = math.sqrt(2*((n_sig+n_bkg)*math.log(1+n_sig/n_bkg)-n_sig))
                 fillBinX = self.significancePlots[dsid].GetXaxis().FindBin(mj)
                 fillBinY = self.significancePlots[dsid].GetYaxis().FindBin(dEta)
 #                print mj,dEta,fillBinX,fillBinY#n_sig,n_bkg,signi
