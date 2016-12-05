@@ -26,7 +26,10 @@ namespace MJ{
     dresser();
     ~dresser();
   private:
-    vector<string> m_regionNames;
+    vector<string> m_allEventRegionNames;
+    vector<string> m_allJetRegionNames;
+    vector<string> m_regionNameList_jet;
+    vector<string> m_regionNameList_event;
     int m_templateType;
     string m_miniTreeFileName;
     TFile *m_miniTreeFile;
@@ -82,7 +85,10 @@ namespace MJ{
     
     string getTemplateName(float,float,int,int,int,int,float,int,int);
     string getRegionName(int,float);
-    
+
+    vector<string> getJetRegionList(int,int,int,int,float);
+    vector<string> getEventRegionList(int,int,int,float);
+
     pair<int,int> getTemplateBin(float, float, int);
     //    vector<float> getDressedMass(TH1F *, float, float, float, int, bool);
     vector<float> getDressedMass(TH1F *, float, float, int, bool,int);
