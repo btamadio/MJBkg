@@ -50,79 +50,42 @@ class plotMaker:
         self.yieldHistsShift_eta2_b1 = {}
         self.yieldHistsShift_eta3_b1 = {}
         self.yieldHistsShift_eta4_b1 = {}
-    def regionLabel(self,region):
-        regionLabel = '#splitline{N_{jet} '
-        if '3js0' in region:
-            if 'bU' in region:
-                regionLabel +='= 3}{#splitline{n_{soft jet} = 0}{non-b-matched}}'
-            elif 'bM' in region:
-                regionLabel +='= 3}{#splitline{n_{soft jet} = 0}{b-matched}}'
-            else:
-                regionLabel +='= 3}{n_{soft jet} = 0}'
-            return regionLabel
-        elif '3js1' in region:
-            if 'bU' in region:
-                regionLabel +='= 3}{#splitline{n_{soft jet} = 1}{non-b-matched}}'
-            elif 'bM' in region:
-                regionLabel +='= 3}{#splitline{n_{soft jet} = 1}{b-matched}}'            
-            else:
-                regionLabel +='= 3}{n_{soft jet} = 1}'
-            return regionLabel
-        elif '3js2' in region:
-            if 'bU' in region:
-                regionLabel +='= 3}{#splitline{n_{soft jet} #geq 2}{non-b-matched}}'
-            elif 'bM' in region:
-                regionLabel +='= 3}{#splitline{n_{soft jet} #geq 2}{b-matched}}'            
-            else:            
-                regionLabel +='= 3}{n_{soft jet} #geq 2}'
-            return regionLabel
-        elif '4js0' in region:
-            if 'bU' in region:
-                regionLabel +='= 4}{#splitline{n_{soft jet} = 0}{non-b-matched}}'
-            elif 'bM' in region:
-                regionLabel +='= 4}{#splitline{n_{soft jet} = 0}{b-matched}}'            
-            else:            
-                regionLabel +='= 4}{n_{soft jet} = 0}'
-            return regionLabel
-        elif '4js1' in region:
-            if 'bU' in region:
-                regionLabel +='= 4}{#splitline{n_{soft jet} #geq 1}{non-b-matched}}'
-            elif 'bM' in region:
-                regionLabel +='= 4}{#splitline{n_{soft jet} #geq 1}{b-matched}}'            
-            else:            
-                regionLabel +='= 4}{n_{soft jet} #geq 1}'
-            return regionLabel
-        elif region is '5j':
-            regionLabel +='#geq 5}{}'
-            return regionLabel
-        elif region is '5jbM':
-            regionLabel +='#geq 5}{b-matched}'                        
-            return regionLabel
-        elif region is '5jbU':
-            regionLabel +='#geq 5}{non-b-matched}'                        
-            return regionLabel
+    def getRegionLabel(self,region):
+        lines = []
         if '3j' in region:
-            regionLabel+='= 3}'        
-        if '4j' in region:
-            regionLabel+='= 4}'
+            lines.append('N_{jet} = 3')
+        elif '4j' in region:
+            lines.append('N_{jet} = 4')
         elif '5j' in region:
-            regionLabel+='#geq 5}'
-        regionLabel+='{#splitline{'
+            lines.append('N_{jet} #geq 5')
+        if 's0' in region:
+            lines.append('N_{soft jet} = 0')
+        elif 's1' in region:
+            lines.append('N_{soft jet} #geq 1')
+        if 'VR' in region:
+            lines.append('|#Delta #eta| > 1.4')
+        elif 'SR' in region:
+            lines.append('|#Delta #eta| < 1.4')
         if 'b0' in region:
-            regionLabel+='b-veto}'
+            lines.append('b-veto')
         elif 'b1' in region:
-            regionLabel+='b-tag}'
-        elif 'b9' in region:
-            regionLabel+='b-inclusive}'
-        elif 'bM' in region:
-            regionLabel+='b-matched}'
+            lines.append('b-tag')
+        if 'bM' in region:
+            lines.append('b-matched')
         elif 'bU' in region:
-            regionLabel+='non-b-matched}'
-        if 'SR' in region:
-            regionLabel+='{|#Delta #eta| < 1.4}}'
-        elif 'VR' in region:
-            regionLabel+='{|#Delta #eta| > 1.4}}'
-        return regionLabel
+            lines.append('non-b-matched')
+        label = ''
+        if len(lines) == 1:
+            label = lines[0]
+        elif len(lines) == 2:
+            label = '#splitline{'+lines[0]+'}{'+lines[1]+'}'
+        elif len(lines) == 3:
+            label = '#splitline{#splitline{'+lines[0]+'}{'+lines[1]+'}}{'+lines[2]+'}'
+        elif len(lines) == 4:
+            label = '#splitline{#splitline{'+lines[0]+'}{'+lines[1]+'}}{#splitline{'+lines[2]+'}{'+lines[3]+'}}'
+        elif len(lines) == 5:
+            label = '#splitline{#splitline{#splitline{'+lines[0]+'}{'+lines[1]+'}}{#splitline{'+lines[2]+'}{'+lines[3]+'}}}{'+lines[4]+'}'
+        return label
     def makeYieldPlot(self,region):
         os.system('mkdir -p '+self.outDir+'/'+region)
         os.system('chmod a+rx '+self.outDir+'/'+region)
@@ -139,17 +102,17 @@ class plotMaker:
         yHist.GetYaxis().SetTitle(labels[1])
         lat = ROOT.TLatex()
         yLoc = 0.625
-        if 'bdt' in self.jobName:
-            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/BDT/b-match}{binning}')
-        if 'eta' in self.jobName:
-            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|/b-match}{binning}')
-        if 'ichep' in self.jobName:
-            lat.DrawLatexNDC(0.24,yLoc,'#splitline{ICHEP}{binning}')
-        if 'qg' in self.jobName:
-            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|/qg-match}{binning}')
+        # if 'bdt' in self.jobName:
+        #     lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/BDT/b-match}{binning}')
+        # if 'eta' in self.jobName:
+        #     lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|/b-match}{binning}')
+        # if 'ichep' in self.jobName:
+        #     lat.DrawLatexNDC(0.24,yLoc,'#splitline{ICHEP}{binning}')
+        # if 'qg' in self.jobName:
+        #     lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|/qg-match}{binning}')
         if 'nsubjet' in self.jobName:
-            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|/n_{subjet}}{binning}')
-        lat.DrawLatexNDC(0.24,yLoc-0.18,self.regionLabel(region))
+            lat.DrawLatexNDC(0.24,yLoc,'p_{T}/|#eta|/n_{subjet} binning')
+        lat.DrawLatexNDC(0.24,yLoc-0.18,self.getRegionLabel(region))
         ROOT.ATLASLabel(0.225,0.85,'Internal',0.05,0.115,1)
         if 'pythia' in self.jobName:
             lat.DrawLatexNDC(0.225,0.78,str(int(self.lumi))+' fb^{-1} Pythia')
@@ -190,8 +153,9 @@ class plotMaker:
         self.pad1s[canName].Draw()
         self.pad1s[canName].cd()
         if not 'avgMass' in var:
-            self.pad1s[canName].SetLogy()
             self.dHistsNom[canName] = self.inFile.Get('h_'+var+'_dressNom_'+region)
+            if self.dHistsNom[canName].GetMaximum() > 0:
+                self.pad1s[canName].SetLogy()
             self.dHistsUp[canName] = self.dHistsNom[canName].Clone('h_'+var+'_dressNom_'+region)
             self.dHistsDown[canName] = self.dHistsNom[canName].Clone('h_'+var+'_dressNom_'+region)
             self.dHistsUp[canName].SetDirectory(0)
@@ -250,9 +214,11 @@ class plotMaker:
             errTot = math.sqrt(errSyst*errSyst+errStat*errStat)
             eHist.SetBinError(bin,errTot)
         eHist.Draw('e2')
-        if kHist.GetMaximum() <= 0:
-            print 'Error, empty histogram. var = %s, region = %s'%(var,region)
-        yMax = pow(10,math.ceil(math.log(kHist.GetMaximum(),10)))
+#        if kHist.GetMaximum() <= 0:
+#            print 'Error, empty histogram. var = %s, region = %s'%(var,region)
+        yMax = 10
+        if kHist.GetMaximum() > 1:
+            yMax = pow(10,math.ceil(math.log(kHist.GetMaximum(),10)))
         if (yMax-kHist.GetMaximum())/yMax < 0.4:
             yMax*=5
         lastBinCont = 0
@@ -260,7 +226,9 @@ class plotMaker:
         while lastBinCont == 0 and bin > 1:
             lastBinCont = kHist.GetBinContent(bin)
             bin -=1
-        yMin = pow(10,math.floor(math.log(lastBinCont,10)))/2
+        yMin = 0
+        if lastBinCont > 0:
+            yMin = pow(10,math.floor(math.log(lastBinCont,10)))/2
         if 'avgMass' in var:
             eHist.SetMinimum(0.0)
             eHist.SetMaximum(0.25)
@@ -308,8 +276,8 @@ class plotMaker:
         if 'qg' in self.jobName:
             lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|/qg-match}{binning}')
         if 'nsubjet' in self.jobName:
-            lat.DrawLatexNDC(0.24,yLoc,'#splitline{p_{T}/|#eta|/n_{subjet}}{binning}')
-        lat.DrawLatexNDC(0.24,yLoc-0.18,self.regionLabel(region))
+            lat.DrawLatexNDC(0.24,yLoc,'p_{T}/|#eta|/n_{subjet} binning')
+        lat.DrawLatexNDC(0.24,yLoc-0.18,self.getRegionLabel(region))
 
         ROOT.ATLASLabel(0.35,0.85,'Internal',0.05,0.115,1)
         if 'pythia' in self.jobName:
@@ -430,20 +398,44 @@ if 'pythia' in args.jobName or 'sherpa' in args.jobName:
     lumi = 35
     mjcut = 0.8
 p=plotMaker(args.inFile,args.jobName,mjcut,args.date,lumi)
-for var in ['MJ','jetmass','jetmass1','jetmass2','jetmass3','jetmass4','avgMass','avgMass_eta1','avgMass_eta2','avgMass_eta3','avgMass_eta4']:
-   for region in ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
-                  '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM',
-                  '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
-                  '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
-                  '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
-                  '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM',
-                  '3js0','3js1','3js2','3js0bM','3js1bM','3js2bM','3js0bU','3js1bU','3js2bU',
-                  '4js0','4js1','4js0bM','4js1bM','4js0bU','4js1bU',
-                  '5j','5jbM','5jbU']:
-       print var,region
-       if var is not 'MJ':
+eventRegionList = ['3jb0','3jb1','3jb9',
+                   '3js0b0','3js0b1','3js0b9',
+                   '3js1b0','3js1b1','3js1b9',
+                   '3jVRb0','3jVRb1','3jVRb9',
+                   '3js0VRb0','3js0VRb1','3js0VRb9',
+                   '3js1VRb0','3js1VRb1','3js1VRb9',
+                   '3jSRb0','3jSRb1','3jSRb9',
+                   '3js0SRb0','3js0SRb1','3js0SRb9',
+                   '3js1SRb0','3js1SRb1','3js1SRb9',
+
+                   '4jb0','4jb1','4jb9',
+                   '4js0b0','4js0b1','4js0b9',
+                   '4js1b0','4js1b1','4js1b9',
+                   '4jVRb0','4jVRb1','4jVRb9',
+                   '4js0VRb0','4js0VRb1','4js0VRb9',
+                   '4js1VRb0','4js1VRb1','4js1VRb9',
+                   '4jSRb0','4jSRb1','4jSRb9',
+                   '4js0SRb0','4js0SRb1','4js0SRb9',
+                   '4js1SRb0','4js1SRb1','4js1SRb9',
+
+                   '5jb0','5jb1','5jb9',
+                   '5js0b0','5js0b1','5js0b9',
+                   '5js1b0','5js1b1','5js1b9',
+                   '5jVRb0','5jVRb1','5jVRb9',
+                   '5js0VRb0','5js0VRb1','5js0VRb9',
+                   '5js1VRb0','5js1VRb1','5js1VRb9',
+                   '5jSRb0','5jSRb1','5jSRb9',
+                   '5js0SRb0','5js0SRb1','5js0SRb9',
+                   '5js1SRb0','5js1SRb1','5js1SRb9']
+jetRegionList = []
+for region in eventRegionList:
+    jetRegionList.append(region)
+    jetRegionList.append(region+'bU')
+    jetRegionList.append(region+'bM')
+for region in eventRegionList:
+    p.makePlot('MJ',region)
+    p.makeYieldPlot(region)
+for var in ['jetmass','jetmass1','jetmass2','jetmass3','jetmass4',
+            'avgMass','avgMass_eta1','avgMass_eta2','avgMass_eta3','avgMass_eta4']:
+    for region in jetRegionList:
            p.makePlot(var,region)
-       else:
-           if 'bU' not in region and 'bM' not in region:
-               p.makePlot(var,region)
-               p.makeYieldPlot(region)

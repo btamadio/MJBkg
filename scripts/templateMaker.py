@@ -97,8 +97,8 @@ class templateMaker:
                     self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)
                     histName = 'templ_n2_ptBin'+str(i+1)+'_etaBin'+str(j+1)
                     self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)        
-                    histName = 'templ_n3_ptBin'+str(i+1)+'_etaBin'+str(j+1)
-                    self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)        
+                    #histName = 'templ_n3_ptBin'+str(i+1)+'_etaBin'+str(j+1)
+                    #self.histDict[histName]=ROOT.TH1F(histName,histName,self.nBins,self.xMin,self.xMax)        
         print 'Created %i template histograms' % len(self.histDict)
     def loopAndFill(self):
         for entry in range(self.eventStart,self.eventEnd):
@@ -283,7 +283,7 @@ class templateMaker:
                 if abs(eta) >= self.yBins[i] and abs(eta) < self.yBins[i+1]:
                     etaBin = i+1
                     break
-            histName = 'templ_n'+str(min(3,nSubjets))+'_ptBin'+str(ptBin)+'_etaBin'+str(etaBin)
+            histName = 'templ_n'+str(min(2,nSubjets))+'_ptBin'+str(ptBin)+'_etaBin'+str(etaBin)
             if ptBin == -1: 
                 print 'Error: pT bin not found!'
                 print 'pT =',pt,'pT bins:',self.ptBins3

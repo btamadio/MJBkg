@@ -7,8 +7,12 @@ def median(lst):
         return sorted(lst)[quotient]
     return sum(sorted(lst)[quotient-1:quotient+1])/2
 def mean(lst):
+    if len(lst) < 1:
+        return 0
     return sum(lst) / float(len(lst))
 def err(lst):
+    if len(lst) < 2:
+        return 0
     xbar = mean(lst)
     std = 0.0
     for entry in lst:
@@ -21,7 +25,6 @@ class bkgPredictor:
         if not self.templateFile:
             print 'Template file not found %s' % templateFileName
         self.dressedFileNames = dressedFileNames
-        self.nToys = len(self.dressedFileNames)
         self.jobName = jobName
         self.lumi = lumi
         self.MJcut = mjcut
@@ -40,6 +43,8 @@ class bkgPredictor:
             for bin in range(1,hist.GetNbinsX()+1):
                 hist.SetBinError(bin,1E-10)
             return
+        if self.templateType != 0:
+            return
         templateName = 'templ_b'
         if 'bM' in regionName:
             templateName+='1'
@@ -53,19 +58,42 @@ class bkgPredictor:
             hist.SetBinError(bin,binError)
     def setupOutput(self):
         outFileName = '../output_prediction/'+self.jobName+'.root'
-        if os.path.isfile(outFileName):
-            self.outFile = ROOT.TFile.Open(outFileName,'RECREATE')
-        else:
-            self.outFile = ROOT.TFile.Open(outFileName,'CREATE')
-        self.regionList = ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
-                           '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM',
-                           '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
-                           '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
-                           '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
-                           '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM',
-                           '3js0','3js1','3js2','3js0bM','3js1bM','3js2bM','3js0bU','3js1bU','3js2bU',
-                           '4js0','4js1','4js0bM','4js1bM','4js0bU','4js1bU',
-                           '5j','5jbM','5jbU']
+        self.outFile = ROOT.TFile.Open(outFileName,'RECREATE')
+        self.eventRegionList = ['3jb0','3jb1','3jb9',
+                                '3js0b0','3js0b1','3js0b9',
+                                '3js1b0','3js1b1','3js1b9',
+                                '3jVRb0','3jVRb1','3jVRb9',
+                                '3js0VRb0','3js0VRb1','3js0VRb9',
+                                '3js1VRb0','3js1VRb1','3js1VRb9',
+                                '3jSRb0','3jSRb1','3jSRb9',
+                                '3js0SRb0','3js0SRb1','3js0SRb9',
+                                '3js1SRb0','3js1SRb1','3js1SRb9',
+
+                                '4jb0','4jb1','4jb9',
+                                '4js0b0','4js0b1','4js0b9',
+                                '4js1b0','4js1b1','4js1b9',
+                                '4jVRb0','4jVRb1','4jVRb9',
+                                '4js0VRb0','4js0VRb1','4js0VRb9',
+                                '4js1VRb0','4js1VRb1','4js1VRb9',
+                                '4jSRb0','4jSRb1','4jSRb9',
+                                '4js0SRb0','4js0SRb1','4js0SRb9',
+                                '4js1SRb0','4js1SRb1','4js1SRb9',
+
+                                '5jb0','5jb1','5jb9',
+                                '5js0b0','5js0b1','5js0b9',
+                                '5js1b0','5js1b1','5js1b9',
+                                '5jVRb0','5jVRb1','5jVRb9',
+                                '5js0VRb0','5js0VRb1','5js0VRb9',
+                                '5js1VRb0','5js1VRb1','5js1VRb9',
+                                '5jSRb0','5jSRb1','5jSRb9',
+                                '5js0SRb0','5js0SRb1','5js0SRb9',
+                                '5js1SRb0','5js1SRb1','5js1SRb9']
+        self.jetRegionList = []
+        for regionName in self.eventRegionList:
+            self.jetRegionList.append(regionName)
+            self.jetRegionList.append(regionName+'bU')
+            self.jetRegionList.append(regionName+'bM')
+        print 'Processing histograms for %i regions ' % len(self.jetRegionList)
         self.histList   = ['jetmass','jetmass1','jetmass2','jetmass3','jetmass4','MJ']
         #The histograms are accessed by calling histDict[regionName][histType]
         #For example, to get the kinematic leading jet mass histogram for jets in the region 4jSRb1:
@@ -138,8 +166,7 @@ class bkgPredictor:
         self.srYieldShift_eta2_b1_histDict = {}
         self.srYieldShift_eta3_b1_histDict = {}
         self.srYieldShift_eta4_b1_histDict = {}
-
-        for regionName in self.regionList:
+        for regionName in self.eventRegionList:
             self.srYieldNom_listDict[regionName] = []
             self.srYieldShift_eta1_b0_listDict[regionName] = []
             self.srYieldShift_eta2_b0_listDict[regionName] = []
@@ -149,9 +176,8 @@ class bkgPredictor:
             self.srYieldShift_eta2_b1_listDict[regionName] = []
             self.srYieldShift_eta3_b1_listDict[regionName] = []
             self.srYieldShift_eta4_b1_listDict[regionName] = []
-
+        for regionName in self.jetRegionList:
             self.histDict_kin[regionName] = {}
-
             self.histDict_dressNom[regionName] = {}
             self.histDict_dressShift_eta1_b0[regionName] = {}
             self.histDict_dressShift_eta2_b0[regionName] = {}
@@ -161,7 +187,6 @@ class bkgPredictor:
             self.histDict_dressShift_eta2_b1[regionName] = {}
             self.histDict_dressShift_eta3_b1[regionName] = {}
             self.histDict_dressShift_eta4_b1[regionName] = {}
-
             self.listDict_dressNom[regionName] = {}
             self.listDict_dressShift_eta1_b0[regionName] = {}
             self.listDict_dressShift_eta2_b0[regionName] = {}
@@ -171,7 +196,6 @@ class bkgPredictor:
             self.listDict_dressShift_eta2_b1[regionName] = {}
             self.listDict_dressShift_eta3_b1[regionName] = {}
             self.listDict_dressShift_eta4_b1[regionName] = {}
-
             for histType in self.histList:
                 self.listDict_dressNom[regionName][histType] = []
                 self.listDict_dressShift_eta1_b0[regionName][histType] = []
@@ -241,8 +265,9 @@ class bkgPredictor:
                     self.histDict_dressShift_eta3_b1[regionName][histType] = ROOT.TH1F(histName_dressShift_eta3_b1,histName_dressShift_eta3_b1,self.nMassBins,self.massBinLow,xUp)
                     self.histDict_dressShift_eta4_b1[regionName][histType] = ROOT.TH1F(histName_dressShift_eta4_b1,histName_dressShift_eta4_b1,self.nMassBins,self.massBinLow,xUp)
     def getResponse(self):
+        print 'getting response from file %s ' % self.dressedFileNames[0]
         f=ROOT.TFile.Open(self.dressedFileNames[0])
-        for regionName in self.regionList:
+        for regionName in self.jetRegionList:
             self.prof1ListDict_dress[regionName] = []
             self.prof1ListDict_eta1_dress[regionName] = []
             self.prof1ListDict_eta2_dress[regionName] = []
@@ -285,21 +310,28 @@ class bkgPredictor:
                 self.prof1ListDict_eta2_dress[regionName].append([])
                 self.prof1ListDict_eta3_dress[regionName].append([])
                 self.prof1ListDict_eta4_dress[regionName].append([])
+        
         for i in range(1,len(self.dressedFileNames)):
             fi = ROOT.TFile.Open(self.dressedFileNames[i])
-            for regionName in self.regionList:
-                hDress = fi.Get('h_prof1d_dress_'+regionName).Clone('hDress')
-                hDress_eta1 = fi.Get('h_prof1d_eta1_dress_'+regionName).Clone('hDress_eta1')
-                hDress_eta2 = fi.Get('h_prof1d_eta2_dress_'+regionName).Clone('hDress_eta2')
-                hDress_eta3 = fi.Get('h_prof1d_eta3_dress_'+regionName).Clone('hDress_eta3')
-                hDress_eta4 = fi.Get('h_prof1d_eta4_dress_'+regionName).Clone('hDress_eta4')
+            print 'getting response from file %s ' % self.dressedFileNames[i]
+            for regionName in self.jetRegionList:
+                hDress = fi.Get('h_prof1d_dress_'+regionName)#.Clone('hDress')
+                hDress_eta1 = fi.Get('h_prof1d_eta1_dress_'+regionName)#.Clone('hDress_eta1')
+                hDress_eta2 = fi.Get('h_prof1d_eta2_dress_'+regionName)#.Clone('hDress_eta2')
+                hDress_eta3 = fi.Get('h_prof1d_eta3_dress_'+regionName)#.Clone('hDress_eta3')
+                hDress_eta4 = fi.Get('h_prof1d_eta4_dress_'+regionName)#.Clone('hDress_eta4')
+#                hDress.SetDirectory(0)
+#                hDress_eta1.SetDirectory(0)
+#                hDress_eta2.SetDirectory(0)
+#                hDress_eta3.SetDirectory(0)
+#                hDress_eta4.SetDirectory(0)
                 for bin in range(1,hDress.GetNbinsX()+1):
                     self.prof1ListDict_dress[regionName][bin-1].append(hDress.GetBinContent(bin))
                     self.prof1ListDict_eta1_dress[regionName][bin-1].append(hDress_eta1.GetBinContent(bin))
                     self.prof1ListDict_eta2_dress[regionName][bin-1].append(hDress_eta2.GetBinContent(bin))
                     self.prof1ListDict_eta3_dress[regionName][bin-1].append(hDress_eta3.GetBinContent(bin))
                     self.prof1ListDict_eta4_dress[regionName][bin-1].append(hDress_eta4.GetBinContent(bin))
-        for regionName in self.regionList:
+        for regionName in self.jetRegionList:
             for bin in range(1,self.prof1Dict_dress[regionName].GetNbinsX()+1):
                 self.prof1Dict_dress[regionName].SetBinContent(bin,mean(self.prof1ListDict_dress[regionName][bin-1]))
                 self.prof1Dict_dress[regionName].SetBinError(bin,1E-12)
@@ -307,18 +339,12 @@ class bkgPredictor:
                 self.prof1Dict_eta2_dress[regionName].SetBinContent(bin,mean(self.prof1ListDict_eta2_dress[regionName][bin-1]))
                 self.prof1Dict_eta3_dress[regionName].SetBinContent(bin,mean(self.prof1ListDict_eta3_dress[regionName][bin-1]))
                 self.prof1Dict_eta4_dress[regionName].SetBinContent(bin,mean(self.prof1ListDict_eta4_dress[regionName][bin-1]))
-
             self.setProfileErrors(self.prof1Dict_eta1_dress[regionName],regionName,1)
             self.setProfileErrors(self.prof1Dict_eta2_dress[regionName],regionName,2)
             self.setProfileErrors(self.prof1Dict_eta3_dress[regionName],regionName,3)
             self.setProfileErrors(self.prof1Dict_eta4_dress[regionName],regionName,4)
-#                self.prof1Dict_dress[regionName].SetBinError(bin,err(self.prof1ListDict_dress[regionName][bin-1]))
-#                self.prof1Dict_eta1_dress[regionName].SetBinError(bin,err(self.prof1ListDict_eta1_dress[regionName][bin-1]))
-#                self.prof1Dict_eta2_dress[regionName].SetBinError(bin,err(self.prof1ListDict_eta2_dress[regionName][bin-1]))
-#                self.prof1Dict_eta3_dress[regionName].SetBinError(bin,err(self.prof1ListDict_eta3_dress[regionName][bin-1]))
-#                self.prof1Dict_eta4_dress[regionName].SetBinError(bin,err(self.prof1ListDict_eta4_dress[regionName][bin-1]))
         self.outFile.cd()
-        for regionName in self.regionList:
+        for regionName in self.jetRegionList:
             self.prof1Dict_kin[regionName].Write()
             self.prof1Dict_eta1_kin[regionName].Write()
             self.prof1Dict_eta2_kin[regionName].Write()
@@ -330,12 +356,13 @@ class bkgPredictor:
             self.prof1Dict_eta3_dress[regionName].Write()
             self.prof1Dict_eta4_dress[regionName].Write()
     def loopAndFill(self):
-        #loop over pseudoexperiment files and fill prediction histograms
-        #first we just copy the kinematic histogram over from the input file, rebinning the MJ histogram
+        print 'Looping over dressed files'
         f = ROOT.TFile.Open(self.dressedFileNames[0])
-        for regionName in self.regionList:
+        for regionName in self.jetRegionList:
             for histType in self.histList:
                 histName = 'h_'+histType+'_kin_'+regionName
+                if not f.GetListOfKeys().Contains(histName):
+                    continue
                 self.histDict_kin[regionName][histType] = f.Get(histName).Clone()
                 if histType == 'MJ':
                     self.histDict_kin[regionName][histType] = self.histDict_kin[regionName][histType].Rebin(self.nMJbins,histName,self.MJbinArray)
@@ -349,9 +376,10 @@ class bkgPredictor:
             if not f:
                 continue
             i+=1
-            for regionName in self.regionList:
+            for regionName in self.jetRegionList:
                 for histType in self.histList:
-#                    print regionName,histType
+                    if not f.GetListOfKeys().Contains('h_'+histType+'_dressNom_'+regionName):
+                        continue
                     h_dressNom = f.Get('h_'+histType+'_dressNom_'+regionName)
                     h_dressShift_eta1_b0 = f.Get('h_'+histType+'_dressShift_eta1_b0_'+regionName)
                     h_dressShift_eta2_b0 = f.Get('h_'+histType+'_dressShift_eta2_b0_'+regionName)
@@ -402,8 +430,10 @@ class bkgPredictor:
                         self.srYieldShift_eta3_b1_listDict[regionName].append(h_dressShift_eta3_b1.Integral(h_dressShift_eta3_b1.FindBin(self.MJcut),h_dressShift_eta3_b1.GetNbinsX()+1))
                         self.srYieldShift_eta4_b1_listDict[regionName].append(h_dressShift_eta4_b1.Integral(h_dressShift_eta4_b1.FindBin(self.MJcut),h_dressShift_eta4_b1.GetNbinsX()+1))
 
-        for regionName in self.regionList:
+        for regionName in self.jetRegionList:
             for histType in self.histList:
+                if not histType in  self.histDict_dressNom[regionName]:
+                    continue
                 for bin in range(1,self.histDict_dressNom[regionName][histType].GetNbinsX()+1):
                     self.histDict_dressNom[regionName][histType].SetBinContent(bin,mean(self.listDict_dressNom[regionName][histType][bin-1]))
                     self.histDict_dressShift_eta1_b0[regionName][histType].SetBinContent(bin,mean(self.listDict_dressShift_eta1_b0[regionName][histType][bin-1]))
@@ -424,18 +454,18 @@ class bkgPredictor:
                     self.histDict_dressShift_eta2_b1[regionName][histType].SetBinError(bin,err(self.listDict_dressShift_eta2_b1[regionName][histType][bin-1]))
                     self.histDict_dressShift_eta3_b1[regionName][histType].SetBinError(bin,err(self.listDict_dressShift_eta3_b1[regionName][histType][bin-1]))
                     self.histDict_dressShift_eta4_b1[regionName][histType].SetBinError(bin,err(self.listDict_dressShift_eta4_b1[regionName][histType][bin-1]))
-                if histType is 'MJ':
+                if histType is 'MJ' and histType in self.histDict_kin[regionName]:
                     kHist = self.histDict_kin[regionName][histType]
                     dHist = self.histDict_dressNom[regionName][histType]
                     #kinematic hist has already been scaled down
                     norm = kHist.Integral(kHist.FindBin(self.normRegion[0]),kHist.FindBin(self.normRegion[1])-1)/self.lumi
                     denom = dHist.Integral(dHist.FindBin(self.normRegion[0]),dHist.FindBin(self.normRegion[1])-1)
+                    cen = 0
                     if denom != 0:
                         norm /= denom
                     else:
                         norm = 0
-                    print 'regionName = %s, norm = %f' % (regionName,norm)
-                    cen = mean(self.srYieldNom_listDict[regionName])
+                        cen = mean(self.srYieldNom_listDict[regionName])
                     xMin = norm*self.lumi*(cen-10*err(self.srYieldNom_listDict[regionName]))
                     xMax = norm*self.lumi*(cen+10*err(self.srYieldNom_listDict[regionName]))
                     self.srYieldNom_histDict[regionName] = ROOT.TH1F('h_srYieldNom_'+regionName,'signal yield',20,xMin,xMax)
@@ -486,6 +516,7 @@ class bkgPredictor:
                 self.histDict_dressShift_eta2_b1[regionName][histType].Write()
                 self.histDict_dressShift_eta3_b1[regionName][histType].Write()
                 self.histDict_dressShift_eta4_b1[regionName][histType].Write()
+        for regionName in self.eventRegionList:
             self.srYieldNom_histDict[regionName].Write()
             self.srYieldShift_eta1_b0_histDict[regionName].Write()
             self.srYieldShift_eta2_b0_histDict[regionName].Write()

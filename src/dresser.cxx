@@ -10,6 +10,58 @@ MJ::dresser::dresser(){
   m_blinded = false;
   m_doCorrections = false;
   m_signalInjected = false;
+  m_allEventRegionNames = {"3jb0","3jb1","3jb9",
+			   "3js0b0","3js0b1","3js0b9",
+			   "3js1b0","3js1b1","3js1b9",
+			   "3jVRb0","3jVRb1","3jVRb9",
+			   "3js0VRb0","3js0VRb1","3js0VRb9",
+			   "3js1VRb0","3js1VRb1","3js1VRb9",
+			   "3jSRb0","3jSRb1","3jSRb9",
+			   "3js0SRb0","3js0SRb1","3js0SRb9",
+			   "3js1SRb0","3js1SRb1","3js1SRb9",
+
+			   "4jb0","4jb1","4jb9",
+			   "4js0b0","4js0b1","4js0b9",
+			   "4js1b0","4js1b1","4js1b9",
+			   "4jVRb0","4jVRb1","4jVRb9",
+			   "4js0VRb0","4js0VRb1","4js0VRb9",
+			   "4js1VRb0","4js1VRb1","4js1VRb9",
+			   "4jSRb0","4jSRb1","4jSRb9",
+			   "4js0SRb0","4js0SRb1","4js0SRb9",
+			   "4js1SRb0","4js1SRb1","4js1SRb9",
+
+			   "5jb0","5jb1","5jb9",
+			   "5js0b0","5js0b1","5js0b9",
+			   "5js1b0","5js1b1","5js1b9",
+			   "5jVRb0","5jVRb1","5jVRb9",
+			   "5js0VRb0","5js0VRb1","5js0VRb9",
+			   "5js1VRb0","5js1VRb1","5js1VRb9",
+			   "5jSRb0","5jSRb1","5jSRb9",
+			   "5js0SRb0","5js0SRb1","5js0SRb9",
+			   "5js1SRb0","5js1SRb1","5js1SRb9"};
+  m_allJetRegionNames = m_allEventRegionNames;
+  for(unsigned int i = 0; i < m_allEventRegionNames.size(); i++){
+    m_allJetRegionNames.push_back(m_allEventRegionNames.at(i)+"bU");
+    m_allJetRegionNames.push_back(m_allEventRegionNames.at(i)+"bM");
+    cout<<m_allEventRegionNames.at(i)<<endl;
+  }
+  //Turn corrections and uncertainties off
+  m_corr_eta1_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  m_corr_eta2_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  m_corr_eta3_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  m_corr_eta4_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  m_corr_eta1_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  m_corr_eta2_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  m_corr_eta3_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  m_corr_eta4_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  m_uncert_eta1_b0 = 0;
+  m_uncert_eta2_b0 = 0;
+  m_uncert_eta3_b0 = 0;
+  m_uncert_eta4_b0 = 0;
+  m_uncert_eta1_b1 = 0;
+  m_uncert_eta2_b1 = 0;
+  m_uncert_eta3_b1 = 0;
+  m_uncert_eta4_b1 = 0;
 }
 MJ::dresser::~dresser(){
 }
@@ -69,24 +121,6 @@ void MJ::dresser::initialize(){
     m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_yBins = {0,0.5,1.0,1.5,2.0};
-    //Turn corrections off
-    m_corr_eta1_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_corr_eta2_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_corr_eta3_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_corr_eta4_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_corr_eta1_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_corr_eta2_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_corr_eta3_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_corr_eta4_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    m_uncert_eta1_b0 = 0;
-    m_uncert_eta2_b0 = 0;
-    m_uncert_eta3_b0 = 0;
-    m_uncert_eta4_b0 = 0;
-    m_uncert_eta1_b1 = 0;
-    m_uncert_eta2_b1 = 0;
-    m_uncert_eta3_b1 = 0;
-    m_uncert_eta4_b1 = 0;
-
     //ICHEP dataset
     // m_corr_eta1_b0 = {-0.0364,-0.0188,-0.02045,-0.0418,-0.03,
     // 		      0,0,0.0371,0.1198,0.0693,
@@ -144,7 +178,7 @@ void MJ::dresser::initialize(){
     // m_uncert_eta2_b1 = .1623;
     // m_uncert_eta3_b1 = .1846;
     // m_uncert_eta4_b1 = .2954;
-
+  }
   if(m_templateType == 1){
     //pt/BDT/b-match binning
     m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
@@ -159,8 +193,6 @@ void MJ::dresser::initialize(){
     m_ptBins5 = {0.2,0.244,0.293,0.364,0.445,0.52,0.6,0.733};
     m_yBins = {0,0.5,1.0,1.5,2.0};
   }
-
-  }
   if(m_templateType == 3){
     //pt/eta/qg-match binning
     m_ptBins3 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
@@ -174,41 +206,7 @@ void MJ::dresser::initialize(){
     m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_yBins = {0,0.5,1.0,1.5,2.0};
-  }
-  //Setup output histograms
-  m_allEventRegionNames = {"3jb0","3jb1","3jb9",
-			   "3js0b0","3js0b1","3js0b9",
-			   "3js1b0","3js1b1","3js1b9",
-			   "3jVRb0","3jVRb1","3jVRb9",
-			   "3jVRs0b0","3jVRs0b1","3jVRs0b9",
-			   "3jVRs1b0","3jVRs1b1","3jVRs1b9",
-			   "3jSRb0","3jSRb1","3jSRb9",
-			   "3jSRs0b0","3jSRs0b1","3jSRs0b9",
-			   "3jSRs1b0","3jSRs1b1","3jSRs1b9",
 
-			   "4jb0","4jb1","4jb9",
-			   "4js0b0","4js0b1","4js0b9",
-			   "4js1b0","4js1b1","4js1b9",
-			   "4jVRb0","4jVRb1","4jVRb9",
-			   "4jVRs0b0","4jVRs0b1","4jVRs0b9",
-			   "4jVRs1b0","4jVRs1b1","4jVRs1b9",
-			   "4jSRb0","4jSRb1","4jSRb9",
-			   "4jSRs0b0","4jSRs0b1","4jSRs0b9",
-			   "4jSRs1b0","4jSRs1b1","4jSRs1b9",
-
-			   "5jb0","5jb1","5jb9",
-			   "5js0b0","5js0b1","5js0b9",
-			   "5js1b0","5js1b1","5js1b9",
-			   "5jVRb0","5jVRb1","5jVRb9",
-			   "5jVRs0b0","5jVRs0b1","5jVRs0b9",
-			   "5jVRs1b0","5jVRs1b1","5jVRs1b9",
-			   "5jSRb0","5jSRb1","5jSRb9",
-			   "5jSRs0b0","5jSRs0b1","5jSRs0b9",
-			   "5jSRs1b0","5jSRs1b1","5jSRs1b9"};
-  m_allJetRegionNames = m_allEventRegionNames;
-  for(unsigned int i = 0; i < m_allEventRegionNames.size(); i++){
-    m_allJetRegionNames.push_back(m_allEventRegionNames.at(i)+"bU");
-    m_allJetRegionNames.push_back(m_allEventRegionNames.at(i)+"bM");
   }
   //Jet level histograms
   for (unsigned int i = 0; i < m_allJetRegionNames.size(); i++){
@@ -357,13 +355,14 @@ void MJ::dresser::loop(){
       float MJ_dressShift_eta2_b1 = 0;
       float MJ_dressShift_eta3_b1 = 0;
       float MJ_dressShift_eta4_b1 = 0;
-
+      m_regionNameList_event.clear();
       m_regionNameList_event = getEventRegionList(m_miniTree.njet,
 						  m_miniTree.nbjet_Fix70,
 						  m_miniTree.njet_soft,
 						  m_miniTree.dEta);
       for(unsigned int i = 0; i < min(4,m_miniTree.njet); i++){
 	MJ_kin += m_miniTree.jet_m->at(i);
+	m_regionNameList_jet.clear();
 	m_regionNameList_jet = getJetRegionList(m_miniTree.njet,
 						m_miniTree.nbjet_Fix70,
 						m_miniTree.njet_soft,
@@ -618,18 +617,20 @@ vector<float> MJ::dresser::getDressedMass(TH1F *h, float pt, float eta, int bMat
   return answer;
 }
 vector<string> MJ::dresser::getJetRegionList(int nJet, int nBJet, int nSoftJet, int bMatch, float dEta){
-  vector<string> answer = getEventRegionList(nJet,nBJet,nSoftJet,dEta);
-  for( unsigned int i = 0; i < answer.size(); i++){
+  vector<string> eventRegionList = getEventRegionList(nJet,nBJet,nSoftJet,dEta);
+  vector<string> answer = eventRegionList;
+  for( unsigned int i = 0; i < eventRegionList.size(); i++){
     if (bMatch == 1){
-      answer.push_back(answer.at(i)+"bM");
+      answer.push_back(eventRegionList.at(i)+"bM");
     }
     else{
-      answer.push_back(answer.at(i)+"bU");
+      answer.push_back(eventRegionList.at(i)+"bU");
     }
   }
+  return answer;
 }
 vector<string> MJ::dresser::getEventRegionList(int nJet, int nBJet, int nSoftJet, float dEta){
-  vector<string> answer;
+  vector<string> answer = {};
   string nJetStr = "3j";
   if (nJet == 4) nJetStr = "4j";
   if (nJet >= 5) nJetStr = "5j";
@@ -650,31 +651,31 @@ vector<string> MJ::dresser::getEventRegionList(int nJet, int nBJet, int nSoftJet
     answer.push_back(nJetStr+"VRb9");
     if(nBJet == 0) {
       answer.push_back(nJetStr+"VRb0");
-      if(nSoftJet == 0) answer.push_back(nJetStr+"VRs0b0");
-      else answer.push_back(nJetStr+"VRs1b0");
+      if(nSoftJet == 0) answer.push_back(nJetStr+"s0VRb0");
+      else answer.push_back(nJetStr+"s1VRb0");
     }
     else {
       answer.push_back(nJetStr+"VRb1");
-      if(nSoftJet == 0) answer.push_back(nJetStr+"VRs0b1");
-      else answer.push_back(nJetStr+"VRs1b1");
+      if(nSoftJet == 0) answer.push_back(nJetStr+"s0VRb1");
+      else answer.push_back(nJetStr+"s1VRb1");
     }
-    if( nSoftJet == 0) answer.push_back(nJetStr+"VRs0b9");
-    else answer.push_back(nJetStr+"VRs1b9");
+    if( nSoftJet == 0) answer.push_back(nJetStr+"s0VRb9");
+    else answer.push_back(nJetStr+"s1VRb9");
   }
   else{
     answer.push_back(nJetStr+"SRb9");
     if(nBJet == 0) {
       answer.push_back(nJetStr+"SRb0");
-      if(nSoftJet == 0) answer.push_back(nJetStr+"SRs0b0");
-      else answer.push_back(nJetStr+"SRs1b0");
+      if(nSoftJet == 0) answer.push_back(nJetStr+"s0SRb0");
+      else answer.push_back(nJetStr+"s1SRb0");
     }
     else {
       answer.push_back(nJetStr+"SRb1");
-      if(nSoftJet == 0) answer.push_back(nJetStr+"SRs0b1");
-      else answer.push_back(nJetStr+"SRs1b1");
+      if(nSoftJet == 0) answer.push_back(nJetStr+"s0SRb1");
+      else answer.push_back(nJetStr+"s1SRb1");
     }
-    if( nSoftJet == 0) answer.push_back(nJetStr+"SRs0b9");
-    else answer.push_back(nJetStr+"SRs1b9");
+    if( nSoftJet == 0) answer.push_back(nJetStr+"s0SRb9");
+    else answer.push_back(nJetStr+"s1SRb9");
   }
   return answer;
 }
@@ -772,8 +773,8 @@ string MJ::dresser::getTemplateName(float pt, float eta, int bMatch, int qMatch,
     pair<int,int> bins = getTemplateBin(pt,fabs(eta));
     int ptBin = bins.first;
     int etaBin = bins.second;
-    if( ptBin == -1 || etaBin == -1 ){ throw "Could not find pT or BDT bin"; }
-    return "templ_n"+to_string(min(3,nSubjets))+"_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin);
+    if( ptBin == -1 || etaBin == -1 ){ throw "Could not find pT or eta bin"; }
+    return "templ_n"+to_string(min(2,nSubjets))+"_ptBin"+to_string(ptBin)+"_etaBin"+to_string(etaBin);
   }
   else{
     throw "Template type not found";
