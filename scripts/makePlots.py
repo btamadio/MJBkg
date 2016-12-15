@@ -178,9 +178,9 @@ class plotMaker:
             kHist = self.kHists[canName].ProjectionX()
             kHist.SetMarkerSize(0.01)
         else:
-            self.dHistsUp[canName].SetLineColor(ROOT.kBlue)
+            self.dHistsUp[canName].SetLineColor(ROOT.kGray+1)
             self.dHistsUp[canName].SetLineWidth(2)
-            self.dHistsDown[canName].SetLineColor(ROOT.kGreen)
+            self.dHistsDown[canName].SetLineColor(ROOT.kGray+1)
             self.dHistsDown[canName].SetLineWidth(2)            
         dHistNom.SetLineColor(ROOT.kRed)
         dHistNom.SetLineColor(2)
@@ -196,7 +196,7 @@ class plotMaker:
         eHist = self.eHists[canName]
         eHist.SetMarkerSize(0.001)
         eHist.SetFillColor(ROOT.kRed)
-        eHist.SetFillStyle(3010)
+        eHist.SetFillStyle(3002)
         for bin in range(1,dHistNom.GetNbinsX()+1):
             errSyst = 0
             if not 'avgMass' in var:
@@ -237,9 +237,9 @@ class plotMaker:
             eHist.SetMaximum(yMax)
         dHistNom.Draw('hist same')
         #draw systematic bands
-#        if not 'avgMass' in var:
-#            self.dHistsUp[canName].Draw('hist same')
-#            self.dHistsDown[canName].Draw('hist same')
+        if not 'avgMass' in var:
+            self.dHistsUp[canName].Draw('hist same')
+            self.dHistsDown[canName].Draw('hist same')
         #blinding - add this as an option at some point
         blinded = False
         # if 'SR' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region:
@@ -367,9 +367,9 @@ class plotMaker:
                 rHistKin.SetBinContent(bin,0)
         rHistPred.Draw('e2')
         rHistKin.Draw('e0 same')
-#        if not 'avgMass' in var:
-#            self.rHistsPredUp[canName].Draw('hist same')
-#            self.rHistsPredDown[canName].Draw('hist same')
+        if not 'avgMass' in var:
+            self.rHistsPredUp[canName].Draw('hist same')
+            self.rHistsPredDown[canName].Draw('hist same')
         rHistPred.GetYaxis().SetTitle('Kin/Pred')
         rHistPred.SetMinimum(0.0)
         rHistPred.SetMaximum(1.7)

@@ -122,6 +122,12 @@ void MJ::dresser::initialize(){
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_yBins = {0,0.5,1.0,1.5,2.0};
     //ICHEP dataset
+    //Turn on uncertainties derived from 4js1VRb9bU
+    m_uncert_eta1_b0 = 0.065;
+    m_uncert_eta2_b0 = 0.055;
+    m_uncert_eta3_b0 = 0.041;
+    m_uncert_eta4_b0 = 0.058;
+
     // m_corr_eta1_b0 = {-0.0364,-0.0188,-0.02045,-0.0418,-0.03,
     // 		      0,0,0.0371,0.1198,0.0693,
     // 		      0,0.0666,0.1042,0.1014,0.127};
