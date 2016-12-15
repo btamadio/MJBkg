@@ -1,27 +1,20 @@
 #!/usr/bin/env python
-variables = ['MJ','avgMass','avgMass_eta1','avgMass_eta2','avgMass_eta3','avgMass_eta4','srYield','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']
+#variables = ['MJ','avgMass','avgMass_eta1','avgMass_eta2','avgMass_eta3','avgMass_eta4','srYield','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']
+#variables = ['MJ','avgMass','avgMass_cen','avgMass_for','srYield','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']
+variables = ['MJ','prof1d','prof1d_cen','prof1d_for','srYield','jetmass','jetmass1','jetmass2','jetmass3','jetmass4']
 regions =   ['3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
              '3jSRb0','3jSRb1','3jSRb9','3jSRbU','3jSRbM',
-             '3js0','3js1','3js2','3js0bU','3js1bU','3js2bU','3js0bM','3js1bM','3js2bM',
+             '3js0','3js1','3js2',
              '3jVRb0','3jVRb1','3jVRb9','3jVRbU','3jVRbM',
              '4jVRb0','4jVRb1','4jVRb9','4jVRbU','4jVRbM',
              '4jSRb0','4jSRb1','4jSRb9','4jSRbU','4jSRbM',
-             '4js0','4js1','4js0bU','4js1bU','4js0bM','4js1bM',
+             '4js0','4js1',
              '5jVRb0','5jVRb1','5jVRb9','5jVRbU','5jVRbM',
              '5jSRb0','5jSRb1','5jSRb9','5jSRbU','5jSRbM',
-             '5j','5jbU','5jbM']
-#jobNames = ['data_ICHEP_uncorrected','data_ICHEP_withUncert','data_ICHEP_for_bM_uncorr']
-#dates = ['11_29','11_29','11_29']
-#jobNames=['data_ICHEP_uncorrected','data_PostICHEP_uncorrected']
-#dates = ['11_29','11_29']
-#jobNames=  ['data_ICHEP_uncorrected','data_ICHEP_withUncert']
-#dates=['11_29','11_29']
-#jobNames = ['data_ICHEP_uncorrected','SignalInjection_dataICHEP_403566']
-#ates=['11_29','11_30']
-#jobNames = ['data_ICHEP_uncorrected','data_ICHEP_correct_nonmatched','data_ICHEP_correct_all']
-#dates=['11_30','12_01','12_01']
-jobNames = ['data_ICHEP_correct_all','SignalInjection_dataICHEP_403566_uncorrected','SignalInjection_dataICHEP_403566_corrected']
-dates = ['12_01','12_01','12_02']
+             '5j']
+jobNames = ['pythia_ichep']
+dates=['11_14']
+
 output = """<HTML>
 <HEAD> </HEAD>
 <BODY> 
