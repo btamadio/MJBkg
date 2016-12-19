@@ -32,13 +32,13 @@ class templateMaker:
         if self.eventStart >= nEntries:
             print 'No remainining entries. Exiting.'
             sys.exit(1)
-        print 'ptBins3 = ',self.ptBins3
-        print 'ptBins4 = ',self.ptBins4
-        print 'ptBins5 = ',self.ptBins5
-        print 'yBins   = ',self.yBins
-        print 'nEntries = %i' % nEntries
-        print 'eventStart = %i ' % self.eventStart
-        print 'eventEnd = %i ' % self.eventEnd
+#        print 'ptBins3 = ',self.ptBins3
+#        print 'ptBins4 = ',self.ptBins4
+#        print 'ptBins5 = ',self.ptBins5
+#        print 'yBins   = ',self.yBins
+#        print 'nEntries = %i' % nEntries
+#        print 'eventStart = %i ' % self.eventStart
+#        print 'eventEnd = %i ' % self.eventEnd
     def setupOutput(self):
         os.system('mkdir -p '+self.outDir)
         outFileName = self.outDir+'output_'+str(self.jobNum)+'.root'
