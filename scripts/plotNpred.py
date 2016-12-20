@@ -30,22 +30,22 @@ inFileList = sorted(glob(args.inDir+'/*.root'))
 inFileResampList = sorted(glob(args.inDirResamp+'/*.root'))
 
 mjCut = 0.6
-histName = 'h_MJ_dressNom_4jb0'
-kinHistName = 'h_MJ_kin_4jb0'
+histName = 'h_MJ_dressNom_4jb9'
+kinHistName = 'h_MJ_kin_4jb9'
 
 nPredList = []
 nPredResampList = []
 
 for fileName in inFileList:
     f = ROOT.TFile.Open(fileName)
-    h = f.Get('h_MJ_dressNom_4jb0')
+    h = f.Get('h_MJ_dressNom_4jb9')
     binLow = h.FindBin(mjCut)
     binUp = h.GetNbinsX()
     nPred = h.Integral(binLow,binUp)
     nPredList.append(nPred)
 for fileName in inFileResampList:
     f = ROOT.TFile.Open(fileName)
-    h = f.Get('h_MJ_dressNom_4jb0')
+    h = f.Get('h_MJ_dressNom_4jb9')
     binLow = h.FindBin(mjCut)
     binUp = h.GetNbinsX()
     nPred = h.Integral(binLow,binUp)

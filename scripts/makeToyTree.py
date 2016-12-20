@@ -12,13 +12,12 @@ os.system('mkdir -p '+outDir)
 outFile = ROOT.TFile.Open(outDir+'/toyTree_'+str(args.jobNum)+'.root','RECREATE')
 ptBinDict =[[0.44,0.498,0.575,0.696,2.0],
             [0.2,0.347,0.419,0.508,1.5],
-            [0.2,0.256,0.299,0.359,0.8],
-            [0.2,0.213,0.232,0.266,0.6]]
+            [0.2,0.256,0.8],
+            [0.2,0.213,0.6]]
 etaBinDict = [0.797, 0.823, 0.854, 0.859]
 h_master = inFile.Get('h_master')
 get_binary = lambda x, n: format(int(x),'b').zfill(n)
 outTree = ROOT.TTree('miniTree','miniTree')
-
 b_runNumber = array('i',[0])
 b_mcChannelNumber = array('i',[0])
 b_eventNumber=array('l',[0])
@@ -107,20 +106,44 @@ totEvents = 0
 totEventsRndm = 0
 def getPt(binStr,jetNum):
     bin = int(binStr[3*jetNum:3*jetNum+2],2)
-    ptLow = ptBinDict[jetNum][bin]
-    ptUp = ptBinDict[jetNum][bin+1]
-    return rndm.Uniform(ptLow,ptUp)
-
+    if bin < len(ptBinDict[jetNum]) - 2:
+        ptLow = ptBinDict[jetNum][bin]
+        ptUp = ptBinDict[jetNum][bin+1]
+        return rndm.Uniform(ptLow,ptUp)
+    else:
+        funcStr = 'exp(-2.16*x)'
+        if jetNum==1:
+            funcStr = 'exp(-3.3*x)'
+        elif jetNum==2:
+            funcStr = 'exp(-4.8*x)'
+        elif jetNum==3:
+            funcStr = 'exp(-8.3*x)'
+        f0 = ROOT.TF1('f0',funcStr,ptBinDict[jetNum][bin],10)
+        return f0.GetRandom()
 def getEta(binStr,jetNum):
     bin = int(binStr[3*jetNum+2],2)
-    etaLow = 0
-    etaUp = 0
     if bin == 0:
+        #first eta bin, always uniform distribution
+        etaLow = 0.0
         etaUp = etaBinDict[jetNum]
+        return rndm.Uniform(etaLow,etaUp)
     elif bin == 1:
-        etaLow = etaBinDict[jetNum]
-        etaUp = 2.0
-    return rndm.Uniform(etaLow,etaUp)
+        #second eta bin, use line
+        lineStr = '-1739*x+4978'
+        if jetNum > 2:
+            lineStr = '-1304*x+4608'
+        f2 = ROOT.TF1('f2',lineStr,etaBinDict[jetNum],2)
+        return f2.GetRandom()
+def getJetPts(binStr):
+    counter = 0
+    while True:
+        counter+=1
+        pt = [getPt(binStr,i) for i in range(4)]
+        if pt[0] > pt[1] and pt[1] > pt[2] and pt[2] > pt[3]:
+            return pt
+        if counter > 999:
+            print 'Warning: all 1000 sets of pt rejected'
+            return [999,999,999,999]
 entry = 0
 for i in range(0,h_master.GetNbinsX()):
     binStr = get_binary(i,12)
@@ -128,6 +151,8 @@ for i in range(0,h_master.GetNbinsX()):
     nEvents = rndm.Poisson(binCont)
     for j in range(0,nEvents):
         entry+=1
+        if entry % 1000 == 0:
+            print 'Generating pseudo-event number %i' % entry
         b_jet_pt.clear()
         b_jet_eta.clear()
         b_jet_phi.clear()
@@ -143,9 +168,9 @@ for i in range(0,h_master.GetNbinsX()):
         b_jet_NTrimSubjets.clear()
         b_jet_qmatched.clear()
         b_jet_gmatched.clear()
-
+        jetPtList = getJetPts(binStr)
         for jetNum in range(0,4):
-            b_jet_pt.push_back(getPt(binStr,jetNum))
+            b_jet_pt.push_back(jetPtList[jetNum])
             b_jet_eta.push_back(getEta(binStr,jetNum))
             b_jet_phi.push_back(0)
             b_jet_m.push_back(0)

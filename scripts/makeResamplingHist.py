@@ -12,21 +12,17 @@ outHist = ROOT.TH1F('h_master','h_master',4096,-0.5,4095.5)
 print 'output file: ',outFileName
 ptBinDict =[[0.498,0.575,0.696],
             [0.347,0.419,0.508],
-            [0.256,0.299,0.359],
-            [0.213,0.232,0.266]]
+            [0.256],
+            [0.213]]
 etaBinDict = [0.797, 0.823, 0.854, 0.859]
+get_binary = lambda x, n: format(int(x),'b').zfill(n)
 def getBin(pt,eta,num):
     ptBins = ptBinDict[num]
     etaBin = etaBinDict[num]
-    outStr = ''
-    if pt < ptBins[0]:
-        outStr = '00'
-    elif pt < ptBins[1]:
-        outStr = '01'
-    elif pt < ptBins[2]:
-        outStr = '10'
-    else:
-        outStr = '11'
+    outStr = '00'
+    for i in range(len(ptBins)):
+        if pt > ptBins[i]:
+            outStr = get_binary(i+1,2)
     if abs(eta) < etaBin:
         outStr+='0'
     else:
@@ -35,7 +31,6 @@ def getBin(pt,eta,num):
 inFile = ROOT.TFile.Open(args.inFile)
 t = inFile.Get('miniTree')
 nEntries = t.GetEntries()
-
 for entry in range(nEntries):
     t.GetEntry(entry)
     if entry %10000 == 0:

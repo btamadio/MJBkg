@@ -20,7 +20,7 @@ treeResamp = inFileResamp.Get('miniTree')
 
 drawStrings = ['jet_pt[0]','jet_pt[1]','jet_pt[2]','jet_pt[3]',
                'abs(jet_eta[0])','abs(jet_eta[1])','abs(jet_eta[2])','abs(jet_eta[3])']
-selString = 'njet==4 && nbjet_Fix70==0'
+selString = 'njet==4'
 xLabs = ['p_{T1} [TeV]','p_{T2} [TeV]','p_{T3} [TeV]','p_{T4} [TeV]',
          '#eta_{1}','#eta_{2}','#eta_{3}','#eta_{4}',
          'M_{J}^{#Sigma} [TeV]']
@@ -33,9 +33,9 @@ histsResamp = [ROOT.TH1F('h_re_'+str(i),'h_re_'+str(i),nBins[i],xMin[i],xMax[i])
 for i in range(len(drawStrings)):
     tree.Draw(drawStrings[i]+'>>'+'h_'+str(i),selString,'goff')
     treeResamp.Draw(drawStrings[i]+'>>'+'h_re_'+str(i),selString,'goff')
-hists.append(inFile.Get('h_MJ_dressNom_4jb0'))
-histsResamp.append(inFileResamp.Get('h_MJ_dressNom_4jb0'))
-hKin = inFile.Get('h_MJ_kin_4jb0')
+hists.append(inFile.Get('h_MJ_dressNom_4jb9'))
+histsResamp.append(inFileResamp.Get('h_MJ_dressNom_4jb9'))
+hKin = inFile.Get('h_MJ_kin_4jb9')
 cans = []
 legs = []
 
