@@ -43,7 +43,7 @@ MJ::dresser::dresser(){
   for(unsigned int i = 0; i < m_allEventRegionNames.size(); i++){
     m_allJetRegionNames.push_back(m_allEventRegionNames.at(i)+"bU");
     m_allJetRegionNames.push_back(m_allEventRegionNames.at(i)+"bM");
-    cout<<m_allEventRegionNames.at(i)<<endl;
+    //    cout<<m_allEventRegionNames.at(i)<<endl;
   }
   //Turn corrections and uncertainties off
   m_corr_eta1_b0 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -127,6 +127,11 @@ void MJ::dresser::initialize(){
     m_uncert_eta2_b0 = 0.055;
     m_uncert_eta3_b0 = 0.041;
     m_uncert_eta4_b0 = 0.058;
+
+    m_uncert_eta1_b1 = 0.065;
+    m_uncert_eta2_b1 = 0.055;
+    m_uncert_eta3_b1 = 0.041;
+    m_uncert_eta4_b1 = 0.058;
 
     // m_corr_eta1_b0 = {-0.0364,-0.0188,-0.02045,-0.0418,-0.03,
     // 		      0,0,0.0371,0.1198,0.0693,
