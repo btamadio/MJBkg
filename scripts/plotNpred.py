@@ -25,7 +25,7 @@ def err(lst):
 ROOT.gROOT.LoadMacro('/global/homes/b/btamadio/atlasstyle/AtlasStyle.C')
 ROOT.gROOT.LoadMacro('/global/homes/b/btamadio/atlasstyle/AtlasLabels.C')
 ROOT.SetAtlasStyle()
-
+ROOT.gStyle.SetOptFit()
 inFileList = sorted(glob(args.inDir+'/*.root'))
 inFileResampList = sorted(glob(args.inDirResamp+'/*.root'))
 
@@ -63,6 +63,7 @@ hist = ROOT.TH1F('h_nPred','h_nPred',nBins,xMin,xMax)
 for nPred in nPredList:
     hist.Fill(nPred)
 hist.Draw()
+hist.Fit('gaus')
 hist.GetXaxis().SetTitle('N_{pred}')
 hist.GetYaxis().SetTitle('number of toys')
 
@@ -89,6 +90,7 @@ for nPred in nPredResampList:
 histResamp.Draw()
 histResamp.GetXaxis().SetTitle('N_{pred}')
 histResamp.GetYaxis().SetTitle('number of toys')
+histResamp.Fit('gaus')
 
 outDir = '/project/projectdirs/atlas/www/multijet/RPV/btamadio/Resampling/'+args.date+'_'+args.jobName
 cmd = 'mkdir -p '+outDir
@@ -101,3 +103,6 @@ c2.Print(outDir+'/plot_Npred_resamp.C')
 os.system('chmod a+r '+outDir+'/*')
 print 'hist.Mean() = %f, histResamp.Mean() = %f' % (hist.GetMean(),histResamp.GetMean())
 print 'hist.RMS() = %f, histResamp.RMS() = %f' % (hist.GetRMS(),histResamp.GetRMS())
+
+
+
