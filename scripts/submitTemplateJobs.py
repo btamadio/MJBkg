@@ -8,6 +8,6 @@ parser.add_argument('signalLumi')
 parser.add_argument('signalNum')
 args = parser.parse_args()
 
-for i in range(0,1000):
+for i in range(0,100):
     cmd = 'qsub run_template_job.sh '+args.inFile+' '+args.jobName+' '+args.templateType+' '+str(i)+' '+args.signalLumi+' '+args.signalNum
     os.system(cmd)
