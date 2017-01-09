@@ -8,6 +8,8 @@ parser = argparse.ArgumentParser(add_help=False, description='make plots')
 parser.add_argument('inFile')
 parser.add_argument('jobName')
 parser.add_argument('date')
+parser.add_argument('mjcut')
+parser.add_argument('lumi')
 args = parser.parse_args()
 ROOT.gErrorIgnoreLevel = ROOT.kWarning
 class plotMaker:
@@ -17,9 +19,12 @@ class plotMaker:
         os.system('mkdir -p '+self.outDir)
         os.system('chmod a+rx '+self.outDir)
         self.inFile = ROOT.TFile.Open(inFile)
-        self.MJcut = mjcut
+        self.MJcut = float(mjcut)
         self.jobName = jobName
         self.lumi=lumi
+        print 'self.MJcut =',self.MJcut
+        print 'self.jobName =',self.jobName
+        print 'self.lumi =',self.lumi
         self.legs = {}
         self.cans = {}
         self.pad1s = {}
@@ -120,9 +125,9 @@ class plotMaker:
             lat.DrawLatexNDC(0.225,0.78,str(int(self.lumi))+' fb^{-1} Sherpa')
         elif 'data' in self.jobName:
             if 'PostICHEP' in self.jobName:
-                lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, 15.5 fb^{-1}')
+                lat.DrawLatexNDC(0.25,0.78,'#sqrt{s} = 13 TeV, '+str(self.lumi)+' fb^{-1}')
             elif 'ICHEP' in self.jobName:
-                lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, 14.8 fb^{-1}')
+                lat.DrawLatexNDC(0.25,0.78,'#sqrt{s} = 13 TeV, '+str(self.lumi)+' fb^{-1}')
         lat.DrawLatexNDC(0.7,0.8,'#splitline{mean = %.1f}{std = %.1f}' % (yHist.GetMean(),yHist.GetRMS()))
         outFileName = self.outDir+'/'+region+'/plot_srYield_'+region+'_'+self.jobName
         self.cans[canName].Print(outFileName+'.pdf')
@@ -236,20 +241,19 @@ class plotMaker:
             eHist.SetMinimum(yMin)
             eHist.SetMaximum(yMax)
         dHistNom.Draw('hist same')
+        #TODO: UNCOMMENT
         #draw systematic bands
         if not 'avgMass' in var:
             self.dHistsUp[canName].Draw('hist same')
             self.dHistsDown[canName].Draw('hist same')
         #blinding - add this as an option at some point
         blinded = False
-        # if 'SR' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region:
-        #     blinded = True
-        # if region is '5j' and var is 'MJ':
-        #     blinded = True
-        # if blinded:
-        #     for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
-        #         kHist.SetBinContent(bin,0)
-        #         kHist.SetBinError(bin,0)
+        if 'SR' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region and '4j' not in region:
+            blinded = True
+        if blinded:
+            for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
+                kHist.SetBinContent(bin,0)
+                kHist.SetBinError(bin,0)
         if not 'avgMass' in var:
             kHist.SetBinErrorOption(1)
         kHist.Draw('same ep')
@@ -286,16 +290,18 @@ class plotMaker:
             lat.DrawLatexNDC(0.35,0.78,str(int(self.lumi))+' fb^{-1} Sherpa')
         elif 'data' in self.jobName:
             if 'PostICHEP' in self.jobName:
-                lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, 15.5 fb^{-1}')
+                lat.DrawLatexNDC(0.25,0.78,'#sqrt{s} = 13 TeV, '+str(self.lumi)+' fb^{-1}')
             else:
-                lat.DrawLatexNDC(0.3,0.78,'#sqrt{s} = 13 TeV, 14.8 fb^{-1}')
+                lat.DrawLatexNDC(0.25,0.78,'#sqrt{s} = 13 TeV, '+str(self.lumi)+' fb^{-1}')
         if 'avgMass' in var:
             self.legs[canName] = ROOT.TLegend(0.65,0.7,0.85,0.9)
         else:            
-            self.legs[canName] = ROOT.TLegend(0.65,0.55,0.85,0.75)
+            self.legs[canName] = ROOT.TLegend(0.6,0.55,0.8,0.75)
         leg = self.legs[canName]
         leg.AddEntry(kHist,'Kinematic','LP')
-        leg.AddEntry(eHist,'Prediction','LF')
+        leg.AddEntry(eHist,'Prediction #pm 1#sigma','LF')
+        if not 'avgMass' in var:
+            leg.AddEntry(self.dHistsUp[canName],'Syst. #pm 1#sigma','L')
         leg.SetLineColor(0)
         leg.SetTextSize(0.05)
         leg.SetShadowColor(0)
@@ -392,12 +398,12 @@ class plotMaker:
         self.cans[canName].Print(outFileName+'.png')
         self.cans[canName].Print(outFileName+'.C')
         os.system('chmod a+r '+self.outDir+'/'+region+'/*')
-lumi = 14.8
-mjcut = 0.6
-if 'pythia' in args.jobName or 'sherpa' in args.jobName:
-    lumi = 35
-    mjcut = 0.8
-p=plotMaker(args.inFile,args.jobName,mjcut,args.date,lumi)
+# lumi = 14.8
+# mjcut = 0.6
+# if 'pythia' in args.jobName or 'sherpa' in args.jobName:
+#     lumi = 35
+#     mjcut = 0.8
+p=plotMaker(args.inFile,args.jobName,args.mjcut,args.date,args.lumi)
 eventRegionList = ['3jb0','3jb1','3jb9',
                    '3js0b0','3js0b1','3js0b9',
                    '3js1b0','3js1b1','3js1b9',
@@ -433,9 +439,11 @@ for region in eventRegionList:
     jetRegionList.append(region+'bU')
     jetRegionList.append(region+'bM')
 for region in eventRegionList:
+    print region,'MJ'
     p.makePlot('MJ',region)
     p.makeYieldPlot(region)
 for var in ['jetmass','jetmass1','jetmass2','jetmass3','jetmass4',
             'avgMass','avgMass_eta1','avgMass_eta2','avgMass_eta3','avgMass_eta4']:
     for region in jetRegionList:
-           p.makePlot(var,region)
+        print region,var
+        p.makePlot(var,region)
