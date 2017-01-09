@@ -281,6 +281,8 @@ class bkgPredictor:
             self.prof1Dict_eta4_kin[regionName] = f.Get('h_prof1d_eta4_kin_'+regionName)
 
             h = f.Get('h_prof1d_dress_'+regionName)
+            if not h:
+                continue
             nBins = h.GetNbinsX()
             binArray = []
             for bin in range(1,nBins+1):
@@ -313,9 +315,12 @@ class bkgPredictor:
         
         for i in range(1,len(self.dressedFileNames)):
             fi = ROOT.TFile.Open(self.dressedFileNames[i])
+            
             print 'getting response from file %s ' % self.dressedFileNames[i]
             for regionName in self.jetRegionList:
                 hDress = fi.Get('h_prof1d_dress_'+regionName)#.Clone('hDress')
+                if not hDress:
+                    continue
                 hDress_eta1 = fi.Get('h_prof1d_eta1_dress_'+regionName)#.Clone('hDress_eta1')
                 hDress_eta2 = fi.Get('h_prof1d_eta2_dress_'+regionName)#.Clone('hDress_eta2')
                 hDress_eta3 = fi.Get('h_prof1d_eta3_dress_'+regionName)#.Clone('hDress_eta3')
@@ -370,6 +375,7 @@ class bkgPredictor:
                 self.histDict_kin[regionName][histType].Scale(self.lumi)
                 self.histDict_kin[regionName][histType].Write()
         i=0
+        #TODO: loop over all files
         for fileName in self.dressedFileNames:
             print 'processing file %s' % fileName
             f = ROOT.TFile.Open(fileName)
@@ -465,9 +471,10 @@ class bkgPredictor:
                         norm /= denom
                     else:
                         norm = 0
-                        cen = mean(self.srYieldNom_listDict[regionName])
+                    cen = mean(self.srYieldNom_listDict[regionName])
                     xMin = norm*self.lumi*(cen-10*err(self.srYieldNom_listDict[regionName]))
                     xMax = norm*self.lumi*(cen+10*err(self.srYieldNom_listDict[regionName]))
+                    print regionName,xMin,xMax
                     self.srYieldNom_histDict[regionName] = ROOT.TH1F('h_srYieldNom_'+regionName,'signal yield',20,xMin,xMax)
                     self.srYieldShift_eta1_b0_histDict[regionName] = ROOT.TH1F('h_srYieldShift_eta1_b0_'+regionName,'signal yield',20,xMin,xMax)
                     self.srYieldShift_eta2_b0_histDict[regionName] = ROOT.TH1F('h_srYieldShift_eta2_b0_'+regionName,'signal yield',20,xMin,xMax)
