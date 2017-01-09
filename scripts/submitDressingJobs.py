@@ -49,12 +49,6 @@ nToys = 100
 # signalNumList = [403555,403560,403571,403605,403607,403609,403611]
 # signalLumiList = [14.8]*7
 
-# kinFileList = ['../../bkgEstimation/samples/data_ICHEP/main_data_ICHEP.root']
-# templateFileList = ['../output_templates/data_ICHEP.root']
-# jobNameList = ['data_ICHEP']
-# templateTypeList = ['0']
-# signalNumList = [0]
-# signalLumiList = [0]
 
 # kinFileList = ['../../bkgEstimation/samples/combinedMC/main_combinedMC.root']
 # templateFileList = ['../output_templates/combinedMC.root']
@@ -101,30 +95,37 @@ nToys = 100
 #signalNumList = [403587]
 #signalLumiList=[14.8]
 
-kinFileList = ['../../bkgEstimation/samples/SignalInjection_RPV10/main_SignalInjection_RPV10.root']*9
-templateFileList = ['../output_templates/SignalInjection_dataICHEP_403553.root',
-                    '../output_templates/SignalInjection_dataICHEP_403555.root',
-                    '../output_templates/SignalInjection_dataICHEP_403557.root',
-                    '../output_templates/SignalInjection_dataICHEP_403564.root',
-                    '../output_templates/SignalInjection_dataICHEP_403567.root',
-                    '../output_templates/SignalInjection_dataICHEP_403570.root',
-                    '../output_templates/SignalInjection_dataICHEP_403587.root',
-                    '../output_templates/SignalInjection_dataICHEP_403591.root',
-                    '../output_templates/SignalInjection_dataICHEP_403595.root']
-jobNameList = ['SignalInjection_dataICHEP_403553_withUncert',
-               'SignalInjection_dataICHEP_403555_withUncert',
-               'SignalInjection_dataICHEP_403557_withUncert',
-               'SignalInjection_dataICHEP_403564_withUncert',
-               'SignalInjection_dataICHEP_403567_withUncert',
-               'SignalInjection_dataICHEP_403570_withUncert',
-               'SignalInjection_dataICHEP_403587_withUncert',
-               'SignalInjection_dataICHEP_403591_withUncert',
-               'SignalInjection_dataICHEP_403595_withUncert']
-templateTypeList = ['0']*9
-signalNumList = [403553,403555,403557,
-                 403564,403567,403570,
-                 403587,403591,403595]
-signalLumiList=[14.8]*9
+# kinFileList = ['../../bkgEstimation/samples/SignalInjection_RPV10/main_SignalInjection_RPV10.root']*9
+# templateFileList = ['../output_templates/SignalInjection_dataICHEP_403553.root',
+#                     '../output_templates/SignalInjection_dataICHEP_403555.root',
+#                     '../output_templates/SignalInjection_dataICHEP_403557.root',
+#                     '../output_templates/SignalInjection_dataICHEP_403564.root',
+#                     '../output_templates/SignalInjection_dataICHEP_403567.root',
+#                     '../output_templates/SignalInjection_dataICHEP_403570.root',
+#                     '../output_templates/SignalInjection_dataICHEP_403587.root',
+#                     '../output_templates/SignalInjection_dataICHEP_403591.root',
+#                     '../output_templates/SignalInjection_dataICHEP_403595.root']
+# jobNameList = ['SignalInjection_dataICHEP_403553_withUncert',
+#                'SignalInjection_dataICHEP_403555_withUncert',
+#                'SignalInjection_dataICHEP_403557_withUncert',
+#                'SignalInjection_dataICHEP_403564_withUncert',
+#                'SignalInjection_dataICHEP_403567_withUncert',
+#                'SignalInjection_dataICHEP_403570_withUncert',
+#                'SignalInjection_dataICHEP_403587_withUncert',
+#                'SignalInjection_dataICHEP_403591_withUncert',
+#                'SignalInjection_dataICHEP_403595_withUncert']
+# templateTypeList = ['0']*9
+# signalNumList = [403553,403555,403557,
+#                  403564,403567,403570,
+#                  403587,403591,403595]
+# signalLumiList=[14.8]*9
+
+kinFileList = ['../../bkgEstimation/samples/data_ICHEP/main_data_ICHEP.root']
+templateFileList = ['../output_templates/data_ICHEP.root']
+jobNameList = ['data_ICHEP_withUncert']
+templateTypeList = ['0']
+signalNumList = [0]
+signalLumiList = [0]
 
 counter = 0
 for i in range(len(templateFileList)):
