@@ -34,8 +34,8 @@ for region in eventRegionList:
     jetRegionList.append(region)
     jetRegionList.append(region+'bU')
     jetRegionList.append(region+'bM')
-jobNames = ['data_ICHEP_withUncert']
-dates=['12_15']
+jobNames = ['data_30fb_withUncert_blinded']
+dates=['01_06']
 
 output = """<HTML>
 <HEAD> </HEAD>
