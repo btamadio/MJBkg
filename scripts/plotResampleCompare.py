@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import argparse,os,ROOT
+import argparse,os,ROOT,sys
 from array import array
 from glob import glob
 parser = argparse.ArgumentParser(add_help=False, description='compare pT, eta, and mass distributions for resampling')
@@ -43,8 +43,8 @@ outDir = '/project/projectdirs/atlas/www/multijet/RPV/btamadio/Resampling/'+args
 cmd = 'mkdir -p '+outDir
 os.system(cmd)
 fileNameList = ['pt1','pt2','pt3','pt4','eta1','eta2','eta3','eta4','MJ']
-
 for i in range(len(hists)):
+#for i in range(8):
     cans.append(ROOT.TCanvas('c_'+str(i),'c_'+str(i),800,600))
     cans[-1].cd()
     if i<4:
