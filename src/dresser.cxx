@@ -73,8 +73,108 @@ void MJ::dresser::injectSignal(int signalNum, float signalLumi){
   m_signalInjected = true;
   m_signalNum = signalNum;
   m_signalLumi = signalLumi;
+
+  if(m_signalNum == 403553){
+    m_uncert_eta1_b0 =  0.0785742236138 ;
+    m_uncert_eta2_b0 =  0.064249580548 ;
+    m_uncert_eta3_b0 =  0.0412591729053 ;
+    m_uncert_eta4_b0 =  0.0654129776769 ;
+    m_uncert_eta1_b1 =  0.25697299998 ;
+    m_uncert_eta2_b1 =  0.178275366047 ;
+    m_uncert_eta3_b1 =  0.137180299553 ;
+    m_uncert_eta4_b1 =  0.155853953026 ;
+  }
+  else if(m_signalNum == 403555){
+    m_uncert_eta1_b0 =  0.092078359181 ;
+    m_uncert_eta2_b0 =  0.0745009898683 ;
+    m_uncert_eta3_b0 =  0.0439696610383 ;
+    m_uncert_eta4_b0 =  0.0675131741705 ;
+    m_uncert_eta1_b1 =  0.288304835371 ;
+    m_uncert_eta2_b1 =  0.248771564937 ;
+    m_uncert_eta3_b1 =  0.13496116668 ;
+    m_uncert_eta4_b1 =  0.167862332981 ;
+  }
+  else if(m_signalNum == 403557){
+    m_uncert_eta1_b0 =  0.0877628118615 ;
+    m_uncert_eta2_b0 =  0.0703263462104 ;
+    m_uncert_eta3_b0 =  0.0406460948833 ;
+    m_uncert_eta4_b0 =  0.067875653102 ;
+    m_uncert_eta1_b1 =  0.253996184188 ;
+    m_uncert_eta2_b1 =  0.271480703474 ;
+    m_uncert_eta3_b1 =  0.116542344393 ;
+    m_uncert_eta4_b1 =  0.165788627718 ;
+  }
+  else if(m_signalNum == 403564){
+    m_uncert_eta1_b0 =  0.0760983589108 ;
+    m_uncert_eta2_b0 =  0.0628149197308 ;
+    m_uncert_eta3_b0 =  0.03942940977 ;
+    m_uncert_eta4_b0 =  0.0650079362413 ;
+    m_uncert_eta1_b1 =  0.245954098902 ;
+    m_uncert_eta2_b1 =  0.179324727477 ;
+    m_uncert_eta3_b1 =  0.138963496328 ;
+    m_uncert_eta4_b1 =  0.145486068103 ;
+  }
+  else if(m_signalNum==403567){
+    m_uncert_eta1_b0 =  0.0729246756683 ;
+    m_uncert_eta2_b0 =  0.0618618972502 ;
+    m_uncert_eta3_b0 =  0.0418112570073 ;
+    m_uncert_eta4_b0 =  0.0646063739277 ;
+    m_uncert_eta1_b1 =  0.26233920897 ;
+    m_uncert_eta2_b1 =  0.205209930226 ;
+    m_uncert_eta3_b1 =  0.133307189061 ;
+    m_uncert_eta4_b1 =  0.170963153465 ;
+  }
+  else if(m_signalNum == 403570){
+    m_uncert_eta1_b0 =  0.0762503171171 ;
+    m_uncert_eta2_b0 =  0.0622057203723 ;
+    m_uncert_eta3_b0 =  0.0415483304151 ;
+    m_uncert_eta4_b0 =  0.0626045129744 ;
+    m_uncert_eta1_b1 =  0.263316169944 ;
+    m_uncert_eta2_b1 =  0.182770024995 ;
+    m_uncert_eta3_b1 =  0.134997674242 ;
+    m_uncert_eta4_b1 =  0.15689634846 ;
+  }
+  else if (m_signalNum == 403587){
+    m_uncert_eta1_b0 =  0.0718492945845 ;
+    m_uncert_eta2_b0 =  0.061039621083 ;
+    m_uncert_eta3_b0 =  0.0380999063189 ;
+    m_uncert_eta4_b0 =  0.0627015045999 ;
+    m_uncert_eta1_b1 =  0.262751545659 ;
+    m_uncert_eta2_b1 =  0.201291052662 ;
+    m_uncert_eta3_b1 =  0.137313482736 ;
+    m_uncert_eta4_b1 =  0.157365571844 ;
+  }
+  else if(m_signalNum==403591){
+    m_uncert_eta1_b0 =  0.0692154529887 ;
+    m_uncert_eta2_b0 =  0.0589087257546 ;
+    m_uncert_eta3_b0 =  0.0391125662931 ;
+    m_uncert_eta4_b0 =  0.0637459763128 ;
+    m_uncert_eta1_b1 =  0.260949183082 ;
+    m_uncert_eta2_b1 =  0.174211451578 ;
+    m_uncert_eta3_b1 =  0.137472869494 ;
+    m_uncert_eta4_b1 =  0.163095316866 ;
+  }
+  else if(m_signalNum==403595){
+    m_uncert_eta1_b0 =  0.0716624758545 ;
+    m_uncert_eta2_b0 =  0.0614986650733 ;
+    m_uncert_eta3_b0 =  0.0404930822889 ;
+    m_uncert_eta4_b0 =  0.0653609347351 ;
+    m_uncert_eta1_b1 =  0.25817114456 ;
+    m_uncert_eta2_b1 =  0.179241725243 ;
+    m_uncert_eta3_b1 =  0.134992410277 ;
+    m_uncert_eta4_b1 =  0.159517096994 ;
+  }
 }
 void MJ::dresser::initialize(){
+  cout<<"Applying the following uncertainties:"<<endl;
+  cout<<"    m_uncert_eta1_b0 = "<<m_uncert_eta1_b0<<endl;
+  cout<<"    m_uncert_eta2_b0 = "<<m_uncert_eta2_b0<<endl;
+  cout<<"    m_uncert_eta3_b0 = "<<m_uncert_eta3_b0<<endl;
+  cout<<"    m_uncert_eta4_b0 = "<<m_uncert_eta4_b0<<endl;
+  cout<<"    m_uncert_eta1_b1 = "<<m_uncert_eta1_b1<<endl;
+  cout<<"    m_uncert_eta2_b1 = "<<m_uncert_eta2_b1<<endl;
+  cout<<"    m_uncert_eta3_b1 = "<<m_uncert_eta3_b1<<endl;
+  cout<<"    m_uncert_eta4_b1 = "<<m_uncert_eta4_b1<<endl;
   //Open minitree file and load miniTree
   m_miniTreeFile = TFile::Open(m_miniTreeFileName.c_str());
   if (!m_miniTreeFile){
@@ -121,74 +221,29 @@ void MJ::dresser::initialize(){
     m_ptBins4 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_yBins = {0,0.5,1.0,1.5,2.0};
+
+
+
     //ICHEP dataset
-    //Turn on uncertainties derived from 4js1VRb9bU
-    m_uncert_eta1_b0 = 0.065;
-    m_uncert_eta2_b0 = 0.055;
-    m_uncert_eta3_b0 = 0.041;
-    m_uncert_eta4_b0 = 0.058;
+    //Turn on uncertainties derived from 4js1VRb9bU and 4js1VRb9bM
+    // m_uncert_eta1_b0 =  0.0737797596282 ;
+    // m_uncert_eta2_b0 =  0.0517731839566 ;
+    // m_uncert_eta3_b0 =  0.0353641177501 ;
+    // m_uncert_eta4_b0 =  0.0408826138381 ;
+    // m_uncert_eta1_b1 =  0.142417736724 ;
+    // m_uncert_eta2_b1 =  0.117140877143 ;
+    // m_uncert_eta3_b1 =  0.105112534795 ;
+    // m_uncert_eta4_b1 =  0.143027092743 ;
 
-    m_uncert_eta1_b1 = 0.065;
-    m_uncert_eta2_b1 = 0.055;
-    m_uncert_eta3_b1 = 0.041;
-    m_uncert_eta4_b1 = 0.058;
-
-    // m_corr_eta1_b0 = {-0.0364,-0.0188,-0.02045,-0.0418,-0.03,
-    // 		      0,0,0.0371,0.1198,0.0693,
-    // 		      0,0.0666,0.1042,0.1014,0.127};
-    // m_corr_eta2_b0 = {0, 0, 0, 0, 0, 
-    // 		      0, 0, 0, 0, 0.119, 
-    // 		      0.0403, 0.0821, 0, 0, 0};
-    // m_corr_eta3_b0 = {-0.0294,-0.0287,-0.0442, 0, 0, 
-    // 		      0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    // m_corr_eta4_b0 = {0, 0, 0, 0, 0, 
-    // 		      0, 0, 0, 0, 0, 
-    // 		      0, 0.0674, 0.0964, 0.0979,0};
-    // m_corr_eta1_b1 = {-0.0598, -0.0810, -0.1392, 0, 0, 
-    // 		      0, 0, 0, 0, 0, 
-    // 		      0, 0.2286, 0.1249, 0.2038, 0};
-    // m_corr_eta2_b1 = {-0.0936, -0.1446, -0.08927, 0, 
-    // 		      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    // m_corr_eta3_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    // m_corr_eta4_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    // m_uncert_eta1_b0 = 0.0241;
-    // m_uncert_eta2_b0 = 0.0833;
-    // m_uncert_eta3_b0 = 0.0789;
-    // m_uncert_eta4_b0 = 0.0668;
-    // m_uncert_eta1_b1 = 0.1545;
-    // m_uncert_eta2_b1 = 0.1821;
-    // m_uncert_eta3_b1 = 0.1591;
-    // m_uncert_eta4_b1 = 0.2522;
-
-    //ICHEP dataset with 403566 injected
-    // m_corr_eta1_b0 = {0, 0, 0, 0, 0, 
-    // 		      0, 0, 0.0344, 0.120, 0.0786, 
-    // 		      0.0317, 0.0901, 0.124, 0.1257, 0.1986};
-    // m_corr_eta2_b0 = {0, 0, 0, 0, 0, 
-    // 		      0, 0, 0, 0, 0.1246, 
-    // 		      0.0489, 0.0933, 0.0464, 0.0520, 0.127};
-    // m_corr_eta3_b0 = {-0.027, -0.0278, -0.041, 0, 0, 
-    // 		      0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    // m_corr_eta4_b0 = {0,0,0,0,0,
-    // 		      0,0,0,0,0,
-    // 		      0,0,0,0,0};
-    // m_corr_eta1_b1 = {-0.0594, -0.0752, -0.1328, 0, 0, 
-    // 		      0, 0, 0, 0, 0.1613, 
-    // 		      0.1210, 0.2361, 0.1754, 0.2611, 0.1029};
-    // m_corr_eta2_b1 = {-0.1032, -0.1508, -0.0728, 0, 0, 
-    // 		      0, 0, 0, 0, 0, 
-    // 		      0, 0.1921, 0.1147, 0.2487, 0};
-    // m_corr_eta3_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    // m_corr_eta4_b1 = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-    // m_uncert_eta1_b0 = .0398;
-    // m_uncert_eta2_b0 = .0217;
-    // m_uncert_eta3_b0 = .0944;
-    // m_uncert_eta4_b0 = .099;
-    // m_uncert_eta1_b1 = .1681;
-    // m_uncert_eta2_b1 = .1623;
-    // m_uncert_eta3_b1 = .1846;
-    // m_uncert_eta4_b1 = .2954;
+    //Pythia MC
+    // m_uncert_eta1_b0 =  0.0982161391755 ;
+    // m_uncert_eta2_b0 =  0.137968487372 ;
+    // m_uncert_eta3_b0 =  0.0582116769559 ;
+    // m_uncert_eta4_b0 =  0.102420347557 ;
+    // m_uncert_eta1_b1 =  0.388618739687 ;
+    // m_uncert_eta2_b1 =  0.335133822192 ;
+    // m_uncert_eta3_b1 =  0.456537745303 ;
+    // m_uncert_eta4_b1 =  0.307089372309 ;
   }
   if(m_templateType == 1){
     //pt/BDT/b-match binning
@@ -334,6 +389,7 @@ void MJ::dresser::loop(){
     }
     m_miniTree.GetEntry(entry);
     float wt = m_miniTree.weight*m_miniTree.bSF_70;
+    if(m_miniTree.eventNumber==1884202){ wt = 0; }
     if(m_signalInjected and m_miniTree.mcChannelNumber > 0){
       //This is a signal event so scale up by luminosity if it's the right DSID
       if ( m_miniTree.mcChannelNumber == m_signalNum ){
