@@ -2,7 +2,7 @@
 import ROOT,sys,math,os,pprint
 from controlDict import controlDict
 class templateMaker:
-    def __init__(self,inFileName,jobName,templateType,jobNum,signalLumi,signalNum,nSplit=1000):
+    def __init__(self,inFileName,jobName,templateType,jobNum,signalLumi,signalNum,nSplit=100):
         self.nBins = 50
         self.xMin = -7
         self.xMax = 0
