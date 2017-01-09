@@ -111,13 +111,13 @@ def getPt(binStr,jetNum):
         ptUp = ptBinDict[jetNum][bin+1]
         return rndm.Uniform(ptLow,ptUp)
     else:
-        funcStr = 'exp(-2.16*x)'
+        funcStr = 'exp(-5.96*x)'
         if jetNum==1:
-            funcStr = 'exp(-3.3*x)'
+            funcStr = 'exp(-3.8*x)'
         elif jetNum==2:
             funcStr = 'exp(-4.8*x)'
         elif jetNum==3:
-            funcStr = 'exp(-8.3*x)'
+            funcStr = 'exp(-9.3*x)'
         f0 = ROOT.TF1('f0',funcStr,ptBinDict[jetNum][bin],10)
         return f0.GetRandom()
 def getEta(binStr,jetNum):
