@@ -248,8 +248,8 @@ class plotMaker:
             self.dHistsDown[canName].Draw('hist same')
         #blinding - add this as an option at some point
         blinded = False
-        if 'SR' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region and '4j' not in region:
-            blinded = True
+#        if 'SR' in region and var is 'MJ' and 'data' in self.jobName and '3j' not in region and '4j' not in region:
+#            blinded = True
         if blinded:
             for bin in range(kHist.FindBin(self.MJcut),kHist.GetNbinsX()+1):
                 kHist.SetBinContent(bin,0)

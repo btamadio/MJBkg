@@ -166,15 +166,6 @@ void MJ::dresser::injectSignal(int signalNum, float signalLumi){
   }
 }
 void MJ::dresser::initialize(){
-  cout<<"Applying the following uncertainties:"<<endl;
-  cout<<"    m_uncert_eta1_b0 = "<<m_uncert_eta1_b0<<endl;
-  cout<<"    m_uncert_eta2_b0 = "<<m_uncert_eta2_b0<<endl;
-  cout<<"    m_uncert_eta3_b0 = "<<m_uncert_eta3_b0<<endl;
-  cout<<"    m_uncert_eta4_b0 = "<<m_uncert_eta4_b0<<endl;
-  cout<<"    m_uncert_eta1_b1 = "<<m_uncert_eta1_b1<<endl;
-  cout<<"    m_uncert_eta2_b1 = "<<m_uncert_eta2_b1<<endl;
-  cout<<"    m_uncert_eta3_b1 = "<<m_uncert_eta3_b1<<endl;
-  cout<<"    m_uncert_eta4_b1 = "<<m_uncert_eta4_b1<<endl;
   //Open minitree file and load miniTree
   m_miniTreeFile = TFile::Open(m_miniTreeFileName.c_str());
   if (!m_miniTreeFile){
@@ -222,18 +213,16 @@ void MJ::dresser::initialize(){
     m_ptBins5 = {0.2,0.221,0.244,0.270,0.293,0.329,0.364,0.402,0.445,0.492,0.544,0.6,0.644,0.733,0.811,0.896};
     m_yBins = {0,0.5,1.0,1.5,2.0};
 
-
-
     //ICHEP dataset
     //Turn on uncertainties derived from 4js1VRb9bU and 4js1VRb9bM
-    // m_uncert_eta1_b0 =  0.0737797596282 ;
-    // m_uncert_eta2_b0 =  0.0517731839566 ;
-    // m_uncert_eta3_b0 =  0.0353641177501 ;
-    // m_uncert_eta4_b0 =  0.0408826138381 ;
-    // m_uncert_eta1_b1 =  0.142417736724 ;
-    // m_uncert_eta2_b1 =  0.117140877143 ;
-    // m_uncert_eta3_b1 =  0.105112534795 ;
-    // m_uncert_eta4_b1 =  0.143027092743 ;
+    m_uncert_eta1_b0 =  0.0737797596282 ;
+    m_uncert_eta2_b0 =  0.0517731839566 ;
+    m_uncert_eta3_b0 =  0.0353641177501 ;
+    m_uncert_eta4_b0 =  0.0408826138381 ;
+    m_uncert_eta1_b1 =  0.142417736724 ;
+    m_uncert_eta2_b1 =  0.117140877143 ;
+    m_uncert_eta3_b1 =  0.105112534795 ;
+    m_uncert_eta4_b1 =  0.143027092743 ;
 
     //Pythia MC
     // m_uncert_eta1_b0 =  0.0982161391755 ;
@@ -243,7 +232,18 @@ void MJ::dresser::initialize(){
     // m_uncert_eta1_b1 =  0.388618739687 ;
     // m_uncert_eta2_b1 =  0.335133822192 ;
     // m_uncert_eta3_b1 =  0.456537745303 ;
+
     // m_uncert_eta4_b1 =  0.307089372309 ;
+  cout<<"Applying the following uncertainties:"<<endl;
+  cout<<"    m_uncert_eta1_b0 = "<<m_uncert_eta1_b0<<endl;
+  cout<<"    m_uncert_eta2_b0 = "<<m_uncert_eta2_b0<<endl;
+  cout<<"    m_uncert_eta3_b0 = "<<m_uncert_eta3_b0<<endl;
+  cout<<"    m_uncert_eta4_b0 = "<<m_uncert_eta4_b0<<endl;
+  cout<<"    m_uncert_eta1_b1 = "<<m_uncert_eta1_b1<<endl;
+  cout<<"    m_uncert_eta2_b1 = "<<m_uncert_eta2_b1<<endl;
+  cout<<"    m_uncert_eta3_b1 = "<<m_uncert_eta3_b1<<endl;
+  cout<<"    m_uncert_eta4_b1 = "<<m_uncert_eta4_b1<<endl;
+
   }
   if(m_templateType == 1){
     //pt/BDT/b-match binning
